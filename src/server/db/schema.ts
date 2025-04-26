@@ -15,12 +15,11 @@ export const createTable = pgTableCreator((name) => `growcery_${name}`);
 export const users = createTable("users", (d) => ({
   id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
   authProviderId: d.varchar({ length: 512 }),
-  full_name: d.varchar({ length: 256 }).notNull(),
+  fullName: d.varchar({ length: 256 }).notNull(),
   email: d.varchar({ length: 512 }).notNull(),
   functionId: d.integer(),
   managerId: d.integer(),
   orgUnitId: d.integer(),
-  lastLoginAt: d.timestamp({ withTimezone: true }),
   createdAt: d
     .timestamp({ withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
