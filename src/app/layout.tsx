@@ -2,7 +2,7 @@ import "~/styles/globals.css";
 
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
-import { ClerkProvider } from "@clerk/nextjs";
+import { ClerkProvider, SignedIn, SignedOut } from "@clerk/nextjs";
 import { TopNav } from "./_components/topnav";
 
 export const metadata: Metadata = {
@@ -25,7 +25,16 @@ export default function RootLayout({
         <body className="dark">
           <div className="h-screen w-screen">
             <TopNav />
-            <main className="flex h-full w-full flex-col">{children}</main>
+
+            <main className="flex h-full w-full flex-col">
+              <SignedOut>
+                <div className="h-full w-full p-4 text-center text-3xl">
+                  Please sign in above
+                </div>
+              </SignedOut>
+
+              <SignedIn>{children}</SignedIn>
+            </main>
           </div>
         </body>
       </html>
