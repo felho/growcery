@@ -7,7 +7,9 @@ export function TopNav() {
 
       <div className="flex flex-row items-center gap-4">
         <SignedOut>
-          <SignInButton />
+          <div className="[&>*]:cursor-pointer">
+            <SignInButton />
+          </div>
         </SignedOut>
         <SignedIn>
           <UserButton />
