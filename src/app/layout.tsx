@@ -2,6 +2,8 @@ import "~/styles/globals.css";
 
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
+import { TopNav } from "./_components/topnav";
 
 export const metadata: Metadata = {
   title: "GROWcery",
@@ -18,8 +20,15 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${geist.variable}`}>
-      <body>{children}</body>
-    </html>
+    <ClerkProvider>
+      <html lang="en" className={`${geist.variable}`}>
+        <body className="dark">
+          <div className="h-screen w-screen">
+            <TopNav />
+            <main className="flex h-full w-full flex-col">{children}</main>
+          </div>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
