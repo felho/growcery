@@ -13,14 +13,14 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
 
   const navItems = [
     {
-      name: "Home",
-      path: "/",
-      icon: <HomeIcon className="h-5 w-5" />,
-    },
-    {
       name: "Admin",
       path: "/admin",
       icon: <AdminIcon className="h-5 w-5" />,
+    },
+    {
+      name: "Home",
+      path: "/",
+      icon: <HomeIcon className="h-5 w-5" />,
     },
   ];
 
