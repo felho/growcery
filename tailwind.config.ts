@@ -6,11 +6,16 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: {
-          DEFAULT: "hsl(var(--background))",
+        border: "hsl(var(--border))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(122 50% 45%)",
+          foreground: "hsl(0 0% 98%)",
         },
-        foreground: {
-          DEFAULT: "hsl(var(--foreground))",
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
         },
       },
       fontFamily: {

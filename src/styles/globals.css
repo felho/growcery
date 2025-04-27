@@ -9,6 +9,12 @@
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
+    --primary: 122 50% 45%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+
     --font-sans:
       var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
       "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
@@ -35,6 +41,19 @@
 }
 
 @layer components {
+  .sidebar-item {
+    @apply flex cursor-pointer items-center gap-2 rounded-md p-2 text-sm font-medium transition-colors;
+    background-color: transparent;
+  }
+
+  .sidebar-item:hover {
+    background-color: hsl(var(--secondary));
+  }
+
+  .sidebar-item.active {
+    background-color: hsl(var(--secondary));
+    color: hsl(var(--primary));
+  }
 }
 
 @layer utilities {
