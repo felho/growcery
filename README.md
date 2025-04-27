@@ -16,3 +16,4 @@
 - [ ] I was not able to call "await syncUserToDb()" inside the TSX in the layout. Moving before the return statement wouldn't work, as I wanted to rely on the SignedIn provider. This is why I decided to move it to the `<SyncUser />` component.
 - [ ] Originally T3 stack created a JS tailwind config, I changed that to TS.
 - [ ] I used originally not fully consciously the "dark" mode. It is applied through class on the body tag. The design I am building is dark, and the light version is not designed. So for now, I add all the color definitions to both the `:root` and `.dark` in the global.css. I assume, this way it will be easy to see which colors have to be adjusted to create a light version.
+- [ ] Adding shadcn to the app was a bit painful, as it overwrites some of the colors I already used in the app. Currently, I decided, that the way I approach this is commenting out those parts of the CSS installed by shadcn which I defined already.
