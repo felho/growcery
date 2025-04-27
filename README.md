@@ -21,6 +21,8 @@
 - [ ] The slade-in animation in the case of Sidebar through className.
 - [ ] The fade-in animation in admin/page.tsx.
 - [ ] Uninstall tailwindcss-animate and remove it from tailwind config. (I have it now only for debug purposes.)
+- [ ] Check pnpm audit --> Figure out how to manage updates properly.
+- [ ] Check pnpm outdated --> Figure out how to manage updates properly.
 
 ## Decisions for feedback
 
