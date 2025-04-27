@@ -4,6 +4,12 @@
 
 - [x] Rename files: topnav to top-nav, syncuser to sync-user
 
+### Small improvement ideas
+
+- [ ] Check the clsx package, it could simplify writing className related logic
+- [ ] Check whether a useHasInteracted() hook is better solution then the useHasInteracted() parameter
+- [ ] Check this idea: in the case a component has more paramters, defaultProps pattern or NextJS's withDefaults helper could be better.
+
 ### Login / user management
 
 - [ ] Saving user is not perfect now, it is possible that a user is created already, but not yet logged in, so we need to first check whether a user with the email address exists or not.
@@ -17,3 +23,4 @@
 - [ ] Originally T3 stack created a JS tailwind config, I changed that to TS.
 - [ ] I used originally not fully consciously the "dark" mode. It is applied through class on the body tag. The design I am building is dark, and the light version is not designed. So for now, I add all the color definitions to both the `:root` and `.dark` in the global.css. I assume, this way it will be easy to see which colors have to be adjusted to create a light version.
 - [ ] Adding shadcn to the app was a bit painful, as it overwrites some of the colors I already used in the app. Currently, I decided, that the way I approach this is commenting out those parts of the CSS installed by shadcn which I defined already.
+- [ ] I was not able to figure out why text-primary is white here: `<h1 className="text-primary text-xl font-semibold text-[hsl(122,50%,45%)]">`, so I decided to temporarily set the color explicetly.
