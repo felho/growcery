@@ -16,6 +16,12 @@
 - [ ] User has to be added to the default organization until multiple ones are supported
 - [ ] We need to work out how a user is connected to an organization
 
+### Thing I was not able to do, so needs to be fixed later
+
+- [ ] The slade-in animation in the case of Sidebar through className.
+- [ ] The fade-in animation in admin/page.tsx.
+- [ ] Uninstall tailwindcss-animate and remove it from tailwind config. (I have it now only for debug purposes.)
+
 ## Decisions for feedback
 
 - [ ] I wanted to ensure in one place that if a user is not signed in, then they can't reach other parts of the app except the home page. I tried to do this with in the middleware.ts, but redirecting there resulted in error. Then I tried to do it in the layout, but it turned out that it not sure that a request is chained through the layout (like a middleware), so I dropped that idea. Finally, I managed to do it in the layout with the SignedIn and SingnedOut providers provided by Clerk.
