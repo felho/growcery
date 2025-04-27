@@ -4,6 +4,7 @@ import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 import { ClerkProvider, SignedIn, SignedOut } from "@clerk/nextjs";
 import { TopNav } from "./_components/topnav";
+import { SyncUser } from "./_components/syncuser";
 
 export const metadata: Metadata = {
   title: "GROWcery",
@@ -33,7 +34,10 @@ export default function RootLayout({
                 </div>
               </SignedOut>
 
-              <SignedIn>{children}</SignedIn>
+              <SignedIn>
+                <SyncUser />
+                {children}
+              </SignedIn>
             </main>
           </div>
         </body>
