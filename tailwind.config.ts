@@ -21,9 +21,26 @@ const config: Config = {
       fontFamily: {
         sans: "var(--font-sans)",
       },
+      keyframes: {
+        wiggle: {
+          "0%, 100%": { transform: "rotate(-5deg)" },
+          "50%": { transform: "rotate(5deg)" },
+        },
+      },
+      animation: {
+        wiggle: "wiggle 0.5s ease-in-out infinite",
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    require("tailwindcss-animate")({
+      classes: ["animate__animated", "animate__bounce"],
+      settings: {
+        animatedSpeed: 1000,
+      },
+      variants: ["responsive", "hover", "reduced-motion"],
+    }),
+  ],
 };
 
 export default config;
