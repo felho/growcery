@@ -24,10 +24,12 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
     },
   ];
 
-  if (!isOpen) return null;
-
   return (
-    <aside className="border-border animate-slide-in fixed h-[calc(100%-4rem)] w-64 overflow-y-auto border-r">
+    <aside
+      className={`border-border animate-slide-in fixed top-16 h-[calc(100%-4rem)] w-64 overflow-y-auto border-r transition-transform duration-300 ${
+        isOpen ? "translate-x-0" : "-translate-x-full"
+      }`}
+    >
       <div className="p-4">
         <nav className="mt-4 space-y-1">
           {navItems.map((item) => {

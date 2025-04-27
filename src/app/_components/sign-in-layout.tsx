@@ -1,12 +1,18 @@
 "use client";
 
+import { TopNav } from "./top-nav";
+
 const SignInLayout = () => {
   return (
-    <main className="flex h-full w-full flex-col">
-      <div className="h-full w-full p-4 text-center text-3xl">
-        Please sign in above
+    <div className="bg-background text-foreground flex h-screen flex-col">
+      <TopNav toggleSidebar={() => {}} />
+
+      <div className="flex flex-1 overflow-hidden">
+        <main className="flex h-full w-full items-center justify-center text-center">
+          <div className="text-center text-3xl">Please sign in above</div>
+        </main>
       </div>
-    </main>
+    </div>
   );
 };
 

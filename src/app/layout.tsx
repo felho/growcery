@@ -26,20 +26,14 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" className={`${geist.variable}`}>
         <body className="dark">
-          <div className="flex h-screen flex-col">
-            <TopNav />
+          <SignedOut>
+            <SignInLayout />
+          </SignedOut>
 
-            <div className="flex flex-1 overflow-hidden">
-              <SignedOut>
-                <SignInLayout />
-              </SignedOut>
-
-              <SignedIn>
-                <SyncUser />
-                <MainLayout>{children}</MainLayout>
-              </SignedIn>
-            </div>
-          </div>
+          <SignedIn>
+            <SyncUser />
+            <MainLayout>{children}</MainLayout>
+          </SignedIn>
         </body>
       </html>
     </ClerkProvider>
