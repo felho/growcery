@@ -2,7 +2,7 @@
 
 ### Small todos
 
-- [ ] Rename files: topnav to top-nav, syncuser to sync-user
+- [x] Rename files: topnav to top-nav, syncuser to sync-user
 
 ### Login / user management
 
