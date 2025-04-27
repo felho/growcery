@@ -2,7 +2,7 @@ import { SignedOut, SignedIn, SignInButton, UserButton } from "@clerk/nextjs";
 
 export function TopNav() {
   return (
-    <nav className="flex w-full items-center justify-between border-b p-4 text-xl font-semibold">
+    <nav className="bg-background border-border flex h-16 items-center justify-between border-b px-4">
       <div>🌱 GROWcery 🌱</div>
 
       <div className="flex flex-row items-center gap-4">
