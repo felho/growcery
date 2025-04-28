@@ -19,7 +19,7 @@ export default function QuickAction({ icon, label, route }: QuickActionProps) {
   return (
     <Button
       variant="outline"
-      className="border-border hover:border-primary hover:bg-primary/10 border transition-all"
+      className="border-border hover:!border-primary hover:!bg-primary/10 cursor-pointer border transition-all"
       onClick={handleClick}
     >
       {icon}
