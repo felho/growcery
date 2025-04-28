@@ -3,7 +3,6 @@ import "~/styles/globals.css";
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 import { ClerkProvider, SignedIn, SignedOut } from "@clerk/nextjs";
-import { TopNav } from "./_components/top-nav";
 import { SyncUser } from "./_components/sync-user";
 import MainLayout from "./_components/main-layout";
 import SignInLayout from "./_components/sign-in-layout";
