@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import tailwindAnimate from "tailwindcss-animate";
 
 const config: Config = {
   content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
@@ -52,15 +53,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [
-    require("tailwindcss-animate")({
-      classes: ["animate__animated", "animate__bounce"],
-      settings: {
-        animatedSpeed: 1000,
-      },
-      variants: ["responsive", "hover", "reduced-motion"],
-    }),
-  ],
+  plugins: [tailwindAnimate],
 };
 
 export default config;

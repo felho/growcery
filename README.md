@@ -34,4 +34,4 @@
 - [ ] I was not able to figure out why text-primary is white here: `<h1 className="text-primary text-xl font-semibold text-[hsl(122,50%,45%)]">`, so I decided to temporarily set the color explicetly.
 - [ ] When I implemented the sidebar toggle functionality, I needed to use useState. But it can only be used in a client component, so I was not able to use it in the top layout. So I needed to move `<TopNav />` to the `<MainLayout />`. This component is needed on the Sign In state as well, so I also needed to add to `<SignInLayout />` as well.
 - [ ] In the original design the `<Sidebar />` toggle was implemented through `className`: `animate-slide-in`, and the related configuration was in Tailwind config. It didn't work for me at that point. It would be interesting to figure out how this can work that way.
-- [ ] I had another issue with Tailwind animation. It didn't work automatically. It would be important to figure out why it didn't work.
+- [x] I had another issue with Tailwind animation. It didn't work automatically. It would be important to figure out why it didn't work.
