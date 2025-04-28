@@ -23,6 +23,7 @@
 - [ ] Uninstall tailwindcss-animate and remove it from tailwind config. (I have it now only for debug purposes.)
 - [ ] Check pnpm audit --> Figure out how to manage updates properly.
 - [ ] Check pnpm outdated --> Figure out how to manage updates properly.
+- [ ] The breadcrumbs component is not yet flexible enough.
 
 ## Decisions for feedback
 
@@ -30,8 +31,4 @@
 - [ ] I was not able to call "await syncUserToDb()" inside the TSX in the layout. Moving before the return statement wouldn't work, as I wanted to rely on the SignedIn provider. This is why I decided to move it to the `<SyncUser />` component.
 - [ ] Originally T3 stack created a JS tailwind config, I changed that to TS.
 - [ ] I used originally not fully consciously the "dark" mode. It is applied through class on the body tag. The design I am building is dark, and the light version is not designed. So for now, I add all the color definitions to both the `:root` and `.dark` in the global.css. I assume, this way it will be easy to see which colors have to be adjusted to create a light version.
-- [ ] Adding shadcn to the app was a bit painful, as it overwrites some of the colors I already used in the app. Currently, I decided, that the way I approach this is commenting out those parts of the CSS installed by shadcn which I defined already.
-- [ ] I was not able to figure out why text-primary is white here: `<h1 className="text-primary text-xl font-semibold text-[hsl(122,50%,45%)]">`, so I decided to temporarily set the color explicetly.
 - [ ] When I implemented the sidebar toggle functionality, I needed to use useState. But it can only be used in a client component, so I was not able to use it in the top layout. So I needed to move `<TopNav />` to the `<MainLayout />`. This component is needed on the Sign In state as well, so I also needed to add to `<SignInLayout />` as well.
-- [ ] In the original design the `<Sidebar />` toggle was implemented through `className`: `animate-slide-in`, and the related configuration was in Tailwind config. It didn't work for me at that point. It would be interesting to figure out how this can work that way.
-- [x] I had another issue with Tailwind animation. It didn't work automatically. It would be important to figure out why it didn't work.
