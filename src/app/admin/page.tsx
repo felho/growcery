@@ -8,8 +8,16 @@ import {
   FolderSymlink as FolderSymlinkIcon,
 } from "lucide-react";
 import { activities, functions, orgUnits, users } from "~/data/mockData";
-import StatCard from "./_components/StatCard";
+import StatCard from "./_components/stat-card";
 import Link from "next/link";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+import QuickAction from "./_components/quick-action";
 
 export default function AdminPage() {
   return (
@@ -45,6 +53,35 @@ export default function AdminPage() {
           route="/admin/users"
         />
       </div>
+
+      {/* Quick Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+          <CardDescription>
+            Common operations you might want to perform
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-3">
+            <QuickAction
+              icon={<PlusCircleIcon className="h-4 w-4" />}
+              label="Add Function"
+              route="/admin/functions/add"
+            />
+            <QuickAction
+              icon={<FolderSymlinkIcon className="h-4 w-4" />}
+              label="Create Org Unit"
+              route="/admin/org-units/add"
+            />
+            <QuickAction
+              icon={<UserPlusIcon className="h-4 w-4" />}
+              label="Add User"
+              route="/admin/users/add"
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       <hr />
       <div>
