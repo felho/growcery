@@ -24,10 +24,12 @@ import { toast } from "sonner";
 import Breadcrumbs from "../_components/breadcrumbs";
 import { users as initialUsers, getOrgUnitName } from "~/data/mockData";
 import type { User } from "~/data/mockData"; // ha van ilyen típusod
+import { useRouter } from "next/navigation";
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [searchTerm, setSearchTerm] = useState("");
+  const router = useRouter();
 
   const filteredUsers = users.filter(
     (user) =>
@@ -48,7 +50,7 @@ export default function UsersPage() {
   };
 
   const handleAddUser = () => {
-    toast("Add new user");
+    router.push("/admin/users/add");
   };
 
   const getInitials = (name: string) =>
