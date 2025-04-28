@@ -125,12 +125,13 @@ export default function FunctionFormPage() {
             />
 
             <div className="flex gap-4">
-              <Button type="submit">
+              <Button type="submit" className="cursor-pointer">
                 {isEditMode ? "Save Changes" : "Create Function"}
               </Button>
               <Button
                 type="button"
                 variant="outline"
+                className="cursor-pointer"
                 onClick={() => router.push("/admin/functions")}
               >
                 Cancel
