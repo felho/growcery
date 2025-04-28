@@ -18,6 +18,7 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import QuickAction from "./_components/quick-action";
+import ActivityItem from "./_components/activity-item";
 
 export default function AdminPage() {
   return (
@@ -79,6 +80,23 @@ export default function AdminPage() {
               label="Add User"
               route="/admin/users/add"
             />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Recent Activity */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Activity</CardTitle>
+          <CardDescription>
+            Latest actions performed in the system
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-1">
+            {activities.map((activity) => (
+              <ActivityItem key={activity.id} activity={activity} />
+            ))}
           </div>
         </CardContent>
       </Card>
