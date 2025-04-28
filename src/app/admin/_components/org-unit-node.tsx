@@ -32,7 +32,7 @@ export function OrgUnitNode({ unit, allUnits, level }: OrgUnitNodeProps) {
 
   const handleAddSubUnit = () => {
     router.push(
-      `/admin/org-units/create?parentId=${unit.id}&parentName=${encodeURIComponent(unit.name)}`,
+      `/admin/org-units/add?parentId=${unit.id}&parentName=${encodeURIComponent(unit.name)}`,
     );
   };
 
