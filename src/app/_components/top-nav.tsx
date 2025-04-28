@@ -23,7 +23,9 @@ export function TopNav({ toggleSidebar, hasSidebar = false }: TopNavProps) {
         ) : (
           <div className="w-11 shrink-0" />
         )}
-        <h1 className="text-primary text-xl font-semibold">GROWcery</h1>
+        <h1 className="text-primary animate-grow-fade-in text-xl font-semibold">
+          GROWcery
+        </h1>
       </div>
       <div className="flex items-center gap-2">
         <SignedOut>
