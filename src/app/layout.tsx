@@ -25,7 +25,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en" className={`${geist.variable}`}>
-        <body className="dark">
+        <body className="dark overscroll-none">
           <SignedOut>
             <SignInLayout />
           </SignedOut>

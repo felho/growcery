@@ -9,7 +9,7 @@ interface TopNavProps {
 
 export function TopNav({ toggleSidebar, hasSidebar = false }: TopNavProps) {
   return (
-    <header className="bg-background border-border flex h-16 items-center justify-between border-b px-4">
+    <header className="bg-background border-border sticky top-0 z-50 flex h-16 items-center justify-between border-b px-4">
       <div className="flex items-center">
         {hasSidebar ? (
           <Button
