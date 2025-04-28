@@ -4,11 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard as AdminIcon } from "lucide-react";
 import { Home as HomeIcon } from "lucide-react";
+
 interface SidebarProps {
   isOpen: boolean;
+  hasBeenToggled: boolean;
 }
 
-const Sidebar = ({ isOpen }: SidebarProps) => {
+const Sidebar = ({ isOpen, hasBeenToggled }: SidebarProps) => {
   const pathname = usePathname();
 
   const navItems = [
@@ -26,7 +28,9 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
 
   return (
     <aside
-      className={`border-border animate-slide-in fixed top-16 h-[calc(100%-4rem)] w-64 overflow-y-auto border-r transition-transform duration-300 ${
+      className={`border-border ${
+        hasBeenToggled ? "animate-slide-in" : ""
+      } fixed top-16 h-[calc(100%-4rem)] w-64 overflow-y-auto border-r transition-transform duration-300 ${
         isOpen ? "translate-x-0" : "-translate-x-full"
       }`}
     >
