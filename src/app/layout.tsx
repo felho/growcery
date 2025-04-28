@@ -7,6 +7,7 @@ import { TopNav } from "./_components/top-nav";
 import { SyncUser } from "./_components/sync-user";
 import MainLayout from "./_components/main-layout";
 import SignInLayout from "./_components/sign-in-layout";
+import { Toaster } from "~/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "GROWcery",
@@ -33,6 +34,7 @@ export default function RootLayout({
           <SignedIn>
             <SyncUser />
             <MainLayout>{children}</MainLayout>
+            <Toaster />
           </SignedIn>
         </body>
       </html>
