@@ -16,16 +16,14 @@ export function TopNav({ toggleSidebar, hasSidebar = false }: TopNavProps) {
             variant="ghost"
             size="icon"
             onClick={toggleSidebar}
-            className="mr-2"
+            className="mr-4"
           >
             <MenuIcon className="h-5 w-5" />
           </Button>
         ) : (
           <div className="w-11 shrink-0" />
         )}
-        <h1 className="text-xl font-semibold text-[hsl(122,50%,45%)]">
-          GROWcery
-        </h1>
+        <h1 className="text-primary text-xl font-semibold">GROWcery</h1>
       </div>
       <div className="flex items-center gap-2">
         <SignedOut>
