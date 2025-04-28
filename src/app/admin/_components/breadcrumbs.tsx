@@ -29,7 +29,7 @@ export default function Breadcrumbs() {
     pathnames.forEach((name, index) => {
       if (index === 0 && name === "admin") return; // Skip admin in the path
 
-      currentPath += `/${name}`;
+      currentPath = `/admin/${pathnames.slice(1, index + 1).join("/")}`;
 
       const formattedName = name
         .split("-")
