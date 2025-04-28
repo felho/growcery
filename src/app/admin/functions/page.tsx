@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Table,
   TableBody,
@@ -23,6 +24,7 @@ import type { Function } from "~/data/mockData";
 import { functions as initialFunctions } from "~/data/mockData";
 
 export default function FunctionsPage() {
+  const router = useRouter();
   const [functions, setFunctions] = useState<Function[]>(initialFunctions);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -41,7 +43,7 @@ export default function FunctionsPage() {
   };
 
   const handleAddFunction = () => {
-    toast("Open form to add a new function");
+    router.push("/admin/functions/add");
   };
 
   return (
