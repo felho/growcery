@@ -16,7 +16,7 @@ const Sidebar = ({ isOpen, hasBeenToggled }: SidebarProps) => {
   const navItems = [
     {
       name: "Admin",
-      path: "/admin",
+      path: "/admin*",
       icon: <AdminIcon className="h-5 w-5" />,
     },
     {
@@ -37,11 +37,13 @@ const Sidebar = ({ isOpen, hasBeenToggled }: SidebarProps) => {
       <div className="p-4">
         <nav className="mt-4 space-y-1">
           {navItems.map((item) => {
-            const isActive = pathname === item.path;
+            const isActive = item.path.endsWith("*")
+              ? pathname.startsWith(item.path.slice(0, -1))
+              : pathname === item.path;
             return (
               <Link
                 key={item.path}
-                href={item.path}
+                href={item.path.replace("*", "")}
                 className={`sidebar-item ${isActive ? "active" : ""} `}
               >
                 {item.icon}
