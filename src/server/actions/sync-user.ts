@@ -1,5 +1,5 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
-import { createUser, getUserByAuthProviderId } from "../queries";
+import { createUserOnFirstLogin, getUserByAuthProviderId } from "../queries";
 
 export async function syncUserToDb() {
   const clerkUser = await auth();
@@ -12,7 +12,7 @@ export async function syncUserToDb() {
       await clerkClient()
     ).users.getUser(clerkUser.userId);
 
-    await createUser({
+    await createUserOnFirstLogin({
       authProviderId: clerkUser.userId,
       fullName: clrekUserDetails.fullName || "",
       email: clrekUserDetails.emailAddresses[0]?.emailAddress || "",

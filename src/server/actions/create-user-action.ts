@@ -1,31 +1,17 @@
 "use server";
 
-import { actionClient } from "../../lib/safe-action";
+import { insertUserSchemaFromForm } from "~/zod-schemas/user";
 import { flattenValidationErrors } from "next-safe-action";
-import { insertUserSchema, type InsertUserInput } from "../../zod-schemas/user";
-import { db } from "../db";
-import { users } from "../db/schema";
+import { actionClient } from "~/lib/safe-action";
+import { createUser } from "~/server/queries";
 
 export const createUserAction = actionClient
   .metadata({ actionName: "createUserAction" })
-  .schema(insertUserSchema, {
+  .schema(insertUserSchemaFromForm, {
     handleValidationErrorsShape: async (ve) =>
       flattenValidationErrors(ve).fieldErrors,
   })
-  .action(async ({ parsedInput }: { parsedInput: InsertUserInput }) => {
-    const inserted = await db
-      .insert(users)
-      .values({
-        fullName: parsedInput.fullName,
-        email: parsedInput.email,
-        functionId: parsedInput.functionId ?? null,
-        managerId: parsedInput.managerId ?? null,
-        orgUnitId: parsedInput.orgUnitId ?? null,
-      })
-      .returning({ id: users.id });
-
-    if (!inserted || inserted.length === 0) {
-      throw new Error("User creation failed: No user returned from database.");
-    }
-    return { message: `User #${inserted[0]!.id} created successfully.` };
+  .action(async ({ parsedInput }) => {
+    const insertedId = await createUser(parsedInput);
+    return { message: `User ID #${insertedId} created successfully` };
   });

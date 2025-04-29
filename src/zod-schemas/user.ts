@@ -1,19 +1,26 @@
 import { z } from "zod";
 
-// Insert User Schema (Create form)
-export const insertUserSchema = z.object({
-  fullName: z.string().min(1, "Full name can not be empty"),
+const baseUserFields = {
+  fullName: z.string().min(1, "Full name cannot be empty"),
   email: z.string().email("Invalid email address"),
   functionId: z.number().optional(),
   managerId: z.number().optional(),
   orgUnitId: z.number().optional(),
+};
+
+export const insertUserSchemaFromForm = z.object(baseUserFields);
+
+export const insertUserSchemaWithAuth = z.object({
+  authProviderId: z.string().min(1, "Auth provider ID is required"),
+  ...baseUserFields,
 });
 
-// Update User Schema (Update form, id is required)
-export const updateUserSchema = insertUserSchema.extend({
-  id: z.number().int(),
-});
+export const updateUserSchema = z
+  .object({
+    id: z.number().int(),
+  })
+  .merge(z.object(baseUserFields));
 
-// A típusok:
-export type InsertUserInput = z.infer<typeof insertUserSchema>;
+export type InsertUserInputFromForm = z.infer<typeof insertUserSchemaFromForm>;
+export type InsertUserInputWithAuth = z.infer<typeof insertUserSchemaWithAuth>;
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
