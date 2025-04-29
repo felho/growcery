@@ -9,6 +9,9 @@
 - [ ] Check the clsx package, it could simplify writing className related logic
 - [ ] Check whether a useHasInteracted() hook is better solution then the useHasInteracted() parameter
 - [ ] Check this idea: in the case a component has more paramters, defaultProps pattern or NextJS's withDefaults helper could be better.
+- [ ] The actionClient error handling has to be tested
+- [ ] Rename the sync-user.ts to sync-user-action.ts. (Or remove action from all the other actions.)
+- [ ] Add unique index to email in user table.
 
 ### Login / user management
 
