@@ -7,7 +7,7 @@ import {
   UserPlus as UserPlusIcon,
   FolderSymlink as FolderSymlinkIcon,
 } from "lucide-react";
-import { activities, functions, orgUnits, users } from "~/data/mockData";
+import { activities, functions, orgUnits, users } from "~/data/mock-data";
 import StatCard from "./_components/stat-card";
 import Link from "next/link";
 import {

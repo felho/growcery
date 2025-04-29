@@ -20,8 +20,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import Breadcrumbs from "../_components/breadcrumbs";
-import type { Function } from "~/data/mockData";
-import { functions as initialFunctions } from "~/data/mockData";
+import type { Function } from "~/data/mock-data";
+import { functions as initialFunctions } from "~/data/mock-data";
 
 export default function FunctionsPage() {
   const router = useRouter();

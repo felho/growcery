@@ -16,7 +16,7 @@ import {
   Users,
   PlusCircle,
 } from "lucide-react";
-import type { OrgUnit } from "~/data/mockData";
+import type { OrgUnit } from "~/data/mock-data";
 
 interface OrgUnitNodeProps {
   unit: OrgUnit;

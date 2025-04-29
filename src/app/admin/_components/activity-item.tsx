@@ -1,6 +1,6 @@
 "use client";
 
-import type { Activity } from "~/data/mockData";
+import type { Activity } from "~/data/mock-data";
 
 interface ActivityItemProps {
   activity: Activity;

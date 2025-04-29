@@ -22,8 +22,8 @@ import {
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import { toast } from "sonner";
 import Breadcrumbs from "../_components/breadcrumbs";
-import { users as initialUsers, getOrgUnitName } from "~/data/mockData";
-import type { User } from "~/data/mockData"; // ha van ilyen típusod
+import { users as initialUsers, getOrgUnitName } from "~/data/mock-data";
+import type { User } from "~/data/mock-data"; // ha van ilyen típusod
 import { useRouter } from "next/navigation";
 
 export default function UsersPage() {

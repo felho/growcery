@@ -9,9 +9,9 @@ import {
   Search as SearchIcon,
 } from "lucide-react";
 import Breadcrumbs from "../_components/breadcrumbs";
-import { orgUnits as initialOrgUnits } from "~/data/mockData";
+import { orgUnits as initialOrgUnits } from "~/data/mock-data";
 import { OrgUnitNode } from "../_components/org-unit-node";
-import type { OrgUnit } from "~/data/mockData";
+import type { OrgUnit } from "~/data/mock-data";
 
 export default function OrgUnitsPage() {
   const [orgUnits] = useState<OrgUnit[]>(initialOrgUnits);
