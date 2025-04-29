@@ -50,7 +50,7 @@ export default function UsersPage() {
   };
 
   const handleAddUser = () => {
-    router.push("/admin/users/add");
+    router.push("/admin/users/form");
   };
 
   const getInitials = (name: string) =>

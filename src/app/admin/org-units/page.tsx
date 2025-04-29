@@ -21,7 +21,7 @@ export default function OrgUnitsPage() {
   const rootUnits = orgUnits.filter((unit) => !unit.parentId);
 
   const handleAddOrgUnit = () => {
-    router.push("/admin/org-units/add");
+    router.push("/admin/org-units/form");
   };
 
   return (

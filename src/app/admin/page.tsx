@@ -68,17 +68,17 @@ export default function AdminPage() {
             <QuickAction
               icon={<PlusCircleIcon className="h-4 w-4" />}
               label="Add Function"
-              route="/admin/functions/add"
+              route="/admin/functions/form"
             />
             <QuickAction
               icon={<FolderSymlinkIcon className="h-4 w-4" />}
               label="Create Org Unit"
-              route="/admin/org-units/add"
+              route="/admin/org-units/form"
             />
             <QuickAction
               icon={<UserPlusIcon className="h-4 w-4" />}
               label="Add User"
-              route="/admin/users/add"
+              route="/admin/users/form"
             />
           </div>
         </CardContent>

@@ -43,7 +43,7 @@ export default function FunctionsPage() {
   };
 
   const handleAddFunction = () => {
-    router.push("/admin/functions/add");
+    router.push("/admin/functions/form");
   };
 
   return (
