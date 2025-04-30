@@ -14,6 +14,7 @@
 - [ ] Add unique index to email in user table.
 - [ ] Add the max validation for all the fields.
 - [ ] I need to think about structuring the db, zod, actions, queries, etc. (the files getting bigger or the number of files in a folder will be too much)
+- [ ] I like extend more in the zod file than the current merge
 
 ### Login / user management
 
