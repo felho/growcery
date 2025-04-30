@@ -12,6 +12,8 @@
 - [ ] The actionClient error handling has to be tested
 - [ ] Rename the sync-user.ts to sync-user-action.ts. (Or remove action from all the other actions.)
 - [ ] Add unique index to email in user table.
+- [ ] Add the max validation for all the fields.
+- [ ] I need to think about structuring the db, zod, actions, queries, etc. (the files getting bigger or the number of files in a folder will be too much)
 
 ### Login / user management
 
