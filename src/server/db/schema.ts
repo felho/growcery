@@ -2,7 +2,14 @@
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
 import { sql } from "drizzle-orm";
-import { index, pgTableCreator } from "drizzle-orm/pg-core";
+import {
+  primaryKey,
+  index,
+  pgTableCreator,
+  varchar,
+  bigint,
+  timestamp,
+} from "drizzle-orm/pg-core";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -12,17 +19,75 @@ import { index, pgTableCreator } from "drizzle-orm/pg-core";
  */
 export const createTable = pgTableCreator((name) => `growcery_${name}`);
 
-export const users = createTable("users", (d) => ({
-  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
-  authProviderId: d.varchar({ length: 512 }),
-  fullName: d.varchar({ length: 256 }).notNull(),
-  email: d.varchar({ length: 512 }).notNull(),
-  functionId: d.integer(),
-  managerId: d.integer(),
-  orgUnitId: d.integer(),
-  createdAt: d
-    .timestamp({ withTimezone: true })
+export const users = createTable("users", {
+  id: bigint({ mode: "number" }).primaryKey().generatedByDefaultAsIdentity(),
+  authProviderId: varchar({ length: 500 }),
+  fullName: varchar({ length: 250 }).notNull(),
+  email: varchar({ length: 500 }).notNull().unique(),
+  functionId: bigint({ mode: "number" }),
+  managerId: bigint({ mode: "number" }),
+  orgUnitId: bigint({ mode: "number" }),
+  createdAt: timestamp({ withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
-  updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
+  updatedAt: timestamp({ withTimezone: true })
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+export const organizations = createTable("organizations", {
+  id: bigint({ mode: "number" }).primaryKey().generatedByDefaultAsIdentity(),
+  name: varchar({ length: 250 }).notNull(),
+});
+
+export const orgEmailDomain = createTable(
+  "org_email_domains",
+  {
+    organizationId: bigint("organization_id", { mode: "number" }).references(
+      () => organizations.id,
+    ),
+    emailDomain: varchar("email_domain", { length: 500 }),
+  },
+  (table) => [
+    primaryKey({ columns: [table.organizationId, table.emailDomain] }),
+  ],
+);
+
+export const functions = createTable("functions", {
+  id: bigint({ mode: "number" }).primaryKey().generatedByDefaultAsIdentity(),
+  organizationId: bigint({ mode: "number" })
+    .notNull()
+    .references(() => organizations.id),
+  name: varchar({ length: 250 }).notNull(),
+  description: varchar({ length: 2000 }),
+});
+
+let orgUnits: any;
+orgUnits = createTable("org_units", (t) => ({
+  id: t.bigint({ mode: "number" }).primaryKey().generatedByDefaultAsIdentity(),
+  organizationId: t.bigint({ mode: "number" }).notNull(),
+  name: t.varchar({ length: 250 }).notNull(),
+  description: t.varchar({ length: 2000 }),
+  parentId: t.bigint({ mode: "number" }).references(() => orgUnits.id),
 }));
+export { orgUnits };
+
+export const orgUnitFunctionManagers = createTable(
+  "org_unit_function_managers",
+  {
+    orgUnitId: bigint("org_unit_id", { mode: "number" })
+      .notNull()
+      .references(() => orgUnits.id),
+    functionId: bigint("function_id", { mode: "number" })
+      .notNull()
+      .references(() => functions.id),
+    managerUserId: bigint("manager_user_id", { mode: "number" })
+      .notNull()
+      .references(() => users.id),
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.orgUnitId, table.functionId, table.managerUserId],
+    }),
+  ],
+);
