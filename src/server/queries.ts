@@ -1,6 +1,6 @@
 import "server-only";
 import { db } from "./db";
-import { users } from "./db/schema";
+import { functions, users } from "./db/schema";
 import { auth } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
 import type {
@@ -9,6 +9,8 @@ import type {
   UpdateUserInput,
 } from "~/zod-schemas/user";
 import type { InferSelectModel } from "drizzle-orm";
+import type { UpdateFunctionInput } from "~/zod-schemas/function";
+import type { InsertFunctionInput } from "~/zod-schemas/function";
 
 export type User = InferSelectModel<typeof users>;
 
@@ -78,6 +80,58 @@ export async function updateUser(data: UpdateUserInput) {
 
   if (!result.length) {
     throw new Error(`User ID #${id} not found`);
+  }
+
+  return result[0]!.updatedId;
+}
+
+export type FunctionRecord = InferSelectModel<typeof functions>;
+
+export async function getFunctionById(
+  id: number,
+): Promise<FunctionRecord | undefined> {
+  const clerkUser = await auth();
+  if (!clerkUser.userId) throw new Error("Unauthorized");
+
+  return db.query.functions.findFirst({
+    where: (f, { eq }) => eq(f.id, id),
+  });
+}
+
+export async function createFunction(
+  data: InsertFunctionInput,
+): Promise<number> {
+  const clerkUser = await auth();
+  if (!clerkUser.userId) throw new Error("Unauthorized");
+
+  const result = await db
+    .insert(functions)
+    .values(data)
+    .returning({ insertedId: functions.id });
+
+  if (!result.length) {
+    throw new Error("Failed to create function");
+  }
+
+  return result[0]!.insertedId;
+}
+
+export async function updateFunction(
+  data: UpdateFunctionInput,
+): Promise<number> {
+  const { id, ...updates } = data;
+
+  const clerkUser = await auth();
+  if (!clerkUser.userId) throw new Error("Unauthorized");
+
+  const result = await db
+    .update(functions)
+    .set(updates)
+    .where(eq(functions.id, id))
+    .returning({ updatedId: functions.id });
+
+  if (!result.length) {
+    throw new Error(`Function ID #${id} not found`);
   }
 
   return result[0]!.updatedId;
