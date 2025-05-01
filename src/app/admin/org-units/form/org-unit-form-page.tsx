@@ -56,31 +56,31 @@ export default function OrgUnitFormPage({
     },
   });
 
-  // const { execute: createOrgUnit, isPending: isCreating } = useAction(
-  //   createOrgUnitAction,
-  //   {
-  //     onSuccess({ data }) {
-  //       toast.success(data?.message);
-  //       router.push("/admin/org-units");
-  //     },
-  //     onError() {
-  //       toast.error("Failed to create organizational unit.");
-  //     },
-  //   },
-  // );
+  const { execute: createOrgUnit, isPending: isCreating } = useAction(
+    createOrgUnitAction,
+    {
+      onSuccess({ data }) {
+        toast.success(data?.message);
+        router.push("/admin/org-units");
+      },
+      onError() {
+        toast.error("Failed to create organizational unit.");
+      },
+    },
+  );
 
-  // const { execute: updateOrgUnit, isPending: isUpdating } = useAction(
-  //   updateOrgUnitAction,
-  //   {
-  //     onSuccess({ data }) {
-  //       toast.success(data?.message);
-  //       router.push("/admin/org-units");
-  //     },
-  //     onError() {
-  //       toast.error("Failed to update organizational unit.");
-  //     },
-  //   },
-  // );
+  const { execute: updateOrgUnit, isPending: isUpdating } = useAction(
+    updateOrgUnitAction,
+    {
+      onSuccess({ data }) {
+        toast.success(data?.message);
+        router.push("/admin/org-units");
+      },
+      onError() {
+        toast.error("Failed to update organizational unit.");
+      },
+    },
+  );
 
   const isPending = isCreating || isUpdating;
 
@@ -88,7 +88,7 @@ export default function OrgUnitFormPage({
     if (isEditMode && orgUnit?.id) {
       updateOrgUnit({ id: orgUnit.id, ...values });
     } else {
-      createOrgUnit({ ...values });
+      createOrgUnit({ organizationId, ...values });
     }
   };
 
