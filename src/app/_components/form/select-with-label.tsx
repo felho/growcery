@@ -27,7 +27,7 @@ type Props<S, T = DefaultData> = {
   nameInSchema: keyof S & string;
   data: T[];
   className?: string;
-
+  placeholder?: string;
   getValue?: (item: T) => string;
   getLabel?: (item: T) => string;
 };
@@ -37,6 +37,7 @@ export function SelectWithLabel<S, T = DefaultData>({
   nameInSchema,
   data,
   className,
+  placeholder = "Select",
   getValue = (item) => (item as DefaultData).id,
   getLabel = (item) => (item as DefaultData).description,
 }: Props<S, T>) {
@@ -52,13 +53,13 @@ export function SelectWithLabel<S, T = DefaultData>({
             {fieldTitle}
           </FormLabel>
 
-          <Select {...field} onValueChange={field.onChange}>
+          <Select value={field.value} onValueChange={field.onChange}>
             <FormControl>
               <SelectTrigger
                 id={nameInSchema}
                 className={`w-full max-w-xs ${className ?? ""}`}
               >
-                <SelectValue placeholder="Select" />
+                <SelectValue placeholder={placeholder} />
               </SelectTrigger>
             </FormControl>
 
