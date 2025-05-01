@@ -9,6 +9,7 @@ import {
   varchar,
   bigint,
   timestamp,
+  type AnyPgColumn,
 } from "drizzle-orm/pg-core";
 
 /**
@@ -62,15 +63,15 @@ export const functions = createTable("functions", {
   description: varchar({ length: 2000 }),
 });
 
-let orgUnits: any;
-orgUnits = createTable("org_units", (t) => ({
+export const orgUnits = createTable("org_units", (t) => ({
   id: t.bigint({ mode: "number" }).primaryKey().generatedByDefaultAsIdentity(),
   organizationId: t.bigint({ mode: "number" }).notNull(),
   name: t.varchar({ length: 250 }).notNull(),
   description: t.varchar({ length: 500 }),
-  parentId: t.bigint({ mode: "number" }).references(() => orgUnits.id),
+  parentId: t
+    .bigint({ mode: "number" })
+    .references((): AnyPgColumn => orgUnits.id),
 }));
-export { orgUnits };
 
 export const orgUnitFunctionManagers = createTable(
   "org_unit_function_managers",
