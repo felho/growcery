@@ -8,10 +8,10 @@ export interface Function {
 }
 
 export interface OrgUnit {
-  id: string;
+  id: number;
   name: string;
   description: string;
-  parentId: string | null;
+  parentId: number | null;
   level: number;
   createdAt: string;
   updatedAt: string;
@@ -23,7 +23,7 @@ export interface User {
   email: string;
   role: string;
   avatar: string;
-  orgUnit: string;
+  orgUnit: number;
   functions: string[];
   status: "active" | "inactive";
   lastLogin: string;
@@ -101,7 +101,7 @@ export const functions: Function[] = [
 // Org Units Data
 export const orgUnits: OrgUnit[] = [
   {
-    id: "ou1",
+    id: 1,
     name: "Executive",
     description: "Executive leadership team",
     parentId: null,
@@ -110,46 +110,46 @@ export const orgUnits: OrgUnit[] = [
     updatedAt: "2025-04-01T09:30:00Z",
   },
   {
-    id: "ou2",
+    id: 2,
     name: "Sales",
     description: "Sales and customer relations team",
-    parentId: "ou1",
+    parentId: 1,
     level: 2,
     createdAt: "2025-03-10T08:15:00Z",
     updatedAt: "2025-04-02T10:45:00Z",
   },
   {
-    id: "ou3",
+    id: 3,
     name: "Operations",
     description: "Day-to-day operations management",
-    parentId: "ou1",
+    parentId: 1,
     level: 2,
     createdAt: "2025-03-10T08:30:00Z",
     updatedAt: "2025-04-03T11:20:00Z",
   },
   {
-    id: "ou4",
+    id: 4,
     name: "Marketing",
     description: "Marketing and promotions team",
-    parentId: "ou1",
+    parentId: 1,
     level: 2,
     createdAt: "2025-03-10T09:00:00Z",
     updatedAt: "2025-04-04T13:10:00Z",
   },
   {
-    id: "ou5",
+    id: 5,
     name: "IT",
     description: "Information technology support",
-    parentId: "ou1",
+    parentId: 1,
     level: 2,
     createdAt: "2025-03-10T09:15:00Z",
     updatedAt: "2025-04-05T14:30:00Z",
   },
   {
-    id: "ou6",
+    id: 6,
     name: "Human Resources",
     description: "Employee management and benefits",
-    parentId: "ou1",
+    parentId: 1,
     level: 2,
     createdAt: "2025-03-10T09:30:00Z",
     updatedAt: "2025-04-06T15:45:00Z",
@@ -164,7 +164,7 @@ export const users = [
     email: "john.smith@growcery.com",
     role: "Admin",
     avatar: "",
-    orgUnit: "ou1",
+    orgUnit: 1,
     functions: ["f1", "f2", "f5"],
     status: "active" as const,
     lastLogin: "2025-04-25T09:15:00Z",
@@ -176,7 +176,7 @@ export const users = [
     email: "sarah.johnson@growcery.com",
     role: "Manager",
     avatar: "",
-    orgUnit: "ou2",
+    orgUnit: 1,
     functions: ["f2", "f3"],
     status: "active" as const,
     lastLogin: "2025-04-24T14:30:00Z",
@@ -188,7 +188,7 @@ export const users = [
     email: "michael.brown@growcery.com",
     role: "Manager",
     avatar: "",
-    orgUnit: "ou3",
+    orgUnit: 3,
     functions: ["f1", "f4"],
     status: "active" as const,
     lastLogin: "2025-04-25T11:45:00Z",
@@ -200,7 +200,7 @@ export const users = [
     email: "emily.davis@growcery.com",
     role: "User",
     avatar: "",
-    orgUnit: "ou4",
+    orgUnit: 4,
     functions: ["f6"],
     status: "active" as const,
     lastLogin: "2025-04-23T16:20:00Z",
@@ -212,7 +212,7 @@ export const users = [
     email: "david.wilson@growcery.com",
     role: "User",
     avatar: "",
-    orgUnit: "ou5",
+    orgUnit: 5,
     functions: ["f5"],
     status: "active" as const,
     lastLogin: "2025-04-24T10:30:00Z",
@@ -224,7 +224,7 @@ export const users = [
     email: "jessica.martinez@growcery.com",
     role: "User",
     avatar: "",
-    orgUnit: "ou6",
+    orgUnit: 6,
     functions: ["f7"],
     status: "active" as const,
     lastLogin: "2025-04-25T08:45:00Z",
@@ -236,7 +236,7 @@ export const users = [
     email: "robert.taylor@growcery.com",
     role: "User",
     avatar: "",
-    orgUnit: "ou2",
+    orgUnit: 2,
     functions: ["f2", "f3"],
     status: "active" as const,
     lastLogin: "2025-04-23T13:10:00Z",
@@ -248,7 +248,7 @@ export const users = [
     email: "lisa.anderson@growcery.com",
     role: "User",
     avatar: "",
-    orgUnit: "ou3",
+    orgUnit: 3,
     functions: ["f1", "f4"],
     status: "inactive" as const,
     lastLogin: "2025-04-20T15:45:00Z",
@@ -260,7 +260,7 @@ export const users = [
     email: "thomas.white@growcery.com",
     role: "Manager",
     avatar: "",
-    orgUnit: "ou4",
+    orgUnit: 4,
     functions: ["f6"],
     status: "active" as const,
     lastLogin: "2025-04-24T09:20:00Z",
@@ -272,7 +272,7 @@ export const users = [
     email: "jennifer.harris@growcery.com",
     role: "User",
     avatar: "",
-    orgUnit: "ou5",
+    orgUnit: 5,
     functions: ["f5"],
     status: "active" as const,
     lastLogin: "2025-04-25T10:15:00Z",
@@ -284,7 +284,7 @@ export const users = [
     email: "daniel.lewis@growcery.com",
     role: "User",
     avatar: "",
-    orgUnit: "ou6",
+    orgUnit: 6,
     functions: ["f7"],
     status: "inactive" as const,
     lastLogin: "2025-04-15T11:30:00Z",
@@ -296,7 +296,7 @@ export const users = [
     email: "michelle.clark@growcery.com",
     role: "User",
     avatar: "",
-    orgUnit: "ou2",
+    orgUnit: 2,
     functions: ["f2"],
     status: "active" as const,
     lastLogin: "2025-04-24T14:00:00Z",
@@ -308,7 +308,7 @@ export const users = [
     email: "kevin.moore@growcery.com",
     role: "User",
     avatar: "",
-    orgUnit: "ou3",
+    orgUnit: 3,
     functions: ["f4"],
     status: "active" as const,
     lastLogin: "2025-04-22T16:45:00Z",
@@ -370,7 +370,7 @@ export const activities: Activity[] = [
 ];
 
 // Helper function to get org unit name by ID
-export const getOrgUnitName = (id: string): string => {
+export const getOrgUnitName = (id: number): string => {
   const orgUnit = orgUnits.find((ou) => ou.id === id);
   return orgUnit ? orgUnit.name : "Unknown";
 };
