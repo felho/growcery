@@ -67,7 +67,7 @@ orgUnits = createTable("org_units", (t) => ({
   id: t.bigint({ mode: "number" }).primaryKey().generatedByDefaultAsIdentity(),
   organizationId: t.bigint({ mode: "number" }).notNull(),
   name: t.varchar({ length: 250 }).notNull(),
-  description: t.varchar({ length: 2000 }),
+  description: t.varchar({ length: 500 }),
   parentId: t.bigint({ mode: "number" }).references(() => orgUnits.id),
 }));
 export { orgUnits };

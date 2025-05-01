@@ -7,7 +7,7 @@ const baseFields = {
     .max(250, "Name cannot be longer than 250 characters"),
   description: z
     .string()
-    .max(2000, "Description cannot be longer than 2000 characters"),
+    .max(500, "Description cannot be longer than 2000 characters"),
 };
 
 // organiztionId is only added on the server side
