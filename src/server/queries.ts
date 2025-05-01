@@ -136,3 +136,14 @@ export async function updateFunction(
 
   return result[0]!.updatedId;
 }
+
+export async function getFunctionsByOrg(
+  organizationId: number,
+): Promise<FunctionRecord[] | undefined> {
+  const clerkUser = await auth();
+  if (!clerkUser.userId) throw new Error("Unauthorized");
+
+  return db.query.functions.findMany({
+    where: (f, { eq }) => eq(f.organizationId, organizationId),
+  });
+}

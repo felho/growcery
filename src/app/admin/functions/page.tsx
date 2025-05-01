@@ -20,25 +20,31 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import Breadcrumbs from "../_components/breadcrumbs";
-import type { Function } from "~/data/mock-data";
-import { functions as initialFunctions } from "~/data/mock-data";
+import type { FunctionRecord } from "~/server/queries";
+import useSWR from "swr";
+import { fetchFunctions } from "~/lib/client-api";
 
 export default function FunctionsPage() {
   const router = useRouter();
-  const [functions, setFunctions] = useState<Function[]>(initialFunctions);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredFunctions = functions.filter((func) =>
-    [func.name, func.description, func.type].some((field) =>
+  const {
+    data: functions = [],
+    isLoading,
+    error,
+  } = useSWR("/functions", fetchFunctions);
+
+  const filteredFunctions = functions.filter((func: FunctionRecord) =>
+    [func.name, func.description || ""].some((field) =>
       field.toLowerCase().includes(searchTerm.toLowerCase()),
     ),
   );
 
-  const handleEdit = (id: string) => {
-    toast(`Edit function with ID: ${id}`);
+  const handleEdit = (id: number) => {
+    router.push(`/admin/functions/form?functionId=${id}`);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (id: number) => {
     toast(`Delete function with ID: ${id}`);
   };
 
@@ -80,35 +86,33 @@ export default function FunctionsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Last Updated</TableHead>
+              <TableHead className="w-1/5">Name</TableHead>
+              <TableHead className="w-3/4">Description</TableHead>
               <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredFunctions.map((func) => (
+            {filteredFunctions.map((func: FunctionRecord) => (
               <TableRow key={func.id}>
                 <TableCell className="font-medium break-words whitespace-normal">
                   {func.name}
                 </TableCell>
                 <TableCell className="break-words whitespace-normal">
-                  {func.description}
+                  <span title={func.description ?? undefined}>
+                    {(func.description ?? "").length > 100
+                      ? `${func.description?.slice(0, 100)}...`
+                      : func.description}
+                  </span>
                 </TableCell>
-                <TableCell>{func.type}</TableCell>
                 <TableCell>
-                  {new Date(func.updatedAt).toLocaleDateString()}
-                </TableCell>
-                <TableCell>
-                  <div className="flex space-x-2">
+                  <div>
                     <Button
                       variant="ghost"
                       size="icon"
                       className="cursor-pointer"
                       onClick={() => handleEdit(func.id)}
                     >
-                      <EditIcon className="h-4 w-4" />
+                      <EditIcon />
                     </Button>
                     <Button
                       variant="ghost"
@@ -116,7 +120,7 @@ export default function FunctionsPage() {
                       className="cursor-pointer"
                       onClick={() => handleDelete(func.id)}
                     >
-                      <TrashIcon className="h-4 w-4" />
+                      <TrashIcon />
                     </Button>
                   </div>
                 </TableCell>
@@ -125,7 +129,7 @@ export default function FunctionsPage() {
             {filteredFunctions.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={5}
+                  colSpan={4}
                   className="text-muted-foreground py-8 text-center"
                 >
                   No functions found
