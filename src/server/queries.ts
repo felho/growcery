@@ -1,6 +1,6 @@
 import "server-only";
 import { db } from "./db";
-import { functions, users } from "./db/schema";
+import { functions, orgUnits, users } from "./db/schema";
 import { auth } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
 import type {
@@ -11,6 +11,8 @@ import type {
 import type { InferSelectModel } from "drizzle-orm";
 import type { UpdateFunctionInput } from "~/zod-schemas/function";
 import type { InsertFunctionInput } from "~/zod-schemas/function";
+import type { UpdateOrgUnitInput } from "~/zod-schemas/org-unit";
+import type { InsertOrgUnitInput } from "~/zod-schemas/org-unit";
 
 export type User = InferSelectModel<typeof users>;
 
@@ -146,4 +148,59 @@ export async function getFunctionsByOrg(
   return db.query.functions.findMany({
     where: (f, { eq }) => eq(f.organizationId, organizationId),
   });
+}
+
+export type OrgUnitRecord = InferSelectModel<typeof orgUnits>;
+
+export async function getOrgUnitById(
+  id: number,
+): Promise<OrgUnitRecord | undefined> {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+
+  return db.query.orgUnits.findFirst({
+    where: (ou, { eq }) => eq(ou.id, id),
+  });
+}
+
+export async function getAllOrgUnitsForOrg(
+  organizationId: number,
+): Promise<OrgUnitRecord[]> {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+
+  return db.query.orgUnits.findMany({
+    where: (ou, { eq }) => eq(ou.organizationId, organizationId),
+  });
+}
+
+export async function createOrgUnit(data: InsertOrgUnitInput): Promise<number> {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+
+  const result = await db
+    .insert(orgUnits)
+    .values(data)
+    .returning({ insertedId: orgUnits.id });
+
+  if (!result.length) throw new Error("Failed to create org unit");
+
+  return result[0]!.insertedId;
+}
+
+export async function updateOrgUnit(data: UpdateOrgUnitInput): Promise<number> {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+
+  const { id, ...updates } = data;
+
+  const result = await db
+    .update(orgUnits)
+    .set(updates)
+    .where(eq(orgUnits.id, id))
+    .returning({ updatedId: orgUnits.id });
+
+  if (!result.length) throw new Error("Org unit not found");
+
+  return result[0]!.updatedId;
 }

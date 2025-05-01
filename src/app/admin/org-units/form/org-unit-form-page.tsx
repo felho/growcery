@@ -27,16 +27,12 @@ const formSchema = z.object({
 
 interface OrgUnitFormPageProps {
   organizationId: number;
+  parentOptions: { id: number; name: string }[];
 }
-
-const allOrgUnits = [
-  { id: 1, name: "HR" },
-  { id: 2, name: "Engineering" },
-  { id: 3, name: "Sales" },
-];
 
 export default function OrgUnitFormPage({
   organizationId,
+  parentOptions,
 }: OrgUnitFormPageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -54,14 +50,12 @@ export default function OrgUnitFormPage({
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log("Organization ID:", organizationId);
-    console.log("Submitted values:", values);
-
     toast.success(
       parentName
         ? `Added new sub-unit under ${parentName}`
         : "New root organizational unit has been created",
     );
+    console.log("Submitted:", values);
     router.push("/admin/org-units");
   };
 
@@ -107,7 +101,7 @@ export default function OrgUnitFormPage({
               fieldTitle="Parent Unit (optional)"
               nameInSchema="parentId"
               placeholder="None"
-              data={allOrgUnits.map((u) => ({
+              data={parentOptions.map((u) => ({
                 id: u.id,
                 description: u.name,
               }))}
