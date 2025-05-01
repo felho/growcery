@@ -3,7 +3,7 @@ import { z } from "zod";
 export const insertOrgUnitSchemaFromForm = z.object({
   name: z.string().min(1, "Name is required").max(250),
   description: z.string().max(500).optional(),
-  parentId: z.number().int().optional(),
+  parentId: z.coerce.number().int().optional(),
 });
 
 // In server action we need the organizationId

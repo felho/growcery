@@ -3,7 +3,6 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -22,18 +21,15 @@ import { useAction } from "next-safe-action/hooks";
 import { createOrgUnitAction } from "~/server/actions/create-org-unit-action";
 import { updateOrgUnitAction } from "~/server/actions/update-org-unit-action";
 import { LoaderCircle as LoaderIcon } from "lucide-react";
-import type { InsertOrgUnitInputFromForm } from "~/zod-schemas/org-unit";
-
-const formSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  description: z.string().min(10, "Description must be at least 10 characters"),
-  parentId: z.coerce.number().int().optional(),
-});
+import {
+  insertOrgUnitSchemaFromForm,
+  type InsertOrgUnitInputFromForm,
+} from "~/zod-schemas/org-unit";
 
 interface OrgUnitFormPageProps {
   organizationId: number;
   parentOptions: { id: number; name: string }[];
-  orgUnit?: InsertOrgUnitInputFromForm & { id: number }; // ha edit
+  orgUnit?: InsertOrgUnitInputFromForm & { id: number };
 }
 
 export default function OrgUnitFormPage({
@@ -47,8 +43,8 @@ export default function OrgUnitFormPage({
 
   const isEditMode = !!orgUnit;
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<InsertOrgUnitInputFromForm>({
+    resolver: zodResolver(insertOrgUnitSchemaFromForm),
     defaultValues: {
       name: orgUnit?.name ?? "",
       description: orgUnit?.description ?? "",
@@ -84,7 +80,7 @@ export default function OrgUnitFormPage({
 
   const isPending = isCreating || isUpdating;
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = (values: InsertOrgUnitInputFromForm) => {
     if (isEditMode && orgUnit?.id) {
       updateOrgUnit({ id: orgUnit.id, ...values });
     } else {
@@ -134,7 +130,7 @@ export default function OrgUnitFormPage({
             />
 
             <SelectWithLabel<
-              z.infer<typeof formSchema>,
+              InsertOrgUnitInputFromForm,
               { id: number; description: string }
             >
               fieldTitle="Parent Unit (optional)"
