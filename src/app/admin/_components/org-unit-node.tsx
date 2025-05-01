@@ -23,7 +23,7 @@ interface OrgUnitNodeProps {
 }
 
 export function OrgUnitNode({ unit, allUnits, level }: OrgUnitNodeProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(level === 0);
   const router = useRouter();
   const childUnits = allUnits.filter((u) => u.parentId === unit.id);
   const employeeCount = Math.floor(Math.random() * 10) + 1; // Simulated employee count
