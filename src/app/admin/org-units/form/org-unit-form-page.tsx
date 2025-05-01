@@ -18,6 +18,11 @@ import { Textarea } from "~/components/ui/textarea";
 import { SelectWithLabel } from "~/app/_components/form/select-with-label";
 import { toast } from "sonner";
 import Breadcrumbs from "~/app/admin/_components/breadcrumbs";
+import { useAction } from "next-safe-action/hooks";
+import { createOrgUnitAction } from "~/server/actions/create-org-unit-action";
+import { updateOrgUnitAction } from "~/server/actions/update-org-unit-action";
+import { LoaderCircle as LoaderIcon } from "lucide-react";
+import type { InsertOrgUnitInputFromForm } from "~/zod-schemas/org-unit";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -28,35 +33,63 @@ const formSchema = z.object({
 interface OrgUnitFormPageProps {
   organizationId: number;
   parentOptions: { id: number; name: string }[];
+  orgUnit?: InsertOrgUnitInputFromForm & { id: number }; // ha edit
 }
 
 export default function OrgUnitFormPage({
   organizationId,
   parentOptions,
+  orgUnit,
 }: OrgUnitFormPageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  const parentId = searchParams.get("parentId");
   const parentName = searchParams.get("parentName");
+
+  const isEditMode = !!orgUnit;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      description: "",
-      parentId: parentId ? Number(parentId) : undefined,
+      name: orgUnit?.name ?? "",
+      description: orgUnit?.description ?? "",
+      parentId: orgUnit?.parentId ?? undefined,
     },
   });
 
+  // const { execute: createOrgUnit, isPending: isCreating } = useAction(
+  //   createOrgUnitAction,
+  //   {
+  //     onSuccess({ data }) {
+  //       toast.success(data?.message);
+  //       router.push("/admin/org-units");
+  //     },
+  //     onError() {
+  //       toast.error("Failed to create organizational unit.");
+  //     },
+  //   },
+  // );
+
+  // const { execute: updateOrgUnit, isPending: isUpdating } = useAction(
+  //   updateOrgUnitAction,
+  //   {
+  //     onSuccess({ data }) {
+  //       toast.success(data?.message);
+  //       router.push("/admin/org-units");
+  //     },
+  //     onError() {
+  //       toast.error("Failed to update organizational unit.");
+  //     },
+  //   },
+  // );
+
+  const isPending = isCreating || isUpdating;
+
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    toast.success(
-      parentName
-        ? `Added new sub-unit under ${parentName}`
-        : "New root organizational unit has been created",
-    );
-    console.log("Submitted:", values);
-    router.push("/admin/org-units");
+    if (isEditMode && orgUnit?.id) {
+      updateOrgUnit({ id: orgUnit.id, ...values });
+    } else {
+      createOrgUnit({ ...values });
+    }
   };
 
   return (
@@ -65,12 +98,18 @@ export default function OrgUnitFormPage({
 
       <div className="space-y-2">
         <h1 className="text-3xl font-bold">
-          {parentName ? `Add Sub-unit to ${parentName}` : "Create Root Unit"}
+          {isEditMode
+            ? "Edit Organizational Unit"
+            : parentName
+              ? `Add Sub-unit to ${parentName}`
+              : "Create Root Unit"}
         </h1>
         <p className="text-muted-foreground">
-          {parentName
-            ? "Add a new organizational unit under the selected parent unit"
-            : "Add a new root organizational unit"}
+          {isEditMode
+            ? "Modify the details of the organizational unit"
+            : parentName
+              ? "Add a new organizational unit under the selected parent unit"
+              : "Add a new root organizational unit"}
         </p>
         <p className="text-muted-foreground text-sm">
           (Org ID: <code>{organizationId}</code>)
@@ -123,8 +162,21 @@ export default function OrgUnitFormPage({
             />
 
             <div className="flex gap-4">
-              <Button type="submit" className="cursor-pointer">
-                {parentName ? "Add Sub-unit" : "Create Root Unit"}
+              <Button
+                type="submit"
+                disabled={isPending}
+                className="cursor-pointer"
+              >
+                {isPending ? (
+                  <>
+                    <LoaderIcon className="mr-2 h-4 w-4 animate-spin" />
+                    {isEditMode ? "Updating..." : "Saving..."}
+                  </>
+                ) : isEditMode ? (
+                  "Update Unit"
+                ) : (
+                  "Create Unit"
+                )}
               </Button>
               <Button
                 type="button"
