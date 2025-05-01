@@ -104,12 +104,6 @@ export default function UsersPage() {
               <TableHead className="text-muted-foreground text-xs font-medium">
                 Org Unit
               </TableHead>
-              <TableHead className="text-muted-foreground text-xs font-medium">
-                Status
-              </TableHead>
-              <TableHead className="text-muted-foreground text-xs font-medium">
-                Last Login
-              </TableHead>
               <TableHead className="text-muted-foreground w-[100px] text-xs font-medium">
                 Actions
               </TableHead>
@@ -135,22 +129,6 @@ export default function UsersPage() {
                 </TableCell>
                 <TableCell>{user.role}</TableCell>
                 <TableCell>{getOrgUnitName(user.orgUnit)}</TableCell>
-                <TableCell>
-                  {user.status === "active" ? (
-                    <div className="flex items-center">
-                      <CheckCircleIcon className="mr-1 h-4 w-4 text-green-500" />
-                      <span>Active</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center">
-                      <XCircleIcon className="mr-1 h-4 w-4 text-red-500" />
-                      <span>Inactive</span>
-                    </div>
-                  )}
-                </TableCell>
-                <TableCell>
-                  {new Date(user.lastLogin).toLocaleDateString()}
-                </TableCell>
                 <TableCell>
                   <div className="flex space-x-2">
                     <Button
