@@ -13,12 +13,44 @@ import { orgUnits as initialOrgUnits } from "~/data/mock-data";
 import { OrgUnitNode } from "../_components/org-unit-node";
 import type { OrgUnit } from "~/data/mock-data";
 
+function filterOrgUnitsRecursively(
+  units: OrgUnit[],
+  search: string,
+): OrgUnit[] {
+  if (!search.trim()) return units;
+
+  const lowerSearch = search.toLowerCase();
+  const matched = new Set<number>();
+
+  function dfs(unit: OrgUnit): boolean {
+    const match = unit.name.toLowerCase().includes(lowerSearch);
+    const children = units.filter((u) => u.parentId === unit.id);
+    let childMatch = false;
+
+    for (const child of children) {
+      if (dfs(child)) {
+        childMatch = true;
+      }
+    }
+
+    if (match || childMatch) {
+      matched.add(unit.id);
+    }
+
+    return match || childMatch;
+  }
+
+  units.filter((u) => !u.parentId).forEach((root) => dfs(root));
+  return units.filter((u) => matched.has(u.id));
+}
+
 export default function OrgUnitsPage() {
   const [orgUnits] = useState<OrgUnit[]>(initialOrgUnits);
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
 
-  const rootUnits = orgUnits.filter((unit) => !unit.parentId);
+  const filteredOrgUnits = filterOrgUnitsRecursively(orgUnits, searchTerm);
+  const rootUnits = filteredOrgUnits.filter((unit) => !unit.parentId);
 
   const handleAddOrgUnit = () => {
     router.push("/admin/org-units/form");
@@ -64,7 +96,7 @@ export default function OrgUnitsPage() {
             <OrgUnitNode
               key={unit.id}
               unit={unit}
-              allUnits={orgUnits}
+              allUnits={filteredOrgUnits}
               level={0}
             />
           ))
