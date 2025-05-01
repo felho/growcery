@@ -13,44 +13,15 @@ import { orgUnits as initialOrgUnits } from "~/data/mock-data";
 import { OrgUnitNode } from "../_components/org-unit-node";
 import type { OrgUnit } from "~/data/mock-data";
 
-function filterOrgUnitsRecursively(
-  units: OrgUnit[],
-  search: string,
-): OrgUnit[] {
-  if (!search.trim()) return units;
-
-  const lowerSearch = search.toLowerCase();
-  const matched = new Set<number>();
-
-  function dfs(unit: OrgUnit): boolean {
-    const match = unit.name.toLowerCase().includes(lowerSearch);
-    const children = units.filter((u) => u.parentId === unit.id);
-    let childMatch = false;
-
-    for (const child of children) {
-      if (dfs(child)) {
-        childMatch = true;
-      }
-    }
-
-    if (match || childMatch) {
-      matched.add(unit.id);
-    }
-
-    return match || childMatch;
-  }
-
-  units.filter((u) => !u.parentId).forEach((root) => dfs(root));
-  return units.filter((u) => matched.has(u.id));
-}
-
 export default function OrgUnitsPage() {
   const [orgUnits] = useState<OrgUnit[]>(initialOrgUnits);
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
 
-  const filteredOrgUnits = filterOrgUnitsRecursively(orgUnits, searchTerm);
-  const rootUnits = filteredOrgUnits.filter((unit) => !unit.parentId);
+  const rootUnits = orgUnits.filter((unit) => !unit.parentId);
+  const filteredUnitIds = getMatchingUnitIds(orgUnits, searchTerm);
+  const visibleUnits = orgUnits.filter((u) => filteredUnitIds.has(u.id));
+  const openNodeIds = getOpenNodeIds(orgUnits, searchTerm);
 
   const handleAddOrgUnit = () => {
     router.push("/admin/org-units/form");
@@ -87,21 +58,80 @@ export default function OrgUnitsPage() {
       </div>
 
       <div className="space-y-2 rounded-lg border p-4">
-        {rootUnits.length === 0 ? (
+        {visibleUnits.filter((u) => !u.parentId).length === 0 ? (
           <div className="text-muted-foreground py-8 text-center">
             No organizational units found. Click "Add Root Unit" to create one.
           </div>
         ) : (
-          rootUnits.map((unit) => (
-            <OrgUnitNode
-              key={unit.id}
-              unit={unit}
-              allUnits={filteredOrgUnits}
-              level={0}
-            />
-          ))
+          visibleUnits
+            .filter((unit) => !unit.parentId)
+            .map((unit) => (
+              <OrgUnitNode
+                key={unit.id}
+                unit={unit}
+                allUnits={visibleUnits}
+                level={0}
+                openNodes={openNodeIds}
+              />
+            ))
         )}
       </div>
     </div>
   );
+}
+
+function getMatchingUnitIds(units: OrgUnit[], searchTerm: string): Set<number> {
+  if (!searchTerm) {
+    return new Set(units.map((u) => u.id));
+  }
+
+  const matched = new Set<number>();
+
+  function matchRecursive(unit: OrgUnit): boolean {
+    const match =
+      unit.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (unit.description?.toLowerCase().includes(searchTerm.toLowerCase()) ??
+        false);
+
+    const children = units.filter((u) => u.parentId === unit.id);
+    const childMatch = children.map(matchRecursive).some(Boolean);
+
+    if (match || childMatch) {
+      matched.add(unit.id);
+      if (unit.parentId) matched.add(unit.parentId);
+    }
+
+    return match || childMatch;
+  }
+
+  units.forEach((u) => matchRecursive(u));
+  return matched;
+}
+
+function getOpenNodeIds(units: OrgUnit[], searchTerm: string): Set<number> {
+  if (!searchTerm) {
+    return new Set(units.filter((u) => !u.parentId).map((u) => u.id)); // első szint nyitva
+  }
+
+  const open = new Set<number>();
+
+  function collectOpenIds(unit: OrgUnit): boolean {
+    const match =
+      unit.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (unit.description?.toLowerCase().includes(searchTerm.toLowerCase()) ??
+        false);
+
+    const children = units.filter((u) => u.parentId === unit.id);
+    const childMatch = children.map(collectOpenIds).some(Boolean);
+
+    if (match || childMatch) {
+      open.add(unit.id);
+      if (unit.parentId) open.add(unit.parentId);
+    }
+
+    return match || childMatch;
+  }
+
+  units.forEach((u) => collectOpenIds(u));
+  return open;
 }

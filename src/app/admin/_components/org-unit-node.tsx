@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "~/components/ui/button";
 import {
@@ -20,13 +20,25 @@ interface OrgUnitNodeProps {
   unit: OrgUnit;
   allUnits: OrgUnit[];
   level: number;
+  openNodes?: Set<number>;
 }
 
-export function OrgUnitNode({ unit, allUnits, level }: OrgUnitNodeProps) {
-  const [isOpen, setIsOpen] = useState(level === 0);
+export function OrgUnitNode({
+  unit,
+  allUnits,
+  level,
+  openNodes,
+}: OrgUnitNodeProps) {
+  const [isOpen, setIsOpen] = useState(openNodes?.has(unit.id) ?? level === 0);
   const router = useRouter();
   const childUnits = allUnits.filter((u) => u.parentId === unit.id);
-  const employeeCount = Math.floor(Math.random() * 10) + 1; // Simulated employee count
+  const employeeCount = Math.floor(Math.random() * 10) + 1;
+
+  useEffect(() => {
+    if (openNodes) {
+      setIsOpen(openNodes.has(unit.id));
+    }
+  }, [openNodes, unit.id]);
 
   const handleAddSubUnit = () => {
     router.push(
@@ -38,7 +50,9 @@ export function OrgUnitNode({ unit, allUnits, level }: OrgUnitNodeProps) {
     <div className="animate-fade-in">
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <div
-          className={`hover:bg-secondary/80 flex items-center gap-4 rounded-md p-3 transition-colors ${level === 0 ? "bg-secondary/40" : ""}`}
+          className={`hover:bg-secondary/80 flex items-center gap-4 rounded-md p-3 transition-colors ${
+            level === 0 ? "bg-secondary/40" : ""
+          }`}
         >
           {childUnits.length > 0 ? (
             <CollapsibleTrigger asChild>
@@ -48,7 +62,9 @@ export function OrgUnitNode({ unit, allUnits, level }: OrgUnitNodeProps) {
                 className="h-5 w-5 cursor-pointer p-0"
               >
                 <ChevronRightIcon
-                  className={`h-4 w-4 transition-transform duration-200 ${isOpen ? "rotate-90" : ""}`}
+                  className={`h-4 w-4 transition-transform duration-200 ${
+                    isOpen ? "rotate-90" : ""
+                  }`}
                 />
               </Button>
             </CollapsibleTrigger>
@@ -74,8 +90,6 @@ export function OrgUnitNode({ unit, allUnits, level }: OrgUnitNodeProps) {
             <Button
               variant="ghost"
               onClick={handleAddSubUnit}
-              // This is another hover effect that might be interesting
-              // className="hover:!bg-primary/10 hover:!text-primary cursor-pointer rounded-md px-2 py-1 transition"
               className="hover:border-primary hover:bg-primary/10 ml-2 cursor-pointer border border-transparent px-2 py-1 transition-all duration-200"
             >
               <PlusCircleIcon className="mr-2 h-4 w-4" />
@@ -83,8 +97,6 @@ export function OrgUnitNode({ unit, allUnits, level }: OrgUnitNodeProps) {
             </Button>
             <Button
               variant="ghost"
-              // This is another hover effect that might be interesting
-              // className="hover:!bg-primary/10 hover:!text-primary cursor-pointer rounded-md px-2 py-1 transition"
               className="hover:border-primary hover:bg-primary/10 cursor-pointer border border-transparent px-2 py-1 transition-all duration-200"
             >
               View
@@ -95,12 +107,13 @@ export function OrgUnitNode({ unit, allUnits, level }: OrgUnitNodeProps) {
         {childUnits.length > 0 && (
           <CollapsibleContent>
             <div className="border-border mt-1 ml-6 space-y-1 border-l pl-4">
-              {childUnits.map((childUnit) => (
+              {childUnits.map((child) => (
                 <OrgUnitNode
-                  key={childUnit.id}
-                  unit={childUnit}
+                  key={child.id}
+                  unit={child}
                   allUnits={allUnits}
                   level={level + 1}
+                  openNodes={openNodes}
                 />
               ))}
             </div>
