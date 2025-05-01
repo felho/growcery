@@ -13,8 +13,6 @@ import {
   Building2 as Building2Icon,
   Users as UsersIcon,
   PlusCircle as PlusCircleIcon,
-  Users,
-  PlusCircle,
 } from "lucide-react";
 import type { OrgUnit } from "~/data/mock-data";
 
