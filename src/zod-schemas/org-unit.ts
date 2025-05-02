@@ -6,14 +6,18 @@ export const insertOrgUnitSchemaFromForm = z.object({
   parentId: z.coerce.number().int().optional(),
 });
 
-// In server action we need the organizationId
 export const insertOrgUnitSchema = insertOrgUnitSchemaFromForm.extend({
   organizationId: z.number().int(),
 });
 
-export const updateOrgUnitSchema = insertOrgUnitSchemaFromForm.extend({
-  id: z.number().int(),
-});
+export const updateOrgUnitSchema = insertOrgUnitSchemaFromForm
+  .extend({
+    id: z.number().int(),
+  })
+  .refine((data) => data.id !== data.parentId, {
+    message: "An organizational unit cannot be its own parent.",
+    path: ["parentId"],
+  });
 
 export type InsertOrgUnitInputFromForm = z.infer<
   typeof insertOrgUnitSchemaFromForm

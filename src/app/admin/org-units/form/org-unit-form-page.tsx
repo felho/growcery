@@ -31,6 +31,11 @@ export default function OrgUnitFormPage({
 
   const mode: "create" | "edit" = orgUnit ? "edit" : "create";
 
+  const filteredParentOptions =
+    mode === "edit"
+      ? parentOptions.filter((option) => option.id !== orgUnit?.id)
+      : parentOptions;
+
   const form = useForm<InsertOrgUnitInputFromForm>({
     resolver: zodResolver(insertOrgUnitSchemaFromForm),
     defaultValues: {
@@ -103,7 +108,7 @@ export default function OrgUnitFormPage({
       <OrgUnitForm
         form={form}
         onSubmit={onSubmit}
-        parentOptions={parentOptions}
+        parentOptions={filteredParentOptions}
         isPending={isPending}
         mode={mode}
       />
