@@ -23,11 +23,13 @@ export const createTable = pgTableCreator((name) => `growcery_${name}`);
 export const users = createTable("users", {
   id: bigint({ mode: "number" }).primaryKey().generatedByDefaultAsIdentity(),
   authProviderId: varchar({ length: 500 }),
+  organizationId: bigint({ mode: "number" })
+    .notNull()
+    .references(() => organizations.id),
   fullName: varchar({ length: 250 }).notNull(),
   email: varchar({ length: 500 }).notNull().unique(),
   functionId: bigint({ mode: "number" }),
   managerId: bigint({ mode: "number" }),
-  orgUnitId: bigint({ mode: "number" }),
   createdAt: timestamp({ withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
@@ -65,7 +67,10 @@ export const functions = createTable("functions", {
 
 export const orgUnits = createTable("org_units", (t) => ({
   id: t.bigint({ mode: "number" }).primaryKey().generatedByDefaultAsIdentity(),
-  organizationId: t.bigint({ mode: "number" }).notNull(),
+  organizationId: t
+    .bigint({ mode: "number" })
+    .notNull()
+    .references(() => organizations.id),
   name: t.varchar({ length: 250 }).notNull(),
   description: t.varchar({ length: 500 }),
   parentId: t
