@@ -1,4 +1,3 @@
-import { FolderTree } from "lucide-react";
 import {
   Users as UsersIcon,
   Settings as SettingsIcon,
@@ -9,7 +8,6 @@ import {
 } from "lucide-react";
 import { activities, functions, orgUnits, users } from "~/data/mock-data";
 import StatCard from "./_components/stat-card";
-import Link from "next/link";
 import {
   Card,
   CardContent,
