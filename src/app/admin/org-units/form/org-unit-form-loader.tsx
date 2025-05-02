@@ -1,8 +1,17 @@
 import { getCurrentUserOrgId } from "~/lib/auth/get-org-id";
 import OrgUnitFormPage from "./org-unit-form-page";
-import { getAllOrgUnitsForOrg } from "~/server/queries";
+import { getAllOrgUnitsForOrg, getOrgUnitById } from "~/server/queries";
+import type { InsertOrgUnitInputFromForm } from "~/zod-schemas/org-unit";
+import { notFound } from "next/navigation";
 
-export default async function OrgUnitFormLoader() {
+interface LoaderProps {
+  searchParams: {
+    orgUnitId?: string;
+    parentName?: string;
+  };
+}
+
+export default async function OrgUnitFormLoader({ searchParams }: LoaderProps) {
   const organizationId = await getCurrentUserOrgId();
   const allOrgUnits = await getAllOrgUnitsForOrg(organizationId);
 
@@ -11,10 +20,25 @@ export default async function OrgUnitFormLoader() {
     name: unit.name,
   }));
 
+  let orgUnit: (InsertOrgUnitInputFromForm & { id: number }) | undefined;
+
+  if (searchParams.orgUnitId) {
+    const unit = await getOrgUnitById(Number(searchParams.orgUnitId));
+    if (!unit) notFound();
+
+    orgUnit = {
+      id: unit.id,
+      name: unit.name,
+      description: unit.description ?? "",
+      parentId: unit.parentId ?? undefined,
+    };
+  }
+
   return (
     <OrgUnitFormPage
       organizationId={organizationId}
       parentOptions={parentOptions}
+      orgUnit={orgUnit}
     />
   );
 }

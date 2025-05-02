@@ -1,5 +1,12 @@
 import OrgUnitFormLoader from "./org-unit-form-loader";
 
-export default function Page() {
-  return <OrgUnitFormLoader />;
+interface PageProps {
+  searchParams: {
+    orgUnitId?: string;
+    parentName?: string;
+  };
+}
+
+export default function Page({ searchParams }: PageProps) {
+  return <OrgUnitFormLoader searchParams={searchParams} />;
 }
