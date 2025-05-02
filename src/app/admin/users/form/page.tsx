@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getUserById } from "~/server/queries";
 import { UserForm } from "./user-form";
 import { type Metadata } from "next";
+import Breadcrumbs from "~/app/admin/_components/breadcrumbs";
 
 export async function generateMetadata({
   searchParams,
@@ -22,22 +23,42 @@ interface PageProps {
 
 export default async function UserFormPage({ searchParams }: PageProps) {
   const userId = searchParams.userId;
+  const mode: "create" | "edit" = userId ? "edit" : "create";
+
+  let user = undefined;
 
   if (userId) {
-    const user = await getUserById(Number(userId));
-    if (!user) notFound();
+    const found = await getUserById(Number(userId));
+    if (!found) notFound();
 
-    const normalizedUser = {
-      ...user,
-      functionId: user.functionId ?? undefined,
-      managerId: user.managerId ?? undefined,
-      orgUnitId: user.orgUnitId ?? undefined,
+    user = {
+      ...found,
+      functionId: found.functionId ?? undefined,
+      managerId: found.managerId ?? undefined,
+      orgUnitId: found.orgUnitId ?? undefined,
     };
-
-    return (
-      <UserForm mode="edit" user={normalizedUser} key={`edit-${userId}`} />
-    );
   }
 
-  return <UserForm mode="create" key="create" />;
+  return (
+    <div className="animate-fade-in space-y-6">
+      <Breadcrumbs />
+
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold">
+          {mode === "edit" ? "Edit User" : "Create User"}
+        </h1>
+        <p className="text-muted-foreground">
+          {mode === "edit"
+            ? "Modify the details of the user"
+            : "Fill out the details to add a new user"}
+        </p>
+      </div>
+
+      <UserForm
+        mode={mode}
+        user={mode === "edit" ? user : undefined}
+        key={mode === "edit" ? `edit-${userId}` : "create"}
+      />
+    </div>
+  );
 }
