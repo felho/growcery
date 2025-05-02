@@ -43,7 +43,7 @@ export function OrgUnitNode({
 
   const handleAddSubUnit = () => {
     router.push(
-      `/admin/org-units/add?parentId=${unit.id}&parentName=${encodeURIComponent(unit.name)}`,
+      `/admin/org-units/form?parentId=${unit.id}&parentName=${encodeURIComponent(unit.name)}`,
     );
   };
 

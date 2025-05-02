@@ -28,20 +28,21 @@ export default function OrgUnitFormPage({
   const router = useRouter();
   const searchParams = useSearchParams();
   const parentName = searchParams.get("parentName");
+  const parentIdFromQuery = searchParams.get("parentId");
 
   const mode: "create" | "edit" = orgUnit ? "edit" : "create";
-
-  const filteredParentOptions =
-    mode === "edit"
-      ? parentOptions.filter((option) => option.id !== orgUnit?.id)
-      : parentOptions;
 
   const form = useForm<InsertOrgUnitInputFromForm>({
     resolver: zodResolver(insertOrgUnitSchemaFromForm),
     defaultValues: {
       name: orgUnit?.name ?? "",
       description: orgUnit?.description ?? "",
-      parentId: orgUnit?.parentId ?? undefined,
+      parentId:
+        mode === "edit"
+          ? (orgUnit?.parentId ?? undefined)
+          : parentIdFromQuery
+            ? Number(parentIdFromQuery)
+            : undefined,
     },
   });
 
@@ -108,7 +109,7 @@ export default function OrgUnitFormPage({
       <OrgUnitForm
         form={form}
         onSubmit={onSubmit}
-        parentOptions={filteredParentOptions}
+        parentOptions={parentOptions}
         isPending={isPending}
         mode={mode}
       />
