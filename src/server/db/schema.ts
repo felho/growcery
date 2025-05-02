@@ -28,8 +28,9 @@ export const users = createTable("users", {
     .references(() => organizations.id),
   fullName: varchar({ length: 250 }).notNull(),
   email: varchar({ length: 500 }).notNull().unique(),
-  functionId: bigint({ mode: "number" }),
-  managerId: bigint({ mode: "number" }),
+  orgUnitId: bigint({ mode: "number" }).references(() => orgUnits.id),
+  functionId: bigint({ mode: "number" }).references(() => functions.id),
+  managerId: bigint({ mode: "number" }).references((): AnyPgColumn => users.id),
   createdAt: timestamp({ withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
