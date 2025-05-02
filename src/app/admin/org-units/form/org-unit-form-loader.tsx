@@ -23,8 +23,10 @@ export default async function OrgUnitFormLoader({ searchParams }: LoaderProps) {
 
   let orgUnit: (InsertOrgUnitInputFromForm & { id: number }) | undefined;
 
-  if (searchParams.orgUnitId) {
-    const unit = await getOrgUnitById(Number(searchParams.orgUnitId));
+  const { orgUnitId } = await searchParams;
+
+  if (orgUnitId) {
+    const unit = await getOrgUnitById(Number(orgUnitId));
     if (!unit) notFound();
 
     orgUnit = {

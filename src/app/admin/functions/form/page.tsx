@@ -9,7 +9,7 @@ export async function generateMetadata({
 }: {
   searchParams: { functionId?: string };
 }): Promise<Metadata> {
-  const { functionId } = searchParams;
+  const { functionId } = await searchParams;
   return {
     title: functionId ? `Edit Function #${functionId}` : "Create Function",
   };
@@ -22,7 +22,7 @@ interface PageProps {
 }
 
 export default async function FunctionFormPage({ searchParams }: PageProps) {
-  const functionId = searchParams.functionId;
+  const { functionId } = await searchParams;
   const mode: "create" | "edit" = functionId ? "edit" : "create";
 
   let func = undefined;

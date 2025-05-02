@@ -9,7 +9,7 @@ export async function generateMetadata({
 }: {
   searchParams: { userId?: string };
 }): Promise<Metadata> {
-  const { userId } = searchParams;
+  const { userId } = await searchParams;
   return {
     title: userId ? `Edit User #${userId}` : "Create User",
   };
@@ -22,7 +22,7 @@ interface PageProps {
 }
 
 export default async function UserFormPage({ searchParams }: PageProps) {
-  const userId = searchParams.userId;
+  const { userId } = await searchParams;
   const mode: "create" | "edit" = userId ? "edit" : "create";
 
   let user = undefined;
