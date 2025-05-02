@@ -13,13 +13,15 @@ import { updateUserAction } from "~/server/actions/update-user-action";
 import { toast } from "sonner";
 import { LoaderCircle as LoaderCircleIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { SelectWithLabel } from "~/app/_components/form/select-with-label";
 
 interface UserFormProps {
   mode: "create" | "edit";
   user?: InsertUserInputFromForm & { id: number };
+  functions: { id: number; description: string }[];
 }
 
-export function UserForm({ mode, user }: UserFormProps) {
+export function UserForm({ mode, user, functions }: UserFormProps) {
   const router = useRouter();
 
   const form = useForm<InsertUserInputFromForm>({
@@ -90,11 +92,16 @@ export function UserForm({ mode, user }: UserFormProps) {
             type="email"
           />
 
-          <InputWithLabel<InsertUserInputFromForm>
-            fieldTitle="Function ID"
+          <SelectWithLabel<
+            InsertUserInputFromForm,
+            { id: number; description: string }
+          >
+            fieldTitle="Function"
             nameInSchema="functionId"
-            type="number"
-            placeholder="Enter function ID"
+            data={functions}
+            placeholder="Select function"
+            getValue={(item) => item.id.toString()}
+            getLabel={(item) => item.description}
           />
 
           <InputWithLabel<InsertUserInputFromForm>
