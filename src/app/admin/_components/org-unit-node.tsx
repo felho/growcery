@@ -15,11 +15,11 @@ import {
   PlusCircle as PlusCircleIcon,
   Pencil as PencilIcon,
 } from "lucide-react";
-import type { OrgUnit } from "~/data/mock-data";
+import type { OrgUnitRecord } from "~/server/queries";
 
 interface OrgUnitNodeProps {
-  unit: OrgUnit;
-  allUnits: OrgUnit[];
+  unit: OrgUnitRecord;
+  allUnits: OrgUnitRecord[];
   level: number;
   openNodes?: Set<number>;
 }

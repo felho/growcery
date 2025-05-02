@@ -2,23 +2,29 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
+import useSWR from "swr";
 import {
   PlusCircle as PlusCircleIcon,
   Search as SearchIcon,
 } from "lucide-react";
+
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
 import Breadcrumbs from "../_components/breadcrumbs";
-import { orgUnits as initialOrgUnits } from "~/data/mock-data";
 import { OrgUnitNode } from "../_components/org-unit-node";
-import type { OrgUnit } from "~/data/mock-data";
+import { fetchOrgUnits } from "~/lib/client-api";
+import type { OrgUnitRecord } from "~/server/queries";
 
 export default function OrgUnitsPage() {
-  const [orgUnits] = useState<OrgUnit[]>(initialOrgUnits);
-  const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const rootUnits = orgUnits.filter((unit) => !unit.parentId);
+  const {
+    data: orgUnits = [],
+    isLoading,
+    error,
+  } = useSWR("/org-units", fetchOrgUnits);
+
   const filteredUnitIds = getMatchingUnitIds(orgUnits, searchTerm);
   const visibleUnits = orgUnits.filter((u) => filteredUnitIds.has(u.id));
   const openNodeIds = getOpenNodeIds(orgUnits, searchTerm);
@@ -58,7 +64,15 @@ export default function OrgUnitsPage() {
       </div>
 
       <div className="space-y-2 rounded-lg border p-4">
-        {visibleUnits.filter((u) => !u.parentId).length === 0 ? (
+        {isLoading ? (
+          <div className="text-muted-foreground py-8 text-center">
+            Loading org units...
+          </div>
+        ) : error ? (
+          <div className="text-destructive py-8 text-center">
+            Failed to load org units.
+          </div>
+        ) : visibleUnits.filter((u) => !u.parentId).length === 0 ? (
           <div className="text-muted-foreground py-8 text-center">
             No organizational units found. Click "Add Root Unit" to create one.
           </div>
@@ -80,14 +94,17 @@ export default function OrgUnitsPage() {
   );
 }
 
-function getMatchingUnitIds(units: OrgUnit[], searchTerm: string): Set<number> {
+function getMatchingUnitIds(
+  units: OrgUnitRecord[],
+  searchTerm: string,
+): Set<number> {
   if (!searchTerm) {
     return new Set(units.map((u) => u.id));
   }
 
   const matched = new Set<number>();
 
-  function matchRecursive(unit: OrgUnit): boolean {
+  function matchRecursive(unit: OrgUnitRecord): boolean {
     const match =
       unit.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (unit.description?.toLowerCase().includes(searchTerm.toLowerCase()) ??
@@ -108,14 +125,17 @@ function getMatchingUnitIds(units: OrgUnit[], searchTerm: string): Set<number> {
   return matched;
 }
 
-function getOpenNodeIds(units: OrgUnit[], searchTerm: string): Set<number> {
+function getOpenNodeIds(
+  units: OrgUnitRecord[],
+  searchTerm: string,
+): Set<number> {
   if (!searchTerm) {
-    return new Set(units.filter((u) => !u.parentId).map((u) => u.id)); // első szint nyitva
+    return new Set(units.filter((u) => !u.parentId).map((u) => u.id));
   }
 
   const open = new Set<number>();
 
-  function collectOpenIds(unit: OrgUnit): boolean {
+  function collectOpenIds(unit: OrgUnitRecord): boolean {
     const match =
       unit.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (unit.description?.toLowerCase().includes(searchTerm.toLowerCase()) ??
