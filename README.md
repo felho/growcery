@@ -20,6 +20,8 @@
 - [ ] Adding fields to users: isActive, lastLogin
 - [ ] Is the "-action" needed in the name of the server action files?
 - [ ] Adding placeholder support to input and textarea with label components.
+- [ ] client-apis file --> use the FunctionRecord in the case of the first fetch.
+- [ ] client-apis file --> think about separating the different entities into separate files.
 
 ### Login / user management
 
