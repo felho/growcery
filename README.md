@@ -22,6 +22,7 @@
 - [ ] Adding placeholder support to input and textarea with label components.
 - [ ] client-apis file --> use the FunctionRecord in the case of the first fetch.
 - [ ] client-apis file --> think about separating the different entities into separate files.
+- [ ] Think about the naming of the zod schemas as currently the naming is a bit messy
 
 ### Login / user management
 
