@@ -53,7 +53,16 @@ export function SelectWithLabel<S, T = DefaultData>({
             {fieldTitle}
           </FormLabel>
 
-          <Select value={field.value} onValueChange={field.onChange}>
+          <Select
+            value={
+              field.value !== undefined && field.value !== null
+                ? field.value.toString()
+                : ""
+            }
+            onValueChange={(val) =>
+              field.onChange(val === "" ? undefined : Number(val))
+            }
+          >
             <FormControl>
               <SelectTrigger
                 id={nameInSchema}
