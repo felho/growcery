@@ -18,6 +18,7 @@ export default async function OrgUnitFormLoader({ searchParams }: LoaderProps) {
   const parentOptions = allOrgUnits.map((unit) => ({
     id: unit.id,
     name: unit.name,
+    parentId: unit.parentId ?? null,
   }));
 
   let orgUnit: (InsertOrgUnitInputFromForm & { id: number }) | undefined;

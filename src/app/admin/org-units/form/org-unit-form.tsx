@@ -19,9 +19,25 @@ import type { InsertOrgUnitInputFromForm } from "~/zod-schemas/org-unit";
 interface OrgUnitFormProps {
   form: UseFormReturn<InsertOrgUnitInputFromForm>;
   onSubmit: (values: InsertOrgUnitInputFromForm) => void;
-  parentOptions: { id: number; name: string }[];
+  parentOptions: { id: number; name: string; parentId?: number | null }[];
   isPending: boolean;
   mode: "create" | "edit";
+}
+
+function buildHierarchicalOptions(
+  units: { id: number; name: string; parentId?: number | null }[],
+  parentId: number | null = null,
+  level = 0,
+): { id: number; description: string }[] {
+  return units
+    .filter((u) => u.parentId === parentId)
+    .flatMap((u) => [
+      {
+        id: u.id,
+        description: `${level == 0 ? "" : "└"}${"— ".repeat(level)}${u.name}`,
+      },
+      ...buildHierarchicalOptions(units, u.id, level + 1),
+    ]);
 }
 
 export function OrgUnitForm({
@@ -31,6 +47,8 @@ export function OrgUnitForm({
   isPending,
   mode,
 }: OrgUnitFormProps) {
+  const hierarchicalOptions = buildHierarchicalOptions(parentOptions);
+
   return (
     <div className="max-w-2xl">
       <Form {...form}>
@@ -56,10 +74,7 @@ export function OrgUnitForm({
             fieldTitle="Parent Unit (optional)"
             nameInSchema="parentId"
             placeholder="None"
-            data={parentOptions.map((u) => ({
-              id: u.id,
-              description: u.name,
-            }))}
+            data={hierarchicalOptions}
             getValue={(item) => item.id.toString()}
           />
 
