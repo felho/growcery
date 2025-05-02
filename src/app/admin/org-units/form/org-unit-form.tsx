@@ -1,20 +1,13 @@
 "use client";
 
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
-import { Textarea } from "~/components/ui/textarea";
-import { SelectWithLabel } from "~/app/_components/form/select-with-label";
+import { Form } from "~/components/ui/form";
 import { Button } from "~/components/ui/button";
 import { LoaderCircle as LoaderIcon } from "lucide-react";
 import type { UseFormReturn } from "react-hook-form";
 import type { InsertOrgUnitInputFromForm } from "~/zod-schemas/org-unit";
+import { SelectWithLabel } from "~/app/_components/form/select-with-label";
+import { InputWithLabel } from "~/app/_components/form/input-with-label";
+import { TextareaWithLabel } from "~/app/_components/form/textarea-with-label";
 
 interface OrgUnitFormProps {
   form: UseFormReturn<InsertOrgUnitInputFromForm>;
@@ -53,18 +46,11 @@ export function OrgUnitForm({
     <div className="max-w-2xl">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Unit Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter unit name" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+          <InputWithLabel<InsertOrgUnitInputFromForm>
+            fieldTitle="Unit Name"
+            nameInSchema="name"
+            placeholder="Enter unit name"
+            autoFocus
           />
 
           <SelectWithLabel<
@@ -78,18 +64,10 @@ export function OrgUnitForm({
             getValue={(item) => item.id.toString()}
           />
 
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                  <Textarea placeholder="Enter unit description" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+          <TextareaWithLabel<InsertOrgUnitInputFromForm>
+            fieldTitle="Description"
+            nameInSchema="description"
+            placeholder="Enter unit description"
           />
 
           <div className="flex gap-4">
