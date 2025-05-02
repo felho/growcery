@@ -12,6 +12,7 @@ export const insertUserSchemaFromForm = z.object(baseUserFields);
 
 export const insertUserSchemaWithAuth = z.object({
   authProviderId: z.string().min(1, "Auth provider ID is required"),
+  organizationId: z.number().int(),
   ...baseUserFields,
 });
 
