@@ -204,3 +204,14 @@ export async function updateOrgUnit(data: UpdateOrgUnitInput): Promise<number> {
 
   return result[0]!.updatedId;
 }
+
+export async function getAllUsersForOrg(
+  organizationId: number,
+): Promise<UserRecord[]> {
+  const clerkUser = await auth();
+  if (!clerkUser.userId) throw new Error("Unauthorized");
+
+  return db.query.users.findMany({
+    where: (u, { eq }) => eq(u.organizationId, organizationId),
+  });
+}

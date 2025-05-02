@@ -16,33 +16,33 @@ import {
   Search as SearchIcon,
   Edit as EditIcon,
   Trash as TrashIcon,
-  CheckCircle as CheckCircleIcon,
-  XCircle as XCircleIcon,
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import { toast } from "sonner";
 import Breadcrumbs from "../_components/breadcrumbs";
-import { users as initialUsers, getOrgUnitName } from "~/data/mock-data";
-import type { User } from "~/data/mock-data"; // ha van ilyen típusod
+import { getOrgUnitName } from "~/data/mock-data";
 import { useRouter } from "next/navigation";
+import useSWR from "swr";
+import { fetchUsers } from "~/lib/client-api";
+import type { UserRecord } from "~/server/queries";
 
 export default function UsersPage() {
-  const [users, setUsers] = useState<User[]>(initialUsers);
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
 
+  const { data: users = [], isLoading, error } = useSWR("/users", fetchUsers);
+
   const filteredUsers = users.filter(
     (user) =>
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      getOrgUnitName(user.orgUnit)
+      getOrgUnitName(user.orgUnitId ?? 0)
         .toLowerCase()
         .includes(searchTerm.toLowerCase()),
   );
 
-  const handleEdit = (id: string) => {
-    toast(`Edit user with ID: ${id}`);
+  const handleEdit = (id: number) => {
+    router.push(`/admin/users/form?userId=${id}`);
   };
 
   const handleDelete = (id: string) => {
@@ -60,6 +60,28 @@ export default function UsersPage() {
       .join("")
       .toUpperCase()
       .substring(0, 2);
+
+  if (isLoading) {
+    return (
+      <div className="animate-fade-in space-y-6">
+        <Breadcrumbs />
+        <div className="flex items-center justify-center py-8">
+          <div className="text-muted-foreground">Loading users...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="animate-fade-in space-y-6">
+        <Breadcrumbs />
+        <div className="flex items-center justify-center py-8">
+          <div className="text-destructive">Failed to load users</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="animate-fade-in space-y-6">
@@ -116,19 +138,19 @@ export default function UsersPage() {
                   <div className="flex items-center gap-3">
                     <Avatar className="h-8 w-8">
                       <AvatarFallback className="bg-primary/20 text-primary">
-                        {getInitials(user.name)}
+                        {getInitials(user.fullName)}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <div className="font-medium">{user.name}</div>
+                      <div className="font-medium">{user.fullName}</div>
                       <div className="text-muted-foreground text-xs">
                         {user.email}
                       </div>
                     </div>
                   </div>
                 </TableCell>
-                <TableCell>{user.role}</TableCell>
-                <TableCell>{getOrgUnitName(user.orgUnit)}</TableCell>
+                <TableCell>User</TableCell>
+                <TableCell>{getOrgUnitName(user.orgUnitId ?? 0)}</TableCell>
                 <TableCell>
                   <div className="flex space-x-2">
                     <Button
@@ -143,7 +165,7 @@ export default function UsersPage() {
                       variant="ghost"
                       size="icon"
                       className="cursor-pointer"
-                      onClick={() => handleDelete(user.id)}
+                      onClick={() => handleDelete(user.id.toString())}
                     >
                       <TrashIcon className="h-4 w-4" />
                     </Button>

@@ -11,3 +11,11 @@ export async function fetchOrgUnits(): Promise<OrgUnitRecord[]> {
   if (!res.ok) throw new Error("Failed to fetch org units");
   return res.json();
 }
+
+import type { UserRecord } from "~/server/queries";
+
+export async function fetchUsers(): Promise<UserRecord[]> {
+  const res = await fetch("/api/users");
+  if (!res.ok) throw new Error("Failed to fetch users");
+  return res.json();
+}
