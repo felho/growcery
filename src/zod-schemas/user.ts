@@ -16,6 +16,11 @@ export const insertUserSchemaWithAuth = z.object({
   ...baseUserFields,
 });
 
+export const insertUserSchema = z.object({
+  ...baseUserFields,
+  organizationId: z.number().int(),
+});
+
 export const updateUserSchema = z
   .object({
     id: z.number().int(),
@@ -24,4 +29,5 @@ export const updateUserSchema = z
 
 export type InsertUserInputFromForm = z.infer<typeof insertUserSchemaFromForm>;
 export type InsertUserInputWithAuth = z.infer<typeof insertUserSchemaWithAuth>;
+export type InsertUserInput = z.infer<typeof insertUserSchema>;
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;

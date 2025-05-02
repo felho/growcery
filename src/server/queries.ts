@@ -4,9 +4,9 @@ import { functions, orgUnits, users } from "./db/schema";
 import { auth } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
 import type {
-  InsertUserInputFromForm,
   InsertUserInputWithAuth,
   UpdateUserInput,
+  InsertUserInput,
 } from "~/zod-schemas/user";
 import type { InferSelectModel } from "drizzle-orm";
 import type { UpdateFunctionInput } from "~/zod-schemas/function";
@@ -52,7 +52,7 @@ export async function createUserOnFirstLogin(data: InsertUserInputWithAuth) {
   return result[0]!.insertedId;
 }
 
-export async function createUser(data: InsertUserInputFromForm) {
+export async function createUser(data: InsertUserInput) {
   const clerkUser = await auth();
   if (!clerkUser.userId) throw new Error("Unauthorized");
 
