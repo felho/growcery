@@ -49,6 +49,10 @@ const config: Config = {
             transform: "scale(1)",
           },
         },
+        "highlight-fade": {
+          "0%": { backgroundColor: "rgba(34, 197, 94, 0.3)" },
+          "100%": { backgroundColor: "transparent" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -56,6 +60,7 @@ const config: Config = {
         "fade-in": "fade-in 0.3s ease-in-out",
         "slide-in": "slide-in 0.3s ease-in-out",
         "grow-fade-in": "grow-fade-in 0.6s ease-out forwards",
+        highlight: "highlight-fade 2s ease-out",
       },
     },
   },

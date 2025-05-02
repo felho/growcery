@@ -21,5 +21,8 @@ export const createOrgUnitAction = actionClient
       parentId: parentId ?? undefined,
     });
 
-    return { message: `Organizational unit ID #${id} created successfully` };
+    return {
+      message: `Organizational unit ID #${id} created successfully`,
+      id,
+    };
   });

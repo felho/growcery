@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "~/components/ui/button";
 import {
@@ -16,12 +16,14 @@ import {
   Pencil as PencilIcon,
 } from "lucide-react";
 import type { OrgUnitRecord } from "~/server/queries";
+import { cn } from "~/lib/utils";
 
 interface OrgUnitNodeProps {
   unit: OrgUnitRecord;
   allUnits: OrgUnitRecord[];
   level: number;
   openNodes?: Set<number>;
+  highlightId?: number;
 }
 
 export function OrgUnitNode({
@@ -29,17 +31,28 @@ export function OrgUnitNode({
   allUnits,
   level,
   openNodes,
+  highlightId,
 }: OrgUnitNodeProps) {
   const [isOpen, setIsOpen] = useState(openNodes?.has(unit.id) ?? level === 0);
   const router = useRouter();
+  const ref = useRef<HTMLDivElement>(null);
+
   const childUnits = allUnits.filter((u) => u.parentId === unit.id);
   const employeeCount = Math.floor(Math.random() * 10) + 1;
 
+  // Open node if in openNodes set
   useEffect(() => {
     if (openNodes) {
       setIsOpen(openNodes.has(unit.id));
     }
   }, [openNodes, unit.id]);
+
+  // Scroll into view + animate if this is the highlighted unit
+  useEffect(() => {
+    if (highlightId === unit.id && ref.current) {
+      ref.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [highlightId, unit.id]);
 
   const handleAddSubUnit = () => {
     router.push(
@@ -52,12 +65,14 @@ export function OrgUnitNode({
   };
 
   return (
-    <div className="animate-fade-in">
+    <div ref={ref} className="animate-fade-in">
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <div
-          className={`hover:bg-secondary/80 flex items-center gap-4 rounded-md p-3 transition-colors ${
-            level === 0 ? "bg-secondary/40" : ""
-          }`}
+          className={cn(
+            "hover:bg-secondary/80 flex items-center gap-4 rounded-md p-3 transition-colors",
+            level === 0 && "bg-secondary/40",
+            highlightId === unit.id && "animate-highlight",
+          )}
         >
           {childUnits.length > 0 ? (
             <CollapsibleTrigger asChild>
@@ -121,6 +136,7 @@ export function OrgUnitNode({
                   allUnits={allUnits}
                   level={level + 1}
                   openNodes={openNodes}
+                  highlightId={highlightId}
                 />
               ))}
             </div>

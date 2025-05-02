@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import {
   PlusCircle as PlusCircleIcon,
@@ -17,7 +17,9 @@ import type { OrgUnitRecord } from "~/server/queries";
 
 export default function OrgUnitsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
+  const highlightId = searchParams.get("highlightId");
 
   const {
     data: orgUnits = [],
@@ -27,7 +29,7 @@ export default function OrgUnitsPage() {
 
   const filteredUnitIds = getMatchingUnitIds(orgUnits, searchTerm);
   const visibleUnits = orgUnits.filter((u) => filteredUnitIds.has(u.id));
-  const openNodeIds = getOpenNodeIds(orgUnits, searchTerm);
+  const openNodeIds = getOpenNodeIds(orgUnits, searchTerm, highlightId);
 
   const handleAddOrgUnit = () => {
     router.push("/admin/org-units/form");
@@ -86,6 +88,7 @@ export default function OrgUnitsPage() {
                 allUnits={visibleUnits}
                 level={0}
                 openNodes={openNodeIds}
+                highlightId={highlightId ? Number(highlightId) : undefined}
               />
             ))
         )}
@@ -128,30 +131,42 @@ function getMatchingUnitIds(
 function getOpenNodeIds(
   units: OrgUnitRecord[],
   searchTerm: string,
+  highlightId?: string | null,
 ): Set<number> {
-  if (!searchTerm) {
-    return new Set(units.filter((u) => !u.parentId).map((u) => u.id));
-  }
-
   const open = new Set<number>();
 
-  function collectOpenIds(unit: OrgUnitRecord): boolean {
-    const match =
-      unit.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (unit.description?.toLowerCase().includes(searchTerm.toLowerCase()) ??
-        false);
+  if (searchTerm) {
+    function collectOpenIds(unit: OrgUnitRecord): boolean {
+      const match =
+        unit.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (unit.description?.toLowerCase().includes(searchTerm.toLowerCase()) ??
+          false);
 
-    const children = units.filter((u) => u.parentId === unit.id);
-    const childMatch = children.map(collectOpenIds).some(Boolean);
+      const children = units.filter((u) => u.parentId === unit.id);
+      const childMatch = children.map(collectOpenIds).some(Boolean);
 
-    if (match || childMatch) {
-      open.add(unit.id);
-      if (unit.parentId) open.add(unit.parentId);
+      if (match || childMatch) {
+        open.add(unit.id);
+        if (unit.parentId) open.add(unit.parentId);
+      }
+
+      return match || childMatch;
     }
 
-    return match || childMatch;
+    units.forEach((u) => collectOpenIds(u));
+  } else {
+    units.filter((u) => !u.parentId).forEach((u) => open.add(u.id));
   }
 
-  units.forEach((u) => collectOpenIds(u));
+  if (highlightId) {
+    const highlightNum = Number(highlightId);
+    const map = new Map(units.map((u) => [u.id, u]));
+    let current = map.get(highlightNum);
+    while (current?.parentId) {
+      open.add(current.parentId);
+      current = map.get(current.parentId);
+    }
+  }
+
   return open;
 }
