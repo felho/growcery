@@ -13,6 +13,7 @@ import {
   Building2 as Building2Icon,
   Users as UsersIcon,
   PlusCircle as PlusCircleIcon,
+  Pencil as PencilIcon,
 } from "lucide-react";
 import type { OrgUnit } from "~/data/mock-data";
 
@@ -44,6 +45,10 @@ export function OrgUnitNode({
     router.push(
       `/admin/org-units/add?parentId=${unit.id}&parentName=${encodeURIComponent(unit.name)}`,
     );
+  };
+
+  const handleEdit = () => {
+    router.push(`/admin/org-units/form?orgUnitId=${unit.id}`);
   };
 
   return (
@@ -97,9 +102,11 @@ export function OrgUnitNode({
             </Button>
             <Button
               variant="ghost"
+              onClick={handleEdit}
               className="hover:border-primary hover:bg-primary/10 cursor-pointer border border-transparent px-2 py-1 transition-all duration-200"
             >
-              View
+              <PencilIcon className="mr-2 h-4 w-4" />
+              Edit
             </Button>
           </div>
         </div>
