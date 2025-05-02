@@ -80,6 +80,7 @@ export function UserForm({ mode, user }: UserFormProps) {
             fieldTitle="Full Name"
             nameInSchema="fullName"
             placeholder="Enter full name"
+            autoFocus
           />
 
           <InputWithLabel<InsertUserInputFromForm>

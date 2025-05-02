@@ -78,6 +78,7 @@ export function FunctionForm({ mode, func }: FunctionFormProps) {
             fieldTitle="Function Name"
             nameInSchema="name"
             placeholder="Enter function name"
+            autoFocus
           />
 
           <TextareaWithLabel<InsertFunctionInputFromForm>
