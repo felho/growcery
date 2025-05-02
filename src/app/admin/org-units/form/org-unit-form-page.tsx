@@ -69,7 +69,12 @@ export default function OrgUnitFormPage({
     {
       onSuccess({ data }) {
         toast.success(data?.message);
-        router.push("/admin/org-units");
+
+        if (data?.id) {
+          router.push(`/admin/org-units?highlightId=${data.id}`);
+        } else {
+          router.push("/admin/org-units");
+        }
       },
       onError() {
         toast.error("Failed to update organizational unit.");

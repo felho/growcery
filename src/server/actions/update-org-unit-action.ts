@@ -17,5 +17,8 @@ export const updateOrgUnitAction = actionClient
       parentId: parsedInput.parentId ? Number(parsedInput.parentId) : undefined,
     });
 
-    return { message: `Organizational unit ID #${id} updated successfully` };
+    return {
+      message: `Organizational unit ID #${id} updated successfully`,
+      id,
+    };
   });
