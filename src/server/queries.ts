@@ -14,9 +14,9 @@ import type { InsertFunctionInput } from "~/zod-schemas/function";
 import type { UpdateOrgUnitInput } from "~/zod-schemas/org-unit";
 import type { InsertOrgUnitInput } from "~/zod-schemas/org-unit";
 
-export type User = InferSelectModel<typeof users>;
+export type UserRecord = InferSelectModel<typeof users>;
 
-export async function getUserById(id: number): Promise<User | undefined> {
+export async function getUserById(id: number): Promise<UserRecord | undefined> {
   const clerkUser = await auth();
   if (!clerkUser.userId) throw new Error("Unauthorized");
 
@@ -27,7 +27,7 @@ export async function getUserById(id: number): Promise<User | undefined> {
 
 export async function getUserByAuthProviderId(
   authProviderId: string,
-): Promise<User | undefined> {
+): Promise<UserRecord | undefined> {
   const clerkUser = await auth();
   if (!clerkUser.userId) throw new Error("Unauthorized");
 
