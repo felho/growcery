@@ -25,7 +25,11 @@ export const updateUserSchema = z
   .object({
     id: z.number().int(),
   })
-  .merge(z.object(baseUserFields));
+  .merge(z.object(baseUserFields))
+  .refine((data) => data.managerId !== data.id, {
+    message: "A user cannot be their own manager",
+    path: ["managerId"],
+  });
 
 export type InsertUserInputFromForm = z.infer<typeof insertUserSchemaFromForm>;
 export type InsertUserInputWithAuth = z.infer<typeof insertUserSchemaWithAuth>;

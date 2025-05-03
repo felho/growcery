@@ -1,5 +1,9 @@
 import { notFound } from "next/navigation";
-import { getUserById, getFunctionsByOrg } from "~/server/queries";
+import {
+  getUserById,
+  getFunctionsByOrg,
+  getAllUsersForOrg,
+} from "~/server/queries";
 import { getCurrentUserOrgId } from "~/lib/auth/get-org-id";
 import { UserForm } from "./user-form";
 import { type Metadata } from "next";
@@ -48,6 +52,11 @@ export default async function UserFormPage({ searchParams }: PageProps) {
     }),
   );
 
+  const users = ((await getAllUsersForOrg(organizationId)) ?? []).map((u) => ({
+    id: u.id,
+    description: u.fullName,
+  }));
+
   return (
     <div className="animate-fade-in space-y-6">
       <Breadcrumbs />
@@ -67,6 +76,7 @@ export default async function UserFormPage({ searchParams }: PageProps) {
         mode={mode}
         user={mode === "edit" ? user : undefined}
         functions={functions}
+        users={users}
         key={mode === "edit" ? `edit-${userId}` : "create"}
       />
     </div>

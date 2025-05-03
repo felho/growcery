@@ -19,9 +19,10 @@ interface UserFormProps {
   mode: "create" | "edit";
   user?: InsertUserInputFromForm & { id: number };
   functions: { id: number; description: string }[];
+  users: { id: number; description: string }[];
 }
 
-export function UserForm({ mode, user, functions }: UserFormProps) {
+export function UserForm({ mode, user, functions, users }: UserFormProps) {
   const router = useRouter();
 
   const form = useForm<InsertUserInputFromForm>({
@@ -104,11 +105,16 @@ export function UserForm({ mode, user, functions }: UserFormProps) {
             getLabel={(item) => item.description}
           />
 
-          <InputWithLabel<InsertUserInputFromForm>
-            fieldTitle="Manager ID"
+          <SelectWithLabel<
+            InsertUserInputFromForm,
+            { id: number; description: string }
+          >
+            fieldTitle="Manager"
             nameInSchema="managerId"
-            type="number"
-            placeholder="Enter manager ID"
+            data={users.filter((u) => u.id !== user?.id)}
+            placeholder="Select manager"
+            getValue={(item) => item.id.toString()}
+            getLabel={(item) => item.description}
           />
 
           <InputWithLabel<InsertUserInputFromForm>
