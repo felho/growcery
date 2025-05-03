@@ -4,6 +4,12 @@
 
 - [x] Rename files: topnav to top-nav, syncuser to sync-user
 
+### Org in the URL related fixes
+
+- [ ] The sidebar has to be fixed: the current item is not highlighted
+- [ ] Remove syncUserToDb function
+- [ ] At the end, doesn't allow URLs in the SyncUser component not following the /o/ID pattern
+
 ### Small improvement ideas
 
 - [ ] Check the clsx package, it could simplify writing className related logic
@@ -25,6 +31,7 @@
 - [ ] Think about the naming of the zod schemas as currently the naming is a bit messy
 - [ ] The user listing page has to be checked thorougly as this is a very naiv implementation
 - [ ] The authorization has to be checked everywhere we query or change data
+- [ ] Under the \_components we might need to group files based on being client or server side components
 
 ### Login / user management
 
@@ -48,3 +55,113 @@
 - [ ] Originally T3 stack created a JS tailwind config, I changed that to TS.
 - [ ] I used originally not fully consciously the "dark" mode. It is applied through class on the body tag. The design I am building is dark, and the light version is not designed. So for now, I add all the color definitions to both the `:root` and `.dark` in the global.css. I assume, this way it will be easy to see which colors have to be adjusted to create a light version.
 - [ ] When I implemented the sidebar toggle functionality, I needed to use useState. But it can only be used in a client component, so I was not able to use it in the top layout. So I needed to move `<TopNav />` to the `<MainLayout />`. This component is needed on the Sign In state as well, so I also needed to add to `<SignInLayout />` as well.
+
+# Project Overview and Dev Workflow Summary
+
+This document summarizes the architectural and implementation details of the current project based on our conversation history. It is intended as a reference to reestablish context in a new session or with a new assistant.
+
+---
+
+## Tech Stack
+
+- **Framework**: Next.js 15+ App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Auth**: Clerk
+- **Form Handling**: react-hook-form + zod
+- **UI Components**: ShadCN-based design system (e.g., Button, Input, Table, etc.)
+- **Icons**: Lucide
+- **State/Effects**: SWR for client-side data fetching; safe-actions for form actions (server)
+- **Database**: Drizzle
+- **Server Action**: next-safe-action
+
+---
+
+## Folder Structure Pattern (Example: `org-units`)
+
+```
+src/
+  app/
+    admin/
+      org-units/
+        form/
+          org-unit-form.tsx          # Form component
+          org-unit-form-page.tsx     # Page wrapper: handles create/edit mode
+          org-unit-form-loader.tsx   # Loader: fetches orgId + options
+          page.tsx                   # Exports loader for route
+        page.tsx                     # List page
+```
+
+---
+
+## Admin Entity CRUD Pattern
+
+### 1. List Page
+
+- Uses SWR to fetch items (e.g., `/functions`)
+- Filters with search bar
+- UI via `<Table>` or tree-based structure
+- Edit: `router.push(/form?itemId=123)`
+- Add new: `router.push(/form)`
+
+### 2. Form Page
+
+- Uses `useForm` from `react-hook-form` with `zodResolver`
+- Schema: defined in shared `zod-schemas/*.ts`
+- `createXAction` and `updateXAction` for server actions
+- Handles both **edit** and **create** modes
+- Key logic:
+
+  ```ts
+  const mode = item ? "edit" : "create";
+  const form = useForm({ defaultValues: ... });
+  const onSubmit = values => mode === "edit" ? update(values) : create(values);
+  ```
+
+### 3. Form Component (`*-form.tsx`)
+
+- Fully extracted UI form
+- Props:
+
+  ```ts
+  form: UseFormReturn
+  onSubmit: (values) => void
+  mode: "create" | "edit"
+  isPending: boolean
+  additional options (e.g., dropdown data)
+  ```
+
+- Includes `SelectWithLabel`, `InputWithLabel`, `TextareaWithLabel`, etc.
+- `Cancel` button uses `window.history.back()`
+
+### 4. Selects / Hierarchy
+
+- Supports parent-child relationships
+- `SelectWithLabel` component used with `getValue={(item) => item.id.toString()}`
+- Can visually indicate depth in hierarchy via indented option labels
+
+---
+
+## Org-Aware Routing
+
+- Plans in progress to support `/o/[orgId]` scoped routing
+- Context (`OrgProvider`) will expose current org
+- Helper utilities to build links like `getOrgPath("/users") => /o/42/users`
+- Auth redirect on login goes to user's org homepage `/o/:orgId`
+
+---
+
+## Middlewares & Access Control
+
+- Plans for middleware at `/o/:orgId/*` to ensure user has access
+- Pattern-based access protection (matcher: `/o/:orgId/:path*`)
+- Users not in org will be redirected to fallback org or login
+
+---
+
+## UX Details
+
+- Default focus on first input via `<Input autoFocus />`
+- New item addition triggers highlight animation on list page (Tailwind `highlight` animation)
+- Open/expanded state of tree views handled via `useState` or `openNodes` Set
+- Redirection after save with highlight: `router.push("/admin/org-units?highlightId=xxx")`
