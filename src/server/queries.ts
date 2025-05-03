@@ -3,6 +3,7 @@ import { db } from "./db";
 import { functions, orgUnits, users } from "./db/schema";
 import { auth } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
+import { count } from "drizzle-orm";
 import type {
   InsertUserInputWithAuth,
   UpdateUserInput,
@@ -214,4 +215,27 @@ export async function getAllUsersForOrg(
   return db.query.users.findMany({
     where: (u, { eq }) => eq(u.organizationId, organizationId),
   });
+}
+
+export async function getDashboardStats(organizationId: number) {
+  const [functionCount, orgUnitCount, userCount] = await Promise.all([
+    db
+      .select({ count: count() })
+      .from(functions)
+      .where(eq(functions.organizationId, organizationId)),
+    db
+      .select({ count: count() })
+      .from(orgUnits)
+      .where(eq(orgUnits.organizationId, organizationId)),
+    db
+      .select({ count: count() })
+      .from(users)
+      .where(eq(users.organizationId, organizationId)),
+  ]);
+
+  return {
+    functionCount: functionCount[0]?.count ?? 0,
+    orgUnitCount: orgUnitCount[0]?.count ?? 0,
+    userCount: userCount[0]?.count ?? 0,
+  };
 }

@@ -17,8 +17,13 @@ import {
 } from "~/components/ui/card";
 import QuickAction from "./_components/quick-action";
 import ActivityItem from "./_components/activity-item";
+import { getCurrentUserOrgId } from "~/lib/auth/get-org-id";
+import { getDashboardStats } from "~/server/queries";
 
-export default function AdminPage() {
+export default async function AdminPage() {
+  const organizationId = await getCurrentUserOrgId();
+  const stats = await getDashboardStats(organizationId);
+
   return (
     <div className="animate-fade-in space-y-6">
       <div>
@@ -32,21 +37,21 @@ export default function AdminPage() {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <StatCard
           title="Functions"
-          value={functions.length}
+          value={stats.functionCount}
           icon={<SettingsIcon className="text-primary h-5 w-5" />}
           description="Total organization functions"
           route="/admin/functions"
         />
         <StatCard
           title="Org Units"
-          value={orgUnits.length}
+          value={stats.orgUnitCount}
           icon={<FolderTreeIcon className="text-primary h-5 w-5" />}
           description="Total organization units"
           route="/admin/org-units"
         />
         <StatCard
           title="Users"
-          value={users.length}
+          value={stats.userCount}
           icon={<UsersIcon className="text-primary h-5 w-5" />}
           description="Total registered users"
           route="/admin/users"
