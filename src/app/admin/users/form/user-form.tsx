@@ -20,10 +20,34 @@ interface UserFormProps {
   user?: InsertUserInputFromForm & { id: number };
   functions: { id: number; description: string }[];
   users: { id: number; description: string }[];
+  orgUnits: { id: number; name: string; parentId: number | null }[];
 }
 
-export function UserForm({ mode, user, functions, users }: UserFormProps) {
+function buildHierarchicalOptions(
+  units: { id: number; name: string; parentId: number | null }[],
+  parentId: number | null = null,
+  level = 0,
+): { id: number; description: string }[] {
+  return units
+    .filter((u) => u.parentId === parentId)
+    .flatMap((u) => [
+      {
+        id: u.id,
+        description: `${level == 0 ? "" : "└"}${"— ".repeat(level)}${u.name}`,
+      },
+      ...buildHierarchicalOptions(units, u.id, level + 1),
+    ]);
+}
+
+export function UserForm({
+  mode,
+  user,
+  functions,
+  users,
+  orgUnits,
+}: UserFormProps) {
   const router = useRouter();
+  const hierarchicalOptions = buildHierarchicalOptions(orgUnits);
 
   const form = useForm<InsertUserInputFromForm>({
     resolver: zodResolver(insertUserSchemaFromForm),
@@ -117,11 +141,16 @@ export function UserForm({ mode, user, functions, users }: UserFormProps) {
             getLabel={(item) => item.description}
           />
 
-          <InputWithLabel<InsertUserInputFromForm>
-            fieldTitle="Org Unit ID"
+          <SelectWithLabel<
+            InsertUserInputFromForm,
+            { id: number; description: string }
+          >
+            fieldTitle="Organization Unit"
             nameInSchema="orgUnitId"
-            type="number"
-            placeholder="Enter org unit ID"
+            data={hierarchicalOptions}
+            placeholder="Select organization unit"
+            getValue={(item) => item.id.toString()}
+            getLabel={(item) => item.description}
           />
 
           <div className="flex gap-4">

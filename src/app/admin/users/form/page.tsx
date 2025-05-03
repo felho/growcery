@@ -3,6 +3,7 @@ import {
   getUserById,
   getFunctionsByOrg,
   getAllUsersForOrg,
+  getAllOrgUnitsForOrg,
 } from "~/server/queries";
 import { getCurrentUserOrgId } from "~/lib/auth/get-org-id";
 import { UserForm } from "./user-form";
@@ -57,6 +58,14 @@ export default async function UserFormPage({ searchParams }: PageProps) {
     description: u.fullName,
   }));
 
+  const orgUnits = ((await getAllOrgUnitsForOrg(organizationId)) ?? []).map(
+    (u) => ({
+      id: u.id,
+      name: u.name,
+      parentId: u.parentId ?? null,
+    }),
+  );
+
   return (
     <div className="animate-fade-in space-y-6">
       <Breadcrumbs />
@@ -77,6 +86,7 @@ export default async function UserFormPage({ searchParams }: PageProps) {
         user={mode === "edit" ? user : undefined}
         functions={functions}
         users={users}
+        orgUnits={orgUnits}
         key={mode === "edit" ? `edit-${userId}` : "create"}
       />
     </div>
