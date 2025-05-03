@@ -7,7 +7,7 @@ import {
   FolderSymlink as FolderSymlinkIcon,
 } from "lucide-react";
 import { activities, functions, orgUnits, users } from "~/data/mock-data";
-import StatCard from "./_components/stat-card";
+import StatCard from "../../../admin/_components/stat-card";
 import {
   Card,
   CardContent,
@@ -15,8 +15,8 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import QuickAction from "./_components/quick-action";
-import ActivityItem from "./_components/activity-item";
+import QuickAction from "../../../admin/_components/quick-action";
+import ActivityItem from "../../../admin/_components/activity-item";
 
 export default function AdminPage() {
   return (

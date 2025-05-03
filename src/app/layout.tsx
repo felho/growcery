@@ -3,10 +3,10 @@ import "~/styles/globals.css";
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 import { ClerkProvider, SignedIn, SignedOut } from "@clerk/nextjs";
-import { SyncUser } from "./_components/sync-user";
 import MainLayout from "./_components/main-layout";
 import SignInLayout from "./_components/sign-in-layout";
 import { Toaster } from "~/components/ui/sonner";
+import { SyncUserWrapper } from "./_components/sync-user-wrapper";
 
 export const metadata: Metadata = {
   title: "GROWcery",
@@ -31,7 +31,7 @@ export default function RootLayout({
           </SignedOut>
 
           <SignedIn>
-            <SyncUser />
+            <SyncUserWrapper />
             <MainLayout>{children}</MainLayout>
             <Toaster />
           </SignedIn>
