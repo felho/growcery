@@ -140,6 +140,27 @@ export const createUserSchema = z.object({
 export type InsertUserInput = z.infer<typeof createUserSchema>;
 ```
 
+### 🧾 Forms
+
+Forms are structured for clarity and flexibility.
+
+- Each form has a `page.tsx` file under the relevant route (e.g. `admin/users/form/page.tsx`)
+- This file handles both **create** and **edit** modes based on query params (e.g. `?itemId=123`)
+- It passes mode and data to a dedicated form component (e.g. `user-form.tsx`) for presentation
+- `mode` is determined by the presence of an `item` (e.g. `mode = item ? "edit" : "create"`)
+- The form component uses `useForm` from `react-hook-form` with a `zodResolver` and typed schema
+- Field inputs are composed using components like `InputWithLabel`, `SelectWithLabel`, `TextareaWithLabel`, combining labels, validation messages, and consistent styling
+
+**Example:**
+
+```
+src/app/admin/users/form/
+  page.tsx           // contains mode logic and data fetch
+  user-form.tsx      // presentational form with props: form, onSubmit, mode, etc.
+```
+
+---
+
 ### 🧭 Routing
 
 Routes are organized by context and use the App Router structure in Next.js.
