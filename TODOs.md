@@ -17,7 +17,7 @@
 - [x] Is the "-action" needed in the name of the server action files?
 - [ ] Adding placeholder support to input and textarea with label components.
 - [x] client-apis file --> use the FunctionRecord in the case of the first fetch.
-- [ ] client-apis file --> think about separating the different entities into separate files.
+- [x] client-apis file --> think about separating the different entities into separate files.
 - [ ] Think about the naming of the zod schemas as currently the naming is a bit messy
 - [ ] The user listing page has to be checked thorougly as this is a very naiv implementation
 - [ ] The authorization has to be checked everywhere we query or change data

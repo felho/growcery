@@ -1,5 +1,3 @@
-// cursor.rules.ts (project root)
-
 export const cursorRules = {
   project: "GROWcery",
   language: "TypeScript",
@@ -31,6 +29,12 @@ export const cursorRules = {
         relations: "Defined under `server/db/schema/relations/`",
         naming: "Uses `pgTableCreator` to prefix table names with `growcery_`",
       },
+      clientApi: {
+        location: "lib/client-api/",
+        structure: "One file per entity (e.g. `functions.ts`, `users.ts`)",
+        usage: "Wraps client-side fetch calls to API routes",
+        indexFile: "Optional aggregator file for easier imports",
+      },
     },
 
     auth: {
@@ -59,6 +63,10 @@ export const cursorRules = {
 
     imports: {
       eq: "Use top-level import unless destructured in query callback",
+    },
+
+    dashboard: {
+      stats: "Queried via `getDashboardStats()` with parallel `count()` calls",
     },
 
     // ➕ Add more sections here as needed: e.g., component structure, routes, zod schemas...
