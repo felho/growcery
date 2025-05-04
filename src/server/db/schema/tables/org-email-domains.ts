@@ -5,10 +5,10 @@ import { organizations } from "./organizations";
 export const orgEmailDomain = createTable(
   "org_email_domains",
   {
-    organizationId: bigint("organization_id", { mode: "number" }).references(
-      () => organizations.id,
-    ),
-    emailDomain: varchar("email_domain", { length: 500 }),
+    organizationId: bigint("organization_id", { mode: "number" })
+      .notNull()
+      .references(() => organizations.id),
+    emailDomain: varchar("email_domain", { length: 500 }).notNull(),
   },
   (table) => [
     primaryKey({ columns: [table.organizationId, table.emailDomain] }),

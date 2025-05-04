@@ -28,6 +28,8 @@ export const cursorRules = {
         tables: "Defined under `server/db/schema/tables/`",
         relations: "Defined under `server/db/schema/relations/`",
         naming: "Uses `pgTableCreator` to prefix table names with `growcery_`",
+        primaryKeyColumns:
+          "All PK columns must explicitly include `.notNull()` even though Postgres enforces it implicitly",
       },
       clientApi: {
         location: "lib/client-api/",
