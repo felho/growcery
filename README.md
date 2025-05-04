@@ -99,6 +99,68 @@ import { fetchFunctions } from "~/lib/client-api/functions";
 import { fetchFunctions, fetchUsers } from "~/lib/client-api";
 ```
 
+### 🧩 `components/`
+
+The UI is composed using components based on [shadcn/ui](https://ui.shadcn.com/), with some custom wrappers.
+
+- Global, reusable components are placed in `components/ui/`
+- Project-specific or context-aware components live closer to their usage (e.g., under a page folder)
+- Form components often follow a pattern like `InputWithLabel`, `SelectWithLabel`, `TextareaWithLabel`
+
+**Example:**
+
+```
+components/
+  ui/
+    button.tsx
+    card.tsx
+    input.tsx
+  feedback/
+    toast-provider.tsx
+    form-error.tsx
+```
+
+### 🧪 `zod-schemas/`
+
+All validation logic is centralized using [Zod](https://zod.dev/) schemas.
+
+- Each entity (e.g., `user`, `function`) has a dedicated file (e.g., `user.ts`)
+- Files define shared schemas for create, update, and action types
+- Schemas are imported both by server actions and forms (via `zodResolver`)
+
+**Example:**
+
+```ts
+// zod-schemas/user.ts
+export const createUserSchema = z.object({
+  fullName: z.string().min(1),
+  email: z.string().email(),
+});
+
+export type InsertUserInput = z.infer<typeof createUserSchema>;
+```
+
+### 🧭 Routing
+
+Routes are organized by context and use the App Router structure in Next.js.
+
+- `/admin/` contains internal entity CRUD views
+- Future plans include `/o/[orgId]` scoped routing with OrgProvider and middleware
+- Form routes follow a nested structure: e.g., `/admin/users/form?itemId=123`
+
+**Example:**
+
+```
+src/app/
+  admin/
+    users/
+      page.tsx
+      form/
+        page.tsx
+        user-form.tsx
+        user-form-loader.tsx
+```
+
 ---
 
 ### 🛡️ Auth conventions (server-side only)
