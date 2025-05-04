@@ -6,3 +6,5 @@ import { env } from "~/env";
 
 const sql = neon(env.POSTGRES_URL);
 export const db = drizzle(sql, { schema });
+
+export * from "./schema";
