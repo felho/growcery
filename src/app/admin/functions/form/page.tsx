@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getFunctionById } from "~/server/queries";
+import { getFunctionById } from "~/server/queries/functions";
 import { FunctionForm } from "./function-form";
 import { type Metadata } from "next";
 import Breadcrumbs from "~/app/admin/_components/breadcrumbs";

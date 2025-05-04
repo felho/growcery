@@ -3,7 +3,7 @@
 import { updateUserSchema } from "~/zod-schemas/user";
 import { flattenValidationErrors } from "next-safe-action";
 import { actionClient } from "~/lib/safe-action";
-import { updateUser } from "~/server/queries";
+import { updateUser } from "~/server/queries/users";
 
 export const updateUserAction = actionClient
   .metadata({ actionName: "updateUserAction" })

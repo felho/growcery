@@ -1,5 +1,8 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
-import { createUserOnFirstLogin, getUserByAuthProviderId } from "../queries";
+import {
+  createUserOnFirstLogin,
+  getUserByAuthProviderId,
+} from "~/server/queries/users";
 import { getCurrentUserOrgId } from "~/lib/auth/get-org-id";
 
 export async function syncUserToDb() {

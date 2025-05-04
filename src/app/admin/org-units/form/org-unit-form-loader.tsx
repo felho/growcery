@@ -1,6 +1,9 @@
 import { getCurrentUserOrgId } from "~/lib/auth/get-org-id";
 import OrgUnitFormPage from "./org-unit-form-page";
-import { getAllOrgUnitsForOrg, getOrgUnitById } from "~/server/queries";
+import {
+  getAllOrgUnitsForOrg,
+  getOrgUnitById,
+} from "~/server/queries/org-units";
 import type { InsertOrgUnitInputFromForm } from "~/zod-schemas/org-unit";
 import { notFound } from "next/navigation";
 

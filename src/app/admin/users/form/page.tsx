@@ -1,10 +1,7 @@
 import { notFound } from "next/navigation";
-import {
-  getUserById,
-  getFunctionsByOrg,
-  getAllUsersForOrg,
-  getAllOrgUnitsForOrg,
-} from "~/server/queries";
+import { getUserById, getAllUsersForOrg } from "~/server/queries/users";
+import { getFunctionsByOrg } from "~/server/queries/functions";
+import { getAllOrgUnitsForOrg } from "~/server/queries/org-units";
 import { getCurrentUserOrgId } from "~/lib/auth/get-org-id";
 import { UserForm } from "./user-form";
 import { type Metadata } from "next";

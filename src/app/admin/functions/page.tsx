@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import Breadcrumbs from "../_components/breadcrumbs";
-import type { FunctionRecord } from "~/server/queries";
+import type { Function } from "~/server/queries/functions";
 import useSWR from "swr";
 import { fetchFunctions } from "~/lib/client-api";
 
@@ -34,7 +34,7 @@ export default function FunctionsPage() {
     error,
   } = useSWR("/functions", fetchFunctions);
 
-  const filteredFunctions = functions.filter((func: FunctionRecord) =>
+  const filteredFunctions = functions.filter((func: Function) =>
     [func.name, func.description || ""].some((field) =>
       field.toLowerCase().includes(searchTerm.toLowerCase()),
     ),
@@ -92,7 +92,7 @@ export default function FunctionsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredFunctions.map((func: FunctionRecord) => (
+            {filteredFunctions.map((func: Function) => (
               <TableRow key={func.id}>
                 <TableCell className="font-medium break-words whitespace-normal">
                   {func.name}

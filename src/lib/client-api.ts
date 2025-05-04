@@ -4,17 +4,17 @@ export async function fetchFunctions() {
   return res.json();
 }
 
-import type { OrgUnitRecord } from "~/server/queries";
+import type { OrgUnit } from "~/server/queries/org-units";
 
-export async function fetchOrgUnits(): Promise<OrgUnitRecord[]> {
+export async function fetchOrgUnits(): Promise<OrgUnit[]> {
   const res = await fetch("/api/org-units");
   if (!res.ok) throw new Error("Failed to fetch org units");
   return res.json();
 }
 
-import type { UserRecord } from "~/server/queries";
+import type { User } from "~/server/queries/users";
 
-export async function fetchUsers(): Promise<UserRecord[]> {
+export async function fetchUsers(): Promise<User[]> {
   const res = await fetch("/api/users");
   if (!res.ok) throw new Error("Failed to fetch users");
   return res.json();

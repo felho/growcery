@@ -18,7 +18,7 @@ import {
 import QuickAction from "./_components/quick-action";
 import ActivityItem from "./_components/activity-item";
 import { getCurrentUserOrgId } from "~/lib/auth/get-org-id";
-import { getDashboardStats } from "~/server/queries";
+import { getDashboardStats } from "~/server/queries/admin";
 
 export default async function AdminPage() {
   const organizationId = await getCurrentUserOrgId();

@@ -3,7 +3,7 @@
 import { updateFunctionSchemaFromForm } from "~/zod-schemas/function";
 import { actionClient } from "~/lib/safe-action";
 import { flattenValidationErrors } from "next-safe-action";
-import { updateFunction } from "~/server/queries";
+import { updateFunction } from "~/server/queries/functions";
 import { getCurrentUserOrgId } from "~/lib/auth/get-org-id";
 
 export const updateFunctionAction = actionClient
