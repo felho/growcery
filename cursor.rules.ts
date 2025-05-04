@@ -32,6 +32,8 @@ export const cursorRules = {
           "All PK columns must explicitly include `.notNull()` even though Postgres enforces it implicitly",
         tableExtras:
           "Constraints like indexes and primary keys must be defined as array elements (not object return) in the second `createTable` parameter — e.g. `[index(...).on(...)]`, not `{ indexName: ... }`.",
+        selfReferences:
+          "Use `(): AnyPgColumn => <table>.<column>` when a table references itself (e.g. `managerId` in `users`)",
       },
       clientApi: {
         location: "lib/client-api/",
