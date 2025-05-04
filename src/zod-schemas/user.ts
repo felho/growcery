@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 const baseUserFields = {
-  fullName: z.string().min(1, "Full name cannot be empty"),
-  email: z.string().email("Invalid email address"),
+  fullName: z.string().min(1, "Full name cannot be empty").max(250),
+  email: z.string().email("Invalid email address").max(500),
   functionId: z.number().optional(),
   managerId: z.number().optional(),
   orgUnitId: z.number().optional(),
@@ -11,7 +11,7 @@ const baseUserFields = {
 export const insertUserSchemaFromForm = z.object(baseUserFields);
 
 export const insertUserSchemaWithAuth = z.object({
-  authProviderId: z.string().min(1, "Auth provider ID is required"),
+  authProviderId: z.string().min(1, "Auth provider ID is required").max(500),
   organizationId: z.number().int(),
   ...baseUserFields,
 });
