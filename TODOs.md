@@ -7,17 +7,10 @@
 ### Small improvement ideas
 
 - [ ] The actionClient error handling has to be tested
-- [x] Rename the sync-user.ts to sync-user-action.ts. (Or remove action from all the other actions.)
 - [ ] Add unique index to email in user table.
-- [x] Add the max validation for all the fields.
-- [x] I need to think about structuring the db, zod, actions, queries, etc. (the files getting bigger or the number of files in a folder will be too much)
 - [ ] I like extend more in the zod file than the current merge
 - [ ] Would it make sense to move the type definitions from queries into a separate file?
 - [ ] On the function edit page, and probably elsewhere later, the icons should be aligned with the Action header
-- [x] Is the "-action" needed in the name of the server action files?
-- [ ] Adding placeholder support to input and textarea with label components.
-- [x] client-apis file --> use the FunctionRecord in the case of the first fetch.
-- [x] client-apis file --> think about separating the different entities into separate files.
 - [ ] Think about the naming of the zod schemas as currently the naming is a bit messy
 - [ ] The user listing page has to be checked thorougly as this is a very naiv implementation
 - [ ] The authorization has to be checked everywhere we query or change data
