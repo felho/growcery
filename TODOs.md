@@ -7,7 +7,6 @@
 ### Small improvement ideas
 
 - [ ] The actionClient error handling has to be tested
-- [ ] Add unique index to email in user table.
 - [ ] I like extend more in the zod file than the current merge
 - [ ] On the function edit page, and probably elsewhere later, the icons should be aligned with the Action header
 - [ ] Think about the naming of the zod schemas as currently the naming is a bit messy

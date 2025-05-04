@@ -30,6 +30,8 @@ export const cursorRules = {
         naming: "Uses `pgTableCreator` to prefix table names with `growcery_`",
         primaryKeyColumns:
           "All PK columns must explicitly include `.notNull()` even though Postgres enforces it implicitly",
+        tableExtras:
+          "Constraints like indexes and primary keys must be defined as array elements (not object return) in the second `createTable` parameter — e.g. `[index(...).on(...)]`, not `{ indexName: ... }`.",
       },
       clientApi: {
         location: "lib/client-api/",
