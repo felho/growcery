@@ -63,7 +63,7 @@ export const functions = createTable("functions", {
     .notNull()
     .references(() => organizations.id),
   name: varchar({ length: 250 }).notNull(),
-  description: varchar({ length: 2000 }),
+  description: varchar({ length: 500 }),
 });
 
 export const orgUnits = createTable("org_units", (t) => ({
