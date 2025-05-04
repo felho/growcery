@@ -10,22 +10,66 @@ All developer-facing architectural and organizational rules are defined in [`cur
 
 ### 📁 `server/queries/`
 
+This folder contains all database read operations, organized per entity.
+
 - One folder per entity (e.g. `users`, `functions`, `org-units`)
-- One file per query (`get-by-id.ts`, `create.ts`, `update.ts`)
-- Each `index.ts` exports both entity-specific queries and types (`User`, `NewUser`, etc.)
+- Each folder contains one file per query (`get-by-id.ts`, `create.ts`, `update.ts`, etc.)
+- An `index.ts` file re-exports both the types and query functions for that entity
+- Types like `User`, `NewUser`, etc., are defined using `InferSelectModel` and `InferInsertModel`
+
+**Example:**
+
+```
+server/queries/
+  users/
+    get-by-id.ts
+    create.ts
+    update.ts
+    index.ts
+  functions/
+    get-by-id.ts
+    get-all-by-org.ts
+    index.ts
+```
 
 ### 📁 `server/actions/`
 
+This folder wraps form submissions and mutation logic using [`next-safe-action`](https://github.com/teepsheep/next-safe-action).
+
 - One file per entity (e.g. `users.ts`, `functions.ts`)
-- Uses `next-safe-action` for secure form and mutation handling
-- Imports and uses query functions (e.g. `createUser`) internally
-- Validated via Zod schemas from `~/zod-schemas/`
+- Each action corresponds to a validated server mutation
+- Actions use `zod` schemas for input validation
+- Internally, these call the matching query function (e.g., `createUser()`)
+
+**Example usage:**
+
+```ts
+export const createUserAction = action(createUserSchema, async (input) => {
+  return createUser(input);
+});
+```
 
 ### 📁 `server/db/schema/`
 
-- Tables live in `tables/`, relations in `relations/`
-- Table names use `pgTableCreator()` to add a project prefix (`growcery_*`)
-- Relations only defined on FK side when needed (`relations()`)
+Database tables and relations are defined here using Drizzle ORM.
+
+- Tables are located in `schema/tables/`
+- Foreign key relations are defined in `schema/relations/`
+- Tables use `pgTableCreator()` to prefix names with `growcery_`
+- Circular or self-referencing tables (e.g. `users.managerId`) define their references using `AnyPgColumn`
+
+**Example structure:**
+
+```
+server/db/schema/
+  tables/
+    users.ts
+    functions.ts
+    org-units.ts
+  relations/
+    users.relations.ts
+    org-units.relations.ts
+```
 
 ### 📡 `lib/client-api/` — Client-side API Layer
 
@@ -36,18 +80,18 @@ This folder contains thin fetch wrappers to call API routes from the client.
 - Errors are thrown on `!res.ok` to bubble up through SWR or other consumers
 - Types are imported from the corresponding `queries/index.ts`
 
-Structure example:
+**Structure example:**
 
-```txt
+```
 lib/
   client-api/
     functions.ts        // fetchFunctions()
     users.ts            // fetchUsers()
     org-units.ts        // fetchOrgUnits()
-    index.ts            // barrel file
+    index.ts            // optional barrel file
 ```
 
-Usage:
+**Usage:**
 
 ```ts
 import { fetchFunctions } from "~/lib/client-api/functions";
@@ -57,13 +101,16 @@ import { fetchFunctions, fetchUsers } from "~/lib/client-api";
 
 ---
 
-### 🛡️ Auth conventions
+### 🛡️ Auth conventions (server-side only)
 
-- All queries and actions begin with a call to `auth()` or `requireUserId()`
-- Unauthenticated access throws immediately
+- All server-side queries and actions begin with a call to `auth()` or `requireUserId()`
+- Client-side code assumes the user is already authenticated (Clerk middleware handles redirects)
+- Unauthenticated server access throws immediately
 
 ### 🧮 Dashboard stats
 
 - Queried via `getDashboardStats()` using parallel `count()` calls
+
+---
 
 🔗 For complete rules, see [`cursor.rules.ts`](./cursor.rules.ts)
