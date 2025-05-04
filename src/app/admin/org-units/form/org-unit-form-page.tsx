@@ -6,8 +6,8 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import Breadcrumbs from "~/app/admin/_components/breadcrumbs";
 import { useAction } from "next-safe-action/hooks";
-import { createOrgUnitAction } from "~/server/actions/create-org-unit-action";
-import { updateOrgUnitAction } from "~/server/actions/update-org-unit-action";
+import { createOrgUnitAction } from "~/server/actions/org-units/create";
+import { updateOrgUnitAction } from "~/server/actions/org-units/update";
 import { OrgUnitForm } from "./org-unit-form";
 import {
   insertOrgUnitSchemaFromForm,

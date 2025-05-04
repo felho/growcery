@@ -6,19 +6,15 @@
 
 ### Small improvement ideas
 
-- [ ] Check the clsx package, it could simplify writing className related logic
-- [ ] Check whether a useHasInteracted() hook is better solution then the useHasInteracted() parameter
-- [ ] Check this idea: in the case a component has more paramters, defaultProps pattern or NextJS's withDefaults helper could be better.
 - [ ] The actionClient error handling has to be tested
-- [ ] Rename the sync-user.ts to sync-user-action.ts. (Or remove action from all the other actions.)
+- [x] Rename the sync-user.ts to sync-user-action.ts. (Or remove action from all the other actions.)
 - [ ] Add unique index to email in user table.
 - [ ] Add the max validation for all the fields.
 - [ ] I need to think about structuring the db, zod, actions, queries, etc. (the files getting bigger or the number of files in a folder will be too much)
 - [ ] I like extend more in the zod file than the current merge
 - [ ] Would it make sense to move the type definitions from queries into a separate file?
 - [ ] On the function edit page, and probably elsewhere later, the icons should be aligned with the Action header
-- [ ] Adding fields to users: isActive, lastLogin
-- [ ] Is the "-action" needed in the name of the server action files?
+- [x] Is the "-action" needed in the name of the server action files?
 - [ ] Adding placeholder support to input and textarea with label components.
 - [ ] client-apis file --> use the FunctionRecord in the case of the first fetch.
 - [ ] client-apis file --> think about separating the different entities into separate files.
@@ -41,6 +37,13 @@
 - [ ] Check pnpm audit --> Figure out how to manage updates properly.
 - [ ] Check pnpm outdated --> Figure out how to manage updates properly.
 - [ ] The breadcrumbs component is not yet flexible enough.
+
+## Ideas for the future
+
+- [ ] Check the clsx package, it could simplify writing className related logic
+- [ ] Check whether a useHasInteracted() hook is better solution then the useHasInteracted() parameter
+- [ ] Check this idea: in the case a component has more paramters, defaultProps pattern or NextJS's withDefaults helper could be better
+- [ ] Adding fields to users: isActive, lastLogin
 
 ## Decisions for feedback
 
