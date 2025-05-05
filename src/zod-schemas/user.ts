@@ -6,6 +6,7 @@ const baseUserFields = {
   functionId: z.number().optional(),
   managerId: z.number().optional(),
   orgUnitId: z.number().optional(),
+  archetypeId: z.number().optional(),
 };
 
 export const insertUserSchemaFromForm = z.object(baseUserFields);

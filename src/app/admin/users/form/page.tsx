@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getUserById, getAllUsersForOrg } from "~/server/queries/users";
 import { getFunctionsByOrg } from "~/server/queries/functions";
 import { getAllOrgUnitsForOrg } from "~/server/queries/org-units";
+import { getAllUserArchetypesForOrg } from "~/server/queries/user-archetypes";
 import { getCurrentUserOrgId } from "~/lib/auth/get-org-id";
 import { UserForm } from "./user-form";
 import { type Metadata } from "next";
@@ -39,6 +40,7 @@ export default async function UserFormPage({ searchParams }: PageProps) {
       functionId: found.functionId ?? undefined,
       managerId: found.managerId ?? undefined,
       orgUnitId: found.orgUnitId ?? undefined,
+      archetypeId: found.archetypeId ?? undefined,
     };
   }
 
@@ -63,6 +65,13 @@ export default async function UserFormPage({ searchParams }: PageProps) {
     }),
   );
 
+  const archetypes = (
+    (await getAllUserArchetypesForOrg(organizationId)) ?? []
+  ).map((a) => ({
+    id: a.id,
+    description: a.name,
+  }));
+
   return (
     <div className="animate-fade-in space-y-6">
       <Breadcrumbs />
@@ -84,6 +93,7 @@ export default async function UserFormPage({ searchParams }: PageProps) {
         functions={functions}
         users={users}
         orgUnits={orgUnits}
+        archetypes={archetypes}
         key={mode === "edit" ? `edit-${userId}` : "create"}
       />
     </div>

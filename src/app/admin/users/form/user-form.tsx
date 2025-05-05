@@ -21,6 +21,7 @@ interface UserFormProps {
   functions: { id: number; description: string }[];
   users: { id: number; description: string }[];
   orgUnits: { id: number; name: string; parentId: number | null }[];
+  archetypes: { id: number; description: string }[];
 }
 
 function buildHierarchicalOptions(
@@ -45,6 +46,7 @@ export function UserForm({
   functions,
   users,
   orgUnits,
+  archetypes,
 }: UserFormProps) {
   const router = useRouter();
   const hierarchicalOptions = buildHierarchicalOptions(orgUnits);
@@ -57,6 +59,7 @@ export function UserForm({
       functionId: user?.functionId ?? undefined,
       managerId: user?.managerId ?? undefined,
       orgUnitId: user?.orgUnitId ?? undefined,
+      archetypeId: user?.archetypeId ?? undefined,
     },
     mode: "onBlur",
   });
@@ -149,6 +152,18 @@ export function UserForm({
             nameInSchema="orgUnitId"
             data={hierarchicalOptions}
             placeholder="Select organization unit"
+            getValue={(item) => item.id.toString()}
+            getLabel={(item) => item.description}
+          />
+
+          <SelectWithLabel<
+            InsertUserInputFromForm,
+            { id: number; description: string }
+          >
+            fieldTitle="Archetype"
+            nameInSchema="archetypeId"
+            data={archetypes}
+            placeholder="Select archetype"
             getValue={(item) => item.id.toString()}
             getLabel={(item) => item.description}
           />

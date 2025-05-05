@@ -24,7 +24,7 @@ import { getOrgUnitName } from "~/data/mock-data";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { fetchUsers } from "~/lib/client-api";
-import type { User } from "~/server/queries/users";
+import type { UserWithArchetype } from "~/server/queries/users";
 
 export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -38,7 +38,8 @@ export default function UsersPage() {
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       getOrgUnitName(user.orgUnitId ?? 0)
         .toLowerCase()
-        .includes(searchTerm.toLowerCase()),
+        .includes(searchTerm.toLowerCase()) ||
+      user.archetype?.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const handleEdit = (id: number) => {
@@ -126,6 +127,9 @@ export default function UsersPage() {
               <TableHead className="text-muted-foreground text-xs font-medium">
                 Org Unit
               </TableHead>
+              <TableHead className="text-muted-foreground text-xs font-medium">
+                Archetype
+              </TableHead>
               <TableHead className="text-muted-foreground w-[100px] text-xs font-medium">
                 Actions
               </TableHead>
@@ -151,6 +155,7 @@ export default function UsersPage() {
                 </TableCell>
                 <TableCell>User</TableCell>
                 <TableCell>{getOrgUnitName(user.orgUnitId ?? 0)}</TableCell>
+                <TableCell>{user.archetype?.name ?? "-"}</TableCell>
                 <TableCell>
                   <div className="flex space-x-2">
                     <Button

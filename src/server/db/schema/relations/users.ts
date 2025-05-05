@@ -3,6 +3,7 @@ import { users } from "../tables/users";
 import { organizations } from "../tables/organizations";
 import { orgUnits } from "../tables/org-units";
 import { functions } from "../tables/functions";
+import { userArchetypes } from "../tables/user-archetypes";
 
 export const userRelations = relations(users, ({ one }) => ({
   organization: one(organizations, {
@@ -16,6 +17,10 @@ export const userRelations = relations(users, ({ one }) => ({
   function: one(functions, {
     fields: [users.functionId],
     references: [functions.id],
+  }),
+  archetype: one(userArchetypes, {
+    fields: [users.archetypeId],
+    references: [userArchetypes.id],
   }),
   manager: one(users, {
     fields: [users.managerId],

@@ -10,6 +10,7 @@ import { createTable } from "../utils";
 import { organizations } from "./organizations";
 import { orgUnits } from "./org-units";
 import { functions } from "./functions";
+import { userArchetypes } from "./user-archetypes";
 
 export const users = createTable(
   "users",
@@ -23,6 +24,7 @@ export const users = createTable(
     email: varchar({ length: 500 }).notNull().unique(),
     orgUnitId: bigint({ mode: "number" }).references(() => orgUnits.id),
     functionId: bigint({ mode: "number" }).references(() => functions.id),
+    archetypeId: bigint({ mode: "number" }).references(() => userArchetypes.id),
     managerId: bigint({ mode: "number" }).references(
       (): AnyPgColumn => users.id,
     ),
