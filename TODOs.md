@@ -13,6 +13,7 @@
 - [ ] The user listing page has to be checked thorougly as this is a very naiv implementation
 - [ ] The authorization has to be checked everywhere we query or change data
 - [ ] In the user editing form later we need to filter the manager field to show only managers of the given function
+- [ ] Archetype should be unique
 
 ### Login / user management
 
