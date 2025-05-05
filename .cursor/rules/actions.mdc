@@ -3,7 +3,6 @@ description: Server actions standards
 globs: src/server/actions/**/*
 alwaysApply: false
 ---
-
 # Server Actions Guidelines
 
 ## Organization
@@ -34,3 +33,31 @@ export const createUserAction = action(
   }
 );
 ```
+
+## Server Actions Consistency Rules
+
+When creating or updating server actions, always follow these standards:
+
+1. **Use the local `actionClient` utility from `~/lib/safe-action`**
+   - Do **not** use `action` from `next-safe-action` directly.
+
+2. **Follow the `.metadata()`, `.schema()`, and `.action()` chaining pattern**
+   - Ensures consistent error handling and validation.
+
+3. **For form actions, use the `*SchemaFromForm` Zod schema**
+   - Only use the full schema (with server-only fields) for server-side actions.
+
+4. **Inject all server-only fields (e.g., `organizationId`) inside the action, not from the client**
+   - Use helpers like `getCurrentUserOrgId()` within the action.
+
+5. **Always use `flattenValidationErrors` for error shape**
+   - Provides a consistent error structure for the client.
+
+6. **Import types and queries from the local entity’s `index.ts` or query module**
+   - Never import types directly from the schema or Zod files for query results.
+
+7. **Always perform an explicit auth check, either in the action or in the query**
+   - Never assume the query or action is public.
+
+8. **Explicitly type the return value of your action if returning data**
+   - Ensures type safety and clarity for consumers.
