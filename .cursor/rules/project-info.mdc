@@ -1,0 +1,13 @@
+---
+description: GROWcery project basics
+alwaysApply: true
+---
+
+# GROWcery Project
+
+- Project: GROWcery
+- Language: TypeScript
+- Framework: Next.js (App Router)
+- ORM: Drizzle ORM
+- Auth: Clerk
+- Styling: Tailwind CSS + shadcn/ui

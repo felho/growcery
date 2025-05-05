@@ -1,0 +1,25 @@
+---
+description: Standards for database queries
+globs: src/server/queries/**/*
+alwaysApply: false
+---
+
+# Query Structure Guidelines
+
+## Organization
+- Location: All queries must be in `server/queries/`
+- Structure: Modular — one folder per entity
+- Files: One file per operation (e.g., `get-by-id.ts`, `create.ts`)
+
+## Index Files
+- Each entity folder has an index.ts that re-exports types and query functions
+- Index file defines types for the entity
+
+## Data Fetching
+- Use `db.query.<table>.findFirst/findMany` for data retrieval
+- Use Drizzle `relations()` for joined data access
+- Always validate permissions before returning data
+
+## Naming Conventions
+- File names should use descriptive verbs: `get-by-id.ts`, `create.ts`, `update.ts`
+- Follow proper type naming conventions (see types.mdc)

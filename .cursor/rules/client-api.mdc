@@ -1,0 +1,37 @@
+---
+description: Client-side API standards
+globs: src/lib/client-api/**/*
+alwaysApply: false
+---
+
+# Client API Guidelines
+
+## Organization
+- Location: Place all client API functions in `lib/client-api/`
+- Structure: One file per entity (e.g., `functions.ts`, `users.ts`)
+- Index File: Optional aggregator file for easier imports
+
+## Implementation
+- Purpose: Wrap client-side fetch calls to API routes
+- Error Handling: Include proper error handling in all client API functions
+- Types: Use shared types from server-side when possible
+
+## Example Implementation
+```typescript
+import { User } from "~/server/queries/users";
+
+export const getUser = async (id: string): Promise<User | null> => {
+  try {
+    const response = await fetch(`/api/users/${id}`);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch user: ${response.statusText}`);
+    }
+    
+    return response.json();
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    return null;
+  }
+};
+```

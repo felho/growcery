@@ -1,0 +1,32 @@
+---
+description: Import guidelines and best practices
+alwaysApply: false
+---
+
+# Import Conventions
+
+## General Rules
+- Use named imports for better refactoring support
+- Group imports logically (external libraries first, then internal modules)
+- Prefer absolute imports with `~` alias for project files
+
+## Drizzle-Specific Rules
+- For the `eq` operator: Use top-level import unless destructured in query callback
+  - Correct outside query: `import { eq } from 'drizzle-orm'`
+  - Correct inside query: `where: ({ eq }) => eq(users.id, userId)`
+
+## Path Aliasing
+- Use the `~` alias for imports from the project root
+- Example: `import { auth } from "~/lib/auth"`
+
+## Example Import Structure
+```typescript
+// External dependencies first
+import { NextResponse } from 'next/server';
+import { eq } from 'drizzle-orm';
+
+// Internal modules grouped by purpose
+import { db } from '~/server/db';
+import { users } from '~/server/db/schema/tables/users';
+import { requireUserId } from '~/lib/auth';
+```
