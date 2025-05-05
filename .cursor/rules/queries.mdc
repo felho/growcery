@@ -9,7 +9,7 @@ alwaysApply: false
 ## Organization
 - Location: All queries must be in `server/queries/`
 - Structure: Modular — one folder per entity
-- Files: One file per operation (e.g., `get-by-id.ts`, `create.ts`)
+- Files: One file per operation (e.g. `get-by-id.ts`, `create.ts`)
 
 ## Index Files
 - Each entity folder has an index.ts that re-exports types and query functions
@@ -23,3 +23,30 @@ alwaysApply: false
 ## Naming Conventions
 - File names should use descriptive verbs: `get-by-id.ts`, `create.ts`, `update.ts`
 - Follow proper type naming conventions (see types.mdc)
+
+## **Explicit Return Types and Type Imports**
+- **All exported query functions must have an explicit return type, using the entity type imported from the local `index.ts`.**
+- **Always import the entity type from the local `index.ts` (not from the schema or zod files).**
+- **This ensures the type reflects any joined/extended types and maintains a single source of truth.**
+
+### Example:
+```typescript
+import type { UserArchetype } from "./index";
+export async function getUserArchetypeById(
+  id: number,
+): Promise<UserArchetype | undefined> {
+  // ...
+}
+```
+
+## **Consistency with Other Entity Queries**
+- Match the function signatures and type usage of other entity queries (e.g., `functions`, `org-units`).
+- Example patterns:
+  - `getAll<Entity>ByOrg(organizationId: number): Promise<Entity[]>`
+  - `get<Entity>ById(id: number): Promise<Entity | undefined>`
+
+## **Review Checklist**
+When adding a new query:
+- [ ] Is the return type explicit and correct?
+- [ ] Is the type imported from `./index`?
+- [ ] Does the function signature match the pattern of other entity queries?
