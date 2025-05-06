@@ -41,7 +41,9 @@ const CompetencyMatrix = () => {
   const [isHeatmapView, setIsHeatmapView] = useState(false);
 
   // Selection state
-  const [selectedFunction, setSelectedFunction] = useState(mockFunctions[0].id);
+  const [selectedFunction, setSelectedFunction] = useState(
+    mockFunctions[0]?.id || "",
+  );
   const [selectedOrgUnit, setSelectedOrgUnit] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState("");
 
@@ -52,14 +54,14 @@ const CompetencyMatrix = () => {
       (unit) => unit.functionId === selectedFunction,
     );
     if (orgUnitsInFunction.length > 0) {
-      setSelectedOrgUnit(orgUnitsInFunction[0].id);
+      setSelectedOrgUnit(orgUnitsInFunction[0]?.id || "");
 
       // Set initial employee based on selected org unit
       const employeesInOrgUnit = mockEmployees.filter(
-        (emp) => emp.orgUnitId === orgUnitsInFunction[0].id,
+        (emp) => emp.orgUnitId === orgUnitsInFunction[0]?.id,
       );
       if (employeesInOrgUnit.length > 0) {
-        setSelectedEmployee(employeesInOrgUnit[0].id);
+        setSelectedEmployee(employeesInOrgUnit[0]?.id || "");
       } else {
         setSelectedEmployee("");
       }
@@ -77,9 +79,9 @@ const CompetencyMatrix = () => {
   ) => {
     const updatedCompetencyData = { ...competencyData };
     const competencyItem =
-      updatedCompetencyData.competencies[categoryIndex].items[itemIndex];
+      updatedCompetencyData.competencies[categoryIndex]?.items[itemIndex];
+    if (!competencyItem) return;
 
-    // TypeScript type narrowing
     if (field === "employeeRating" || field === "managerRating") {
       competencyItem[field] = value as Rating;
     } else {
@@ -88,10 +90,7 @@ const CompetencyMatrix = () => {
 
     setCompetencyData(updatedCompetencyData);
 
-    toast({
-      title: "Updated competency",
-      description: `Updated ${field} for ${competencyItem.name}`,
-    });
+    toast.success(`Updated ${field} for ${competencyItem.name}`);
   };
 
   const switchPhase = (
@@ -123,14 +122,14 @@ const CompetencyMatrix = () => {
       (unit) => unit.functionId === functionId,
     );
     if (orgUnitsInFunction.length > 0) {
-      setSelectedOrgUnit(orgUnitsInFunction[0].id);
+      setSelectedOrgUnit(orgUnitsInFunction[0]?.id || "");
 
       // Filter employees by new org unit and reset the employee selection
       const employeesInOrgUnit = mockEmployees.filter(
-        (emp) => emp.orgUnitId === orgUnitsInFunction[0].id,
+        (emp) => emp.orgUnitId === orgUnitsInFunction[0]?.id,
       );
       if (employeesInOrgUnit.length > 0) {
-        setSelectedEmployee(employeesInOrgUnit[0].id);
+        setSelectedEmployee(employeesInOrgUnit[0]?.id || "");
       } else {
         setSelectedEmployee("");
       }
@@ -148,7 +147,7 @@ const CompetencyMatrix = () => {
       (emp) => emp.orgUnitId === orgUnitId,
     );
     if (employeesInOrgUnit.length > 0) {
-      setSelectedEmployee(employeesInOrgUnit[0].id);
+      setSelectedEmployee(employeesInOrgUnit[0]?.id || "");
     } else {
       setSelectedEmployee("");
     }
@@ -158,10 +157,7 @@ const CompetencyMatrix = () => {
     setSelectedEmployee(employeeId);
 
     // In a real app, you would fetch the employee's competency data here
-    toast({
-      title: "Employee changed",
-      description: `Now viewing ${getCurrentEmployee()?.name}'s assessment`,
-    });
+    toast.success(`Now viewing ${getCurrentEmployee()?.name}'s assessment`);
   };
 
   const getCurrentEmployee = (): Employee | undefined => {

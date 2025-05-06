@@ -28,9 +28,13 @@ const CompetencyMatrixHeader: React.FC<CompetencyMatrixHeaderProps> = ({
             >
               {parts.length > 1 ? (
                 <>
-                  <span className="whitespace-nowrap">{parts[0].trim()}</span>
+                  <span className="whitespace-nowrap">
+                    {parts[0]?.trim() || ""}
+                  </span>
                   <br />
-                  <span className="whitespace-nowrap">{parts[1]}</span>
+                  <span className="whitespace-nowrap">
+                    {parts[1]?.trim() || ""}
+                  </span>
                 </>
               ) : (
                 <span className="whitespace-nowrap">{level}</span>

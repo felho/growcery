@@ -38,7 +38,7 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
   // Get level-specific definition or fallback to general definition
   const getLevelDefinition = (level: string): string => {
     if (competency.levelDefinitions && competency.levelDefinitions[level]) {
-      return competency.levelDefinitions[level];
+      return competency.levelDefinitions[level] || "";
     }
 
     return competency.definition
@@ -123,8 +123,10 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
             onUpdateNote={(newNote) => updateNote(newNote)}
             isHeatmapView={true}
             cellIndex={index}
-            competencyDefinition={getLevelDefinition(experienceLevels[index])}
-            level={experienceLevels[index]}
+            competencyDefinition={getLevelDefinition(
+              experienceLevels[index] ?? "",
+            )}
+            level={experienceLevels[index] ?? ""}
             isExpanded={isExpanded}
             viewMode={type}
           />
