@@ -279,7 +279,7 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
                   <RadioGroupItem
                     value={ratingOption}
                     id={`${ratingOption}-${cellIndex}`}
-                    className="border-green-500 text-green-500 data-[state=checked]:border-green-500 data-[state=checked]:bg-green-500"
+                    className="border-green-500 text-green-500 data-[state=checked]:!border-green-500 data-[state=checked]:!bg-green-500 [&_[data-slot=radio-group-indicator]]:hidden"
                   />
                   <label
                     htmlFor={`${ratingOption}-${cellIndex}`}
