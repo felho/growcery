@@ -272,7 +272,7 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
                   onUpdateRating(value as Rating);
                 }
               }}
-              className="flex justify-between"
+              className="flex justify-between gap-1"
             >
               {ratingOptions.map((ratingOption, idx) => (
                 <div key={idx} className="flex flex-col items-center gap-1">
