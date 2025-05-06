@@ -18,3 +18,4 @@ export * from "./schema/relations/comp-matrices";
 export * from "./schema/relations/comp-matrix-areas";
 export * from "./schema/relations/comp-matrix-levels";
 export * from "./schema/relations/comp-matrix-competencies";
+export * from "./schema/relations/comp-matrix-definitions";

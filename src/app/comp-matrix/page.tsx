@@ -31,6 +31,13 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { Building2, Users, UserRound } from "lucide-react";
+import useSWR from "swr";
+
+const fetchCompMatrix = async (id: number) => {
+  const res = await fetch(`/api/comp-matrix/${id}`);
+  if (!res.ok) throw new Error("Failed to fetch comp matrix");
+  return res.json();
+};
 
 const CompetencyMatrix = () => {
   const [competencyData, setCompetencyData] = useState(mockCompetencyData);
@@ -183,6 +190,14 @@ const CompetencyMatrix = () => {
   const getCurrentOrgUnit = (): OrgUnit | undefined => {
     return mockOrgUnits.find((unit) => unit.id === selectedOrgUnit);
   };
+
+  const matrixId = 1; // baked in for now
+  const {
+    data: compMatrix,
+    isLoading: isMatrixLoading,
+    error: matrixError,
+  } = useSWR(`/api/comp-matrix/${matrixId}`, () => fetchCompMatrix(matrixId));
+  console.log(compMatrix);
 
   return (
     <div className="animate-fade-in space-y-6">
