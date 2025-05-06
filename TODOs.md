@@ -14,6 +14,7 @@
 - [ ] The authorization has to be checked everywhere we query or change data
 - [ ] In the user editing form later we need to filter the manager field to show only managers of the given function
 - [ ] Archetype should be unique
+- [ ] All the API calls have to be checked from an authorization perspective
 
 ### Login / user management
 
