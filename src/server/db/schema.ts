@@ -4,8 +4,17 @@ export * from "./schema/tables/org-email-domains";
 export * from "./schema/tables/functions";
 export * from "./schema/tables/org-units";
 export * from "./schema/tables/user-archetypes";
+export * from "./schema/tables/comp-matrices";
+export * from "./schema/tables/comp-matrix-areas";
+export * from "./schema/tables/comp-matrix-levels";
+export * from "./schema/tables/comp-matrix-competencies";
+export * from "./schema/tables/comp-matrix-definitions";
 
 export * from "./schema/relations/users";
 export * from "./schema/relations/functions";
 export * from "./schema/relations/org-units";
 export * from "./schema/relations/user-archetypes";
+export * from "./schema/relations/comp-matrices";
+export * from "./schema/relations/comp-matrix-areas";
+export * from "./schema/relations/comp-matrix-levels";
+export * from "./schema/relations/comp-matrix-competencies";

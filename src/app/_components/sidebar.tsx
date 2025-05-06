@@ -20,6 +20,11 @@ const Sidebar = ({ isOpen, hasBeenToggled }: SidebarProps) => {
       icon: <AdminIcon className="h-5 w-5" />,
     },
     {
+      name: "Competency Matrix",
+      path: "/comp-matrix*",
+      icon: <AdminIcon className="h-5 w-5" />,
+    },
+    {
       name: "Home",
       path: "/",
       icon: <HomeIcon className="h-5 w-5" />,
