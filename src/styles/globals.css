@@ -130,6 +130,11 @@
     @apply !bg-muted;
   }
 
+  input,
+  textarea {
+    @apply !bg-background;
+  }
+
   [role="tablist"] > [role="tab"][data-state="active"] {
     background-color: black !important;
   }
