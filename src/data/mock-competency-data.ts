@@ -1,10 +1,4 @@
-// Types for competency matrix
-export type Rating =
-  | "Inexperienced"
-  | "Novice"
-  | "Intermediate"
-  | "Proficient"
-  | "Expert";
+export type Rating = "Inexperienced" | "Novice" | "Intermediate" | "Proficient";
 
 export interface CompetencyItem {
   id: string;
@@ -69,7 +63,6 @@ export const ratingDescriptions: Record<Rating, string> = {
   Novice: "Basic understanding but needs guidance",
   Intermediate: "Can work independently with occasional guidance",
   Proficient: "Deep understanding and can mentor others",
-  Expert: "Thought leader and can drive innovation",
 };
 
 // Exportable rating colors
@@ -78,7 +71,6 @@ export const ratingColors: Record<Rating, string> = {
   Novice: "bg-blue-300/80",
   Intermediate: "bg-blue-600/80",
   Proficient: "bg-primary/80",
-  Expert: "bg-emerald-400/80",
 };
 
 // Helper function to get color for rating in heatmap view
@@ -225,26 +217,18 @@ export const mockEmployees: Employee[] = [
 // Mock data for the competency matrix
 export const mockCompetencyData: CompetencyMatrix = {
   levels: experienceLevels,
-  ratingOptions: [
-    "Inexperienced",
-    "Novice",
-    "Intermediate",
-    "Proficient",
-    "Expert",
-  ],
+  ratingOptions: ["Inexperienced", "Novice", "Intermediate", "Proficient"],
   ratingDescriptions: {
     Inexperienced: "Little to no experience with this competency",
     Novice: "Basic understanding but needs guidance",
     Intermediate: "Can work independently with occasional guidance",
     Proficient: "Deep understanding and can mentor others",
-    Expert: "Thought leader and can drive innovation",
   },
   ratingColors: {
     Inexperienced: "bg-destructive/60",
     Novice: "bg-blue-300/80",
     Intermediate: "bg-blue-600/80",
     Proficient: "bg-primary/80",
-    Expert: "bg-emerald-400/80",
   },
   competencies: [
     {

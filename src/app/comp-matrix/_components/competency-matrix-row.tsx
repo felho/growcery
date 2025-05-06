@@ -106,7 +106,6 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
         Novice: 1,
         Intermediate: 2,
         Proficient: 3,
-        Expert: 4,
       };
 
       const ratingIndex = ratingToIndexMap[rating] || 0;
