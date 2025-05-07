@@ -32,7 +32,6 @@ interface CompetencyMatrixCellProps {
   onUpdateRating: (rating: CellRating) => void;
   cellIndex: number;
   competencyDefinition?: string;
-  level?: string;
   isExpanded?: boolean;
   hasDifferentRatings?: boolean;
   viewMode?: "employee" | "manager";
@@ -44,7 +43,6 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
   onUpdateRating,
   cellIndex,
   competencyDefinition,
-  level,
   isExpanded = false,
   hasDifferentRatings = false,
   viewMode = "employee",
