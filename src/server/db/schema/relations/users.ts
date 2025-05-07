@@ -4,7 +4,7 @@ import { organizations } from "../tables/organizations";
 import { orgUnits } from "../tables/org-units";
 import { functions } from "../tables/functions";
 import { userArchetypes } from "../tables/user-archetypes";
-import { compMatrixCurrentState } from "../tables/comp-matrix-current-state";
+import { compMatrixCurrentRatings } from "../tables/comp-matrix-current-ratings";
 
 export const userRelations = relations(users, ({ one, many }) => ({
   organization: one(organizations, {
@@ -27,6 +27,6 @@ export const userRelations = relations(users, ({ one, many }) => ({
     fields: [users.managerId],
     references: [users.id],
   }),
-  compMatrixCurrentStatesAsReviewee: many(compMatrixCurrentState),
-  compMatrixCurrentStatesAsManager: many(compMatrixCurrentState),
+  compMatrixCurrentRatingsAsReviewee: many(compMatrixCurrentRatings),
+  compMatrixCurrentRatingsAsManager: many(compMatrixCurrentRatings),
 }));

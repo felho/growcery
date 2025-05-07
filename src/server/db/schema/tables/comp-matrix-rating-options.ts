@@ -13,7 +13,9 @@ export const compMatrixRatingOptions = createTable(
       .notNull()
       .references(() => compMatrices.id),
     title: varchar({ length: 250 }).notNull(),
+    radioButtonLabel: varchar({ length: 50 }).notNull(),
     definition: varchar({ length: 500 }).notNull(),
     calculationWeight: smallint().notNull(),
+    sortOrder: smallint().notNull(),
   },
 );

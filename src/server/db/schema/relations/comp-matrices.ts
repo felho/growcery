@@ -4,7 +4,7 @@ import { organizations } from "../tables/organizations";
 import { functions } from "../tables/functions";
 import { compMatrixAreas } from "../tables/comp-matrix-areas";
 import { compMatrixLevels } from "../tables/comp-matrix-levels";
-import { compMatrixRatingOptions } from "../tables/comp-matrix-ratings";
+import { compMatrixRatingOptions } from "../tables/comp-matrix-rating-options";
 
 export const compMatrixRelations = relations(compMatrices, ({ one, many }) => ({
   organization: one(organizations, {
