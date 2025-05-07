@@ -44,7 +44,6 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
   cellIndex,
   competencyDefinition,
   isExpanded = false,
-  hasDifferentRatings = false,
   viewMode = "employee",
 }) => {
   const [localRating, setLocalRating] = useState<CellRating>(rating);
@@ -97,31 +96,28 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
     return viewMode === "manager" ? rating.managerNote : rating.employeeNote;
   };
 
+  // Determine if ratings are different in discussion phase
+  const hasDifferentRatings =
+    phase === "discussion" &&
+    rating.employeeRating &&
+    rating.managerRating &&
+    rating.employeeRating !== rating.managerRating;
+
   // Only use background colors for the calibration phase
   const cellBackground =
     phase === "calibration"
       ? getRatingColor(getCurrentRating() || "Inexperienced")
       : isRated()
         ? "bg-card hover:bg-muted/30"
-        : "bg-[#FFDEE2] hover:bg-red-100/70"; // Pink background for unrated cells
+        : "bg-[#FFDEE2] hover:bg-red-100/70";
 
-  // For the discussion view with both ratings (non-expanded)
-  if (
-    phase === "discussion" &&
-    rating.employeeRating &&
-    rating.managerRating &&
-    !isExpanded &&
-    hasDifferentRatings
-  ) {
-    // Determine cell background color based on whether ratings differ
-    const discussionCellBackground = "bg-red-100/50 hover:bg-red-100/70";
-
-    // Render non-expanded cell for discussion view
+  // For the discussion view with different ratings
+  if (hasDifferentRatings && !isExpanded) {
     return (
       <Popover>
         <PopoverTrigger asChild>
           <div
-            className={`border-border flex h-12 flex-1 cursor-pointer flex-col items-center justify-center border-r transition-colors last:border-r-0 ${discussionCellBackground}`}
+            className={`border-border flex h-12 flex-1 cursor-pointer flex-col items-center justify-center border-r bg-red-100/50 transition-colors last:border-r-0 hover:bg-red-100/70`}
           >
             <div className="flex flex-col items-center">
               <div className="bg-primary/20 rounded-md px-2 py-0.5 text-xs">
@@ -196,13 +192,6 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
                 </div>
               </TabsContent>
             </Tabs>
-
-            {hasDifferentRatings && (
-              <div className="border-border flex items-center gap-2 border-t pt-2 text-sm text-red-500">
-                <Diff className="h-4 w-4" />
-                <span>Ratings differ between employee and manager</span>
-              </div>
-            )}
           </div>
         </PopoverContent>
       </Popover>
@@ -213,14 +202,11 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
   if (isExpanded && phase !== "calibration") {
     return (
       <div className="border-border flex-1 border-r last:border-r-0">
-        {/* Cell content with competency definition */}
         <div className="flex h-full flex-col p-3">
-          {/* Competency definition */}
           <div className="mb-3 flex-grow">
             <p className="text-sm">{competencyDefinition}</p>
           </div>
 
-          {/* Proficiency Radio Selector */}
           <div className="mb-3">
             <div className="mb-2 flex items-center justify-between">
               <h4 className="text-sm font-medium">Rating</h4>
@@ -252,7 +238,6 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
               ))}
             </RadioGroup>
 
-            {/* Rating description */}
             {getCurrentRating() && (
               <p className="text-muted-foreground mt-1 text-xs">
                 {getRatingDescription(getCurrentRating()!)}
@@ -260,7 +245,6 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
             )}
           </div>
 
-          {/* Notes textarea */}
           <div className="mb-2">
             <Textarea
               placeholder="Add notes..."
@@ -307,7 +291,6 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
       </PopoverTrigger>
       <PopoverContent className="w-80">
         <div className="space-y-4">
-          {/* Show competency definition */}
           {competencyDefinition && (
             <p className="text-muted-foreground mb-4 text-sm">
               {competencyDefinition}
@@ -347,7 +330,6 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
               </RadioGroup>
             </div>
 
-            {/* Rating description */}
             {getCurrentRating() && (
               <p className="text-muted-foreground mb-4 text-xs">
                 {getRatingDescription(getCurrentRating()!)}

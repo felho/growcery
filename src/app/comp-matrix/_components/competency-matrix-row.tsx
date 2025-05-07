@@ -48,102 +48,6 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
       : `This competency evaluates the ability to effectively apply skills and knowledge in ${competencyName} at the ${level} level.`;
   };
 
-  // Convert competency data to CellRating format
-  const getCellRating = (): CellRating => ({
-    employeeRating: competency.employeeRating,
-    managerRating: competency.managerRating,
-    employeeNote: competency.employeeNote,
-    managerNote: competency.managerNote,
-  });
-
-  // Generate cells for the view (employee or manager)
-  const generateCellsForView = (type: "employee" | "manager") => {
-    // For discussion phase with different ratings, show both ratings
-    if (phase === "discussion" && !isExpanded) {
-      const hasDifferentRatings =
-        competency.employeeRating !== competency.managerRating;
-
-      if (hasDifferentRatings) {
-        return experienceLevels.map((level, index) => {
-          const levelDefinition = getLevelDefinition(level);
-
-          // Calculate parameters for CompetencyMatrixCell
-          const cellParams = {
-            isActive: false,
-            rating: getCellRating(),
-            onUpdateRating: onUpdateRating,
-            cellIndex: index,
-            competencyDefinition: levelDefinition,
-            isExpanded: isExpanded,
-            hasDifferentRatings: true,
-            viewMode: type,
-            phase: phase,
-          };
-
-          return <CompetencyMatrixCell key={index} {...cellParams} />;
-        });
-      }
-    }
-
-    // For regular view (non-expanded), generate cells for each level
-    const currentRating = getCellRating();
-
-    // For calibration phase, we only show one cell that corresponds to the rating
-    if (phase === "calibration") {
-      // Get the index based on the available rating options
-      const ratingToIndexMap: Record<Rating, number> = {
-        Inexperienced: 0,
-        Novice: 1,
-        Intermediate: 2,
-        Proficient: 3,
-      };
-
-      const ratingIndex =
-        ratingToIndexMap[
-          type === "employee"
-            ? currentRating.employeeRating!
-            : currentRating.managerRating!
-        ] || 0;
-
-      return Array(experienceLevels.length)
-        .fill(null)
-        .map((_, index) => {
-          // Calculate parameters for CompetencyMatrixCell
-          const cellParams = {
-            isActive: index === ratingIndex,
-            rating: currentRating,
-            onUpdateRating: onUpdateRating,
-            cellIndex: index,
-            competencyDefinition: getLevelDefinition(
-              experienceLevels[index] ?? "",
-            ),
-            isExpanded: isExpanded,
-            viewMode: type,
-            phase: phase,
-          };
-
-          return <CompetencyMatrixCell key={index} {...cellParams} />;
-        });
-    }
-
-    // For regular view (non-expanded), generate cells for each level with no active state
-    return experienceLevels.map((level, index) => {
-      // Calculate parameters for CompetencyMatrixCell
-      const cellParams = {
-        isActive: false,
-        rating: currentRating,
-        onUpdateRating: onUpdateRating,
-        cellIndex: index,
-        competencyDefinition: getLevelDefinition(level),
-        isExpanded: false,
-        viewMode: type,
-        phase: phase,
-      };
-
-      return <CompetencyMatrixCell key={index} {...cellParams} />;
-    });
-  };
-
   const handleToggleExpand = () => {
     setIsExpanded(!isExpanded);
   };
@@ -174,42 +78,26 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
         <div
           className={`flex flex-1 ${isExpanded ? "border-b-0" : "border-b"} border-border`}
         >
-          {viewMode === "employee" && generateCellsForView("employee")}
-          {viewMode === "manager" && generateCellsForView("manager")}
+          {experienceLevels.map((level, index) => (
+            <CompetencyMatrixCell
+              key={index}
+              phase={phase}
+              isActive={false}
+              rating={{
+                employeeRating: competency.employeeRating,
+                managerRating: competency.managerRating,
+                employeeNote: competency.employeeNote,
+                managerNote: competency.managerNote,
+              }}
+              onUpdateRating={onUpdateRating}
+              cellIndex={index}
+              competencyDefinition={getLevelDefinition(level)}
+              isExpanded={isExpanded}
+              viewMode={viewMode}
+            />
+          ))}
         </div>
       </div>
-
-      {/* Expanded view */}
-      {isExpanded && phase !== "calibration" && (
-        <div
-          className="border-border flex border-b"
-          style={{ minHeight: "200px" }}
-        >
-          <div className="border-border bg-muted/5 w-[17.55%] border-r p-3"></div>
-          <div className="flex flex-1">
-            {/* For expanded view, create definitions with expandable content */}
-            {experienceLevels.map((level, index) => {
-              const hasDifferentRatings =
-                competency.employeeRating !== competency.managerRating;
-              const customDefinition = getLevelDefinition(level);
-
-              // Calculate parameters for CompetencyMatrixCell
-              const cellParams = {
-                isActive: false,
-                rating: getCellRating(),
-                onUpdateRating: onUpdateRating,
-                cellIndex: index,
-                competencyDefinition: customDefinition,
-                isExpanded: true,
-                viewMode: viewMode,
-                phase: phase,
-              };
-
-              return <CompetencyMatrixCell key={index} {...cellParams} />;
-            })}
-          </div>
-        </div>
-      )}
 
       {/* If expanded with calibration phase, show message */}
       {isExpanded && phase === "calibration" && (
