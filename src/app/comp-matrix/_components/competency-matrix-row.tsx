@@ -55,34 +55,33 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
     if (type === "both" && showBothRatings && !isExpanded) {
       return experienceLevels.map((level, index) => {
         const levelDefinition = getLevelDefinition(level);
-
         const hasDifferentRatings =
           competency.employeeRating !== competency.managerRating;
 
-        return (
-          <CompetencyMatrixCell
-            key={index}
-            isActive={false}
-            employeeRating={competency.employeeRating}
-            managerRating={competency.managerRating}
-            note={""}
-            employeeNote={competency.employeeNote}
-            managerNote={competency.managerNote}
-            onUpdateRating={() => {}} // Not editable in non-expanded discussion view
-            onUpdateNote={() => {}} // Not editable in non-expanded discussion view
-            onUpdateEmployeeRating={updateEmployeeRating}
-            onUpdateManagerRating={updateManagerRating}
-            onUpdateEmployeeNote={updateEmployeeNote}
-            onUpdateManagerNote={updateManagerNote}
-            cellIndex={index}
-            competencyDefinition={levelDefinition}
-            level={level}
-            isExpanded={isExpanded}
-            showBothRatings={showBothRatings}
-            hasDifferentRatings={hasDifferentRatings}
-            viewMode={viewMode}
-          />
-        );
+        // Calculate parameters for CompetencyMatrixCell
+        const cellParams = {
+          isActive: false,
+          employeeRating: competency.employeeRating,
+          managerRating: competency.managerRating,
+          note: "",
+          employeeNote: competency.employeeNote,
+          managerNote: competency.managerNote,
+          onUpdateRating: () => {}, // Not editable in non-expanded discussion view
+          onUpdateNote: () => {}, // Not editable in non-expanded discussion view
+          onUpdateEmployeeRating: updateEmployeeRating,
+          onUpdateManagerRating: updateManagerRating,
+          onUpdateEmployeeNote: updateEmployeeNote,
+          onUpdateManagerNote: updateManagerNote,
+          cellIndex: index,
+          competencyDefinition: levelDefinition,
+          level: level,
+          isExpanded: isExpanded,
+          showBothRatings: showBothRatings,
+          hasDifferentRatings: hasDifferentRatings,
+          viewMode: viewMode,
+        };
+
+        return <CompetencyMatrixCell key={index} {...cellParams} />;
       });
     }
 
@@ -115,43 +114,45 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
 
       return Array(experienceLevels.length)
         .fill(null)
-        .map((_, index) => (
-          <CompetencyMatrixCell
-            key={index}
-            isActive={index === ratingIndex}
-            rating={index === ratingIndex ? rating : "Inexperienced"}
-            note={index === ratingIndex ? note : ""}
-            onUpdateRating={(newRating) => updateRating(newRating)}
-            onUpdateNote={(newNote) => updateNote(newNote)}
-            isHeatmapView={true}
-            cellIndex={index}
-            competencyDefinition={getLevelDefinition(
+        .map((_, index) => {
+          // Calculate parameters for CompetencyMatrixCell
+          const cellParams = {
+            isActive: index === ratingIndex,
+            rating: index === ratingIndex ? rating : "Inexperienced",
+            note: index === ratingIndex ? note : "",
+            onUpdateRating: (newRating: Rating) => updateRating(newRating),
+            onUpdateNote: (newNote: string) => updateNote(newNote),
+            isHeatmapView: true,
+            cellIndex: index,
+            competencyDefinition: getLevelDefinition(
               experienceLevels[index] ?? "",
-            )}
-            level={experienceLevels[index] ?? ""}
-            isExpanded={isExpanded}
-            viewMode={type}
-          />
-        ));
+            ),
+            level: experienceLevels[index] ?? "",
+            isExpanded: isExpanded,
+            viewMode: type,
+          };
+
+          return <CompetencyMatrixCell key={index} {...cellParams} />;
+        });
     }
 
     // For regular view (non-expanded), generate cells for each level with no active state
     return experienceLevels.map((level, index) => {
-      return (
-        <CompetencyMatrixCell
-          key={index}
-          isActive={false}
-          rating={rating}
-          note={note}
-          onUpdateRating={updateRating}
-          onUpdateNote={updateNote}
-          cellIndex={index}
-          competencyDefinition={getLevelDefinition(level)}
-          level={level}
-          isExpanded={false}
-          viewMode={type}
-        />
-      );
+      // Calculate parameters for CompetencyMatrixCell
+      const cellParams = {
+        isActive: false,
+        rating: rating,
+        note: note,
+        onUpdateRating: updateRating,
+        onUpdateNote: updateNote,
+        cellIndex: index,
+        competencyDefinition: getLevelDefinition(level),
+        level: level,
+        isExpanded: false,
+        viewMode: type,
+      };
+
+      return <CompetencyMatrixCell key={index} {...cellParams} />;
     });
   };
 
@@ -206,67 +207,65 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
                 competency.employeeRating !== competency.managerRating;
               const customDefinition = getLevelDefinition(level);
 
+              // Calculate parameters for CompetencyMatrixCell
+              let cellParams;
+
               // For joint assessment view, we'll pass the current viewMode for expanded view
-              // The CompetencyMatrixCell component will handle showing the appropriate rating/note based on viewMode
               if (viewMode === "both" && showBothRatings) {
-                return (
-                  <CompetencyMatrixCell
-                    key={index}
-                    isActive={false}
-                    employeeRating={competency.employeeRating}
-                    managerRating={competency.managerRating}
-                    employeeNote={competency.employeeNote}
-                    managerNote={competency.managerNote}
-                    onUpdateRating={() => {}}
-                    onUpdateNote={() => {}}
-                    onUpdateEmployeeRating={updateEmployeeRating}
-                    onUpdateManagerRating={updateManagerRating}
-                    onUpdateEmployeeNote={updateEmployeeNote}
-                    onUpdateManagerNote={updateManagerNote}
-                    cellIndex={index}
-                    competencyDefinition={customDefinition}
-                    level={level}
-                    isExpanded={true}
-                    showBothRatings={showBothRatings}
-                    hasDifferentRatings={hasDifferentRatings}
-                    viewMode={viewMode}
-                  />
-                );
+                cellParams = {
+                  isActive: false,
+                  employeeRating: competency.employeeRating,
+                  managerRating: competency.managerRating,
+                  employeeNote: competency.employeeNote,
+                  managerNote: competency.managerNote,
+                  onUpdateRating: () => {},
+                  onUpdateNote: () => {},
+                  onUpdateEmployeeRating: updateEmployeeRating,
+                  onUpdateManagerRating: updateManagerRating,
+                  onUpdateEmployeeNote: updateEmployeeNote,
+                  onUpdateManagerNote: updateManagerNote,
+                  cellIndex: index,
+                  competencyDefinition: customDefinition,
+                  level: level,
+                  isExpanded: true,
+                  showBothRatings: showBothRatings,
+                  hasDifferentRatings: hasDifferentRatings,
+                  viewMode: viewMode,
+                };
+              } else {
+                // For employee or manager views
+                const rating =
+                  viewMode === "employee"
+                    ? competency.employeeRating
+                    : competency.managerRating;
+                const note =
+                  viewMode === "employee"
+                    ? competency.employeeNote
+                    : competency.managerNote;
+                const updateRating =
+                  viewMode === "employee"
+                    ? updateEmployeeRating
+                    : updateManagerRating;
+                const updateNote =
+                  viewMode === "employee"
+                    ? updateEmployeeNote
+                    : updateManagerNote;
+
+                cellParams = {
+                  isActive: false,
+                  rating: rating,
+                  note: note,
+                  onUpdateRating: updateRating,
+                  onUpdateNote: updateNote,
+                  cellIndex: index,
+                  competencyDefinition: customDefinition,
+                  level: level,
+                  isExpanded: true,
+                  viewMode: viewMode,
+                };
               }
 
-              // For employee or manager views
-              const rating =
-                viewMode === "employee"
-                  ? competency.employeeRating
-                  : competency.managerRating;
-              const note =
-                viewMode === "employee"
-                  ? competency.employeeNote
-                  : competency.managerNote;
-              const updateRating =
-                viewMode === "employee"
-                  ? updateEmployeeRating
-                  : updateManagerRating;
-              const updateNote =
-                viewMode === "employee"
-                  ? updateEmployeeNote
-                  : updateManagerNote;
-
-              return (
-                <CompetencyMatrixCell
-                  key={index}
-                  isActive={false}
-                  rating={rating}
-                  note={note}
-                  onUpdateRating={updateRating}
-                  onUpdateNote={updateNote}
-                  cellIndex={index}
-                  competencyDefinition={customDefinition}
-                  level={level}
-                  isExpanded={true}
-                  viewMode={viewMode}
-                />
-              );
+              return <CompetencyMatrixCell key={index} {...cellParams} />;
             })}
           </div>
         </div>
