@@ -15,6 +15,7 @@
 - [ ] In the user editing form later we need to filter the manager field to show only managers of the given function
 - [ ] Archetype should be unique
 - [ ] All the API calls have to be checked from an authorization perspective
+- [ ] Currently, the comp matrix levels are ordered by levelCode, which works, but probably we need an exact order kept in the DB
 
 ### Login / user management
 
