@@ -11,16 +11,20 @@ import CompetencyMatrixCell from "./competency-matrix-cell";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import type { CompMatrixCompetencyWithDefinitions } from "~/server/queries/comp-matrix-competency";
 
+interface CellRating {
+  employeeRating?: Rating;
+  managerRating?: Rating;
+  employeeNote?: string;
+  managerNote?: string;
+}
+
 interface CompetencyMatrixRowProps {
   competencyName: string;
   competency: CompetencyItem;
   dbCompetency?: CompMatrixCompetencyWithDefinitions;
   phase: "assessment" | "discussion" | "calibration";
   viewMode: "employee" | "manager";
-  updateEmployeeRating: (rating: Rating) => void;
-  updateManagerRating: (rating: Rating) => void;
-  updateEmployeeNote: (note: string) => void;
-  updateManagerNote: (note: string) => void;
+  onUpdateRating: (rating: CellRating) => void;
 }
 
 const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
@@ -29,10 +33,7 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
   dbCompetency,
   phase,
   viewMode,
-  updateEmployeeRating,
-  updateManagerRating,
-  updateEmployeeNote,
-  updateManagerNote,
+  onUpdateRating,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -46,6 +47,14 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
       ? `${competency.definition} for ${level} level.`
       : `This competency evaluates the ability to effectively apply skills and knowledge in ${competencyName} at the ${level} level.`;
   };
+
+  // Convert competency data to CellRating format
+  const getCellRating = (): CellRating => ({
+    employeeRating: competency.employeeRating,
+    managerRating: competency.managerRating,
+    employeeNote: competency.employeeNote,
+    managerNote: competency.managerNote,
+  });
 
   // Generate cells for the view (employee or manager)
   const generateCellsForView = (type: "employee" | "manager") => {
@@ -61,17 +70,8 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
           // Calculate parameters for CompetencyMatrixCell
           const cellParams = {
             isActive: false,
-            employeeRating: competency.employeeRating,
-            managerRating: competency.managerRating,
-            note: "",
-            employeeNote: competency.employeeNote,
-            managerNote: competency.managerNote,
-            onUpdateRating: () => {}, // Not editable in non-expanded discussion view
-            onUpdateNote: () => {}, // Not editable in non-expanded discussion view
-            onUpdateEmployeeRating: updateEmployeeRating,
-            onUpdateManagerRating: updateManagerRating,
-            onUpdateEmployeeNote: updateEmployeeNote,
-            onUpdateManagerNote: updateManagerNote,
+            rating: getCellRating(),
+            onUpdateRating: onUpdateRating,
             cellIndex: index,
             competencyDefinition: levelDefinition,
             level: level,
@@ -87,16 +87,7 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
     }
 
     // For regular view (non-expanded), generate cells for each level
-    const rating =
-      type === "employee"
-        ? competency.employeeRating
-        : competency.managerRating;
-    const note =
-      type === "employee" ? competency.employeeNote : competency.managerNote;
-    const updateRating =
-      type === "employee" ? updateEmployeeRating : updateManagerRating;
-    const updateNote =
-      type === "employee" ? updateEmployeeNote : updateManagerNote;
+    const currentRating = getCellRating();
 
     // For calibration phase, we only show one cell that corresponds to the rating
     if (phase === "calibration") {
@@ -108,7 +99,12 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
         Proficient: 3,
       };
 
-      const ratingIndex = ratingToIndexMap[rating] || 0;
+      const ratingIndex =
+        ratingToIndexMap[
+          type === "employee"
+            ? currentRating.employeeRating!
+            : currentRating.managerRating!
+        ] || 0;
 
       return Array(experienceLevels.length)
         .fill(null)
@@ -116,10 +112,8 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
           // Calculate parameters for CompetencyMatrixCell
           const cellParams = {
             isActive: index === ratingIndex,
-            rating: index === ratingIndex ? rating : "Inexperienced",
-            note: index === ratingIndex ? note : "",
-            onUpdateRating: (newRating: Rating) => updateRating(newRating),
-            onUpdateNote: (newNote: string) => updateNote(newNote),
+            rating: currentRating,
+            onUpdateRating: onUpdateRating,
             cellIndex: index,
             competencyDefinition: getLevelDefinition(
               experienceLevels[index] ?? "",
@@ -139,10 +133,8 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
       // Calculate parameters for CompetencyMatrixCell
       const cellParams = {
         isActive: false,
-        rating: rating,
-        note: note,
-        onUpdateRating: updateRating,
-        onUpdateNote: updateNote,
+        rating: currentRating,
+        onUpdateRating: onUpdateRating,
         cellIndex: index,
         competencyDefinition: getLevelDefinition(level),
         level: level,
@@ -207,22 +199,8 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
               // Calculate parameters for CompetencyMatrixCell
               const cellParams = {
                 isActive: false,
-                rating:
-                  viewMode === "employee"
-                    ? competency.employeeRating
-                    : competency.managerRating,
-                note:
-                  viewMode === "employee"
-                    ? competency.employeeNote
-                    : competency.managerNote,
-                onUpdateRating:
-                  viewMode === "employee"
-                    ? updateEmployeeRating
-                    : updateManagerRating,
-                onUpdateNote:
-                  viewMode === "employee"
-                    ? updateEmployeeNote
-                    : updateManagerNote,
+                rating: getCellRating(),
+                onUpdateRating: onUpdateRating,
                 cellIndex: index,
                 competencyDefinition: customDefinition,
                 level: level,

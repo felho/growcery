@@ -37,6 +37,13 @@ import type { CompMatrixWithFullRelations } from "~/server/queries/comp-matrix";
 import type { CompMatrixLevel } from "~/server/queries/comp-matrix-level";
 import type { CompMatrixAreaWithFullRelations } from "~/server/queries/comp-matrix-area";
 
+interface CellRating {
+  employeeRating?: Rating;
+  managerRating?: Rating;
+  employeeNote?: string;
+  managerNote?: string;
+}
+
 const CompetencyMatrix = () => {
   const [competencyData, setCompetencyData] = useState(mockCompetencyData);
   const [phase, setPhase] = useState<
@@ -78,23 +85,32 @@ const CompetencyMatrix = () => {
   const updateCompetency = (
     categoryIndex: number,
     itemIndex: number,
-    field: "employeeRating" | "managerRating" | "employeeNote" | "managerNote",
-    value: Rating | string,
+    rating: CellRating,
   ) => {
     const updatedCompetencyData = { ...competencyData };
     const competencyItem =
       updatedCompetencyData.competencies[categoryIndex]?.items[itemIndex];
     if (!competencyItem) return;
 
-    if (field === "employeeRating" || field === "managerRating") {
-      competencyItem[field] = value as Rating;
-    } else {
-      competencyItem[field] = value as string;
+    // Update all fields from the rating object, only if they are defined
+    if (rating.employeeRating !== undefined) {
+      competencyItem.employeeRating = rating.employeeRating;
+    }
+    if (rating.managerRating !== undefined) {
+      competencyItem.managerRating = rating.managerRating;
+    }
+    if (rating.employeeNote !== undefined) {
+      competencyItem.employeeNote = rating.employeeNote;
+    }
+    if (rating.managerNote !== undefined) {
+      competencyItem.managerNote = rating.managerNote;
     }
 
     setCompetencyData(updatedCompetencyData);
 
-    toast.success(`Updated ${field} for ${competencyItem.name}`);
+    // Show success message with the updated field
+    const updatedField = viewMode === "manager" ? "manager" : "employee";
+    toast.success(`Updated ${updatedField} rating for ${competencyItem.name}`);
   };
 
   const switchPhase = (

@@ -8,6 +8,13 @@ import {
 import CompetencyMatrixRow from "./competency-matrix-row";
 import type { CompMatrixAreaWithFullRelations } from "~/server/queries/comp-matrix-area";
 
+interface CellRating {
+  employeeRating?: Rating;
+  managerRating?: Rating;
+  employeeNote?: string;
+  managerNote?: string;
+}
+
 interface CompetencyAreaSectionProps {
   area: CompMatrixAreaWithFullRelations;
   category: CompetencyCategory;
@@ -16,8 +23,7 @@ interface CompetencyAreaSectionProps {
   updateCompetency: (
     categoryIndex: number,
     itemIndex: number,
-    field: "employeeRating" | "managerRating" | "employeeNote" | "managerNote",
-    value: Rating | string,
+    rating: CellRating,
   ) => void;
   categoryIndex: number;
 }
@@ -54,27 +60,8 @@ const CompetencyAreaSection: React.FC<CompetencyAreaSectionProps> = ({
               dbCompetency={dbCompetency}
               phase={phase}
               viewMode={viewMode}
-              updateEmployeeRating={(rating) =>
-                updateCompetency(
-                  categoryIndex,
-                  itemIndex,
-                  "employeeRating",
-                  rating,
-                )
-              }
-              updateManagerRating={(rating) =>
-                updateCompetency(
-                  categoryIndex,
-                  itemIndex,
-                  "managerRating",
-                  rating,
-                )
-              }
-              updateEmployeeNote={(note) =>
-                updateCompetency(categoryIndex, itemIndex, "employeeNote", note)
-              }
-              updateManagerNote={(note) =>
-                updateCompetency(categoryIndex, itemIndex, "managerNote", note)
+              onUpdateRating={(rating) =>
+                updateCompetency(categoryIndex, itemIndex, rating)
               }
             />
           );

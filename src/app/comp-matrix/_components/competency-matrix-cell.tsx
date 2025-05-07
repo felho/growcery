@@ -18,21 +18,18 @@ import { Textarea } from "~/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Badge } from "~/components/ui/badge";
 
-interface CompetencyMatrixCellProps {
-  phase: "assessment" | "discussion" | "calibration";
-  isActive: boolean; // Keep prop for backward compatibility
-  rating?: Rating;
+interface CellRating {
   employeeRating?: Rating;
   managerRating?: Rating;
-  note?: string;
   employeeNote?: string;
   managerNote?: string;
-  onUpdateRating: (rating: Rating) => void;
-  onUpdateNote: (note: string) => void;
-  onUpdateEmployeeRating?: (rating: Rating) => void;
-  onUpdateManagerRating?: (rating: Rating) => void;
-  onUpdateEmployeeNote?: (note: string) => void;
-  onUpdateManagerNote?: (note: string) => void;
+}
+
+interface CompetencyMatrixCellProps {
+  phase: "assessment" | "discussion" | "calibration";
+  isActive: boolean;
+  rating: CellRating;
+  onUpdateRating: (rating: CellRating) => void;
   cellIndex: number;
   competencyDefinition?: string;
   level?: string;
@@ -44,17 +41,7 @@ interface CompetencyMatrixCellProps {
 const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
   phase,
   rating,
-  employeeRating,
-  managerRating,
-  note = "",
-  employeeNote = "",
-  managerNote = "",
   onUpdateRating,
-  onUpdateNote,
-  onUpdateEmployeeRating,
-  onUpdateManagerRating,
-  onUpdateEmployeeNote,
-  onUpdateManagerNote,
   cellIndex,
   competencyDefinition,
   level,
@@ -62,48 +49,37 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
   hasDifferentRatings = false,
   viewMode = "employee",
 }) => {
-  const [localNote, setLocalNote] = useState(note);
-  const [localEmployeeNote, setLocalEmployeeNote] = useState(employeeNote);
-  const [localManagerNote, setLocalManagerNote] = useState(managerNote);
+  const [localRating, setLocalRating] = useState<CellRating>(rating);
 
   // Get available rating options from the mock data
   const ratingOptions: Rating[] = mockCompetencyData.ratingOptions;
 
   const handleNoteChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setLocalNote(e.target.value);
+    const newNote = e.target.value;
+    setLocalRating((prev) => ({
+      ...prev,
+      [viewMode === "manager" ? "managerNote" : "employeeNote"]: newNote,
+    }));
   };
 
-  const handleEmployeeNoteChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement>,
-  ) => {
-    setLocalEmployeeNote(e.target.value);
+  const handleRatingChange = (newRating: Rating) => {
+    const updatedRating = {
+      ...localRating,
+      [viewMode === "manager" ? "managerRating" : "employeeRating"]: newRating,
+    };
+    setLocalRating(updatedRating);
+    onUpdateRating(updatedRating);
   };
 
-  const handleManagerNoteChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement>,
-  ) => {
-    setLocalManagerNote(e.target.value);
-  };
-
-  const handleNoteSave = () => {
-    onUpdateNote(localNote);
-  };
-
-  const handleEmployeeNoteSave = () => {
-    if (onUpdateEmployeeNote) {
-      onUpdateEmployeeNote(localEmployeeNote);
-    }
-  };
-
-  const handleManagerNoteSave = () => {
-    if (onUpdateManagerNote) {
-      onUpdateManagerNote(localManagerNote);
-    }
+  const handleSave = () => {
+    onUpdateRating(localRating);
   };
 
   // Check if the cell has been rated
   const isRated = (): boolean => {
-    return !!rating;
+    return viewMode === "manager"
+      ? !!rating.managerRating
+      : !!rating.employeeRating;
   };
 
   // Get rating description
@@ -111,10 +87,22 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
     return mockCompetencyData.ratingDescriptions[ratingValue] || "";
   };
 
+  // Get current rating based on view mode
+  const getCurrentRating = (): Rating | undefined => {
+    return viewMode === "manager"
+      ? rating.managerRating
+      : rating.employeeRating;
+  };
+
+  // Get current note based on view mode
+  const getCurrentNote = (): string | undefined => {
+    return viewMode === "manager" ? rating.managerNote : rating.employeeNote;
+  };
+
   // Only use background colors for the calibration phase
   const cellBackground =
     phase === "calibration"
-      ? getRatingColor(rating || "Inexperienced")
+      ? getRatingColor(getCurrentRating() || "Inexperienced")
       : isRated()
         ? "bg-card hover:bg-muted/30"
         : "bg-[#FFDEE2] hover:bg-red-100/70"; // Pink background for unrated cells
@@ -122,8 +110,8 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
   // For the discussion view with both ratings (non-expanded)
   if (
     phase === "discussion" &&
-    employeeRating &&
-    managerRating &&
+    rating.employeeRating &&
+    rating.managerRating &&
     !isExpanded &&
     hasDifferentRatings
   ) {
@@ -139,10 +127,10 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
           >
             <div className="flex flex-col items-center">
               <div className="bg-primary/20 rounded-md px-2 py-0.5 text-xs">
-                E: {employeeRating}
+                E: {rating.employeeRating}
               </div>
               <div className="bg-secondary/30 mt-1 rounded-md px-2 py-0.5 text-xs">
-                M: {managerRating}
+                M: {rating.managerRating}
               </div>
             </div>
             <div className="absolute top-0 right-0">
@@ -169,11 +157,11 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
                   <h4 className="mb-2 font-medium">Rating</h4>
                   <div className="flex items-center gap-2">
                     <span className="bg-primary/20 rounded-md px-3 py-1 text-sm font-medium">
-                      {employeeRating}
+                      {rating.employeeRating}
                     </span>
-                    {employeeRating && (
+                    {rating.employeeRating && (
                       <span className="text-muted-foreground text-xs">
-                        {getRatingDescription(employeeRating)}
+                        {getRatingDescription(rating.employeeRating)}
                       </span>
                     )}
                   </div>
@@ -182,7 +170,7 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
                 <div>
                   <h4 className="mb-2 font-medium">Notes</h4>
                   <p className="text-sm">
-                    {employeeNote || "No notes provided."}
+                    {rating.employeeNote || "No notes provided."}
                   </p>
                 </div>
               </TabsContent>
@@ -192,11 +180,11 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
                   <h4 className="mb-2 font-medium">Rating</h4>
                   <div className="flex items-center gap-2">
                     <span className="bg-secondary/30 rounded-md px-3 py-1 text-sm font-medium">
-                      {managerRating}
+                      {rating.managerRating}
                     </span>
-                    {managerRating && (
+                    {rating.managerRating && (
                       <span className="text-muted-foreground text-xs">
-                        {getRatingDescription(managerRating)}
+                        {getRatingDescription(rating.managerRating)}
                       </span>
                     )}
                   </div>
@@ -205,7 +193,7 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
                 <div>
                   <h4 className="mb-2 font-medium">Notes</h4>
                   <p className="text-sm">
-                    {managerNote || "No notes provided."}
+                    {rating.managerNote || "No notes provided."}
                   </p>
                 </div>
               </TabsContent>
@@ -225,15 +213,6 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
 
   // Render expanded cell with definition, rating selector, and notes
   if (isExpanded && phase !== "calibration") {
-    // For joint assessment (showBothRatings is true), we'll determine which rating/note to show based on viewMode
-    const currentRating =
-      viewMode === "manager" ? managerRating : employeeRating;
-    const currentNote = viewMode === "manager" ? managerNote : employeeNote;
-    const updateCurrentRating =
-      viewMode === "manager" ? onUpdateManagerRating : onUpdateEmployeeRating;
-    const updateCurrentNote =
-      viewMode === "manager" ? onUpdateManagerNote : onUpdateEmployeeNote;
-
     return (
       <div className="border-border flex-1 border-r last:border-r-0">
         {/* Cell content with competency definition */}
@@ -254,14 +233,8 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
               )}
             </div>
             <RadioGroup
-              value={viewMode === "manager" ? currentRating : rating}
-              onValueChange={(value) => {
-                if (viewMode === "manager") {
-                  updateCurrentRating?.(value as Rating);
-                } else {
-                  onUpdateRating(value as Rating);
-                }
-              }}
+              value={getCurrentRating()}
+              onValueChange={handleRatingChange}
               className="flex justify-between gap-1"
             >
               {ratingOptions.map((ratingOption, idx) => (
@@ -282,13 +255,9 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
             </RadioGroup>
 
             {/* Rating description */}
-            {(viewMode === "manager" ? currentRating : rating) && (
+            {getCurrentRating() && (
               <p className="text-muted-foreground mt-1 text-xs">
-                {getRatingDescription(
-                  viewMode === "manager"
-                    ? (currentRating as Rating)
-                    : (rating as Rating),
-                )}
+                {getRatingDescription(getCurrentRating()!)}
               </p>
             )}
           </div>
@@ -297,23 +266,13 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
           <div className="mb-2">
             <Textarea
               placeholder="Add notes..."
-              value={
-                viewMode === "manager" ? localManagerNote : localEmployeeNote
-              }
-              onChange={
-                viewMode === "manager"
-                  ? handleManagerNoteChange
-                  : handleEmployeeNoteChange
-              }
+              value={getCurrentNote() || ""}
+              onChange={handleNoteChange}
               className="bg-background min-h-[80px] resize-none text-sm"
             />
             <div className="mt-1 flex justify-end">
               <Button
-                onClick={
-                  viewMode === "manager"
-                    ? handleManagerNoteSave
-                    : handleEmployeeNoteSave
-                }
+                onClick={handleSave}
                 size="sm"
                 variant="ghost"
                 className="h-6 px-2 text-xs"
@@ -338,7 +297,9 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
           {phase !== "calibration" && (
             <>
               {isRated() ? (
-                <span className="text-sm font-medium">{rating}</span>
+                <span className="text-sm font-medium">
+                  {getCurrentRating()}
+                </span>
               ) : (
                 <AlertCircle className="h-4 w-4 text-red-500" />
               )}
@@ -366,8 +327,8 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
             </div>
             <div className="mb-2 flex justify-between gap-4">
               <RadioGroup
-                value={rating}
-                onValueChange={(value) => onUpdateRating(value as Rating)}
+                value={getCurrentRating()}
+                onValueChange={handleRatingChange}
                 className="flex w-full justify-between"
               >
                 {ratingOptions.map((ratingOption, idx) => (
@@ -389,9 +350,9 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
             </div>
 
             {/* Rating description */}
-            {rating && (
+            {getCurrentRating() && (
               <p className="text-muted-foreground mb-4 text-xs">
-                {getRatingDescription(rating)}
+                {getRatingDescription(getCurrentRating()!)}
               </p>
             )}
           </div>
@@ -400,7 +361,7 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
             <h4 className="mb-2 font-medium">Notes</h4>
             <Textarea
               placeholder="Add notes here..."
-              value={localNote}
+              value={getCurrentNote() || ""}
               onChange={handleNoteChange}
               className="min-h-[100px]"
             />
@@ -408,7 +369,7 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
 
           <div className="flex justify-end">
             <Button
-              onClick={handleNoteSave}
+              onClick={handleSave}
               size="sm"
               className="flex items-center gap-1"
             >
