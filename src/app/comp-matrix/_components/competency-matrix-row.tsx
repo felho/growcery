@@ -9,10 +9,12 @@ import {
 } from "~/data/mock-competency-data";
 import CompetencyMatrixCell from "./competency-matrix-cell";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import type { CompMatrixCompetencyWithDefinitions } from "~/server/queries/comp-matrix-competency";
 
 interface CompetencyMatrixRowProps {
   competencyName: string;
   competency: CompetencyItem;
+  dbCompetency?: CompMatrixCompetencyWithDefinitions;
   isHeatmapView: boolean;
   showBothRatings: boolean;
   viewMode: "employee" | "manager" | "both";
@@ -25,6 +27,7 @@ interface CompetencyMatrixRowProps {
 const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
   competencyName,
   competency,
+  dbCompetency,
   isHeatmapView,
   showBothRatings,
   viewMode,

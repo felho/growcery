@@ -6,8 +6,10 @@ import {
   type Rating,
 } from "~/data/mock-competency-data";
 import CompetencyMatrixRow from "./competency-matrix-row";
+import type { CompMatrixAreaWithFullRelations } from "~/server/queries/comp-matrix-area";
 
 interface CompetencyAreaSectionProps {
+  area: CompMatrixAreaWithFullRelations;
   category: CompetencyCategory;
   isHeatmapView: boolean;
   showBothRatings: boolean;
@@ -16,35 +18,37 @@ interface CompetencyAreaSectionProps {
     categoryIndex: number,
     itemIndex: number,
     field: "employeeRating" | "managerRating" | "employeeNote" | "managerNote",
-    value: Rating | string,
+    value: any,
   ) => void;
   categoryIndex: number;
 }
 
-const CompetencyAreaSection: React.FC<CompetencyAreaSectionProps> = ({
+export default function CompetencyAreaSection({
+  area,
   category,
   isHeatmapView,
   showBothRatings,
   viewMode,
   updateCompetency,
   categoryIndex,
-}) => {
+}: CompetencyAreaSectionProps) {
   return (
-    <div className="mb-0">
-      <div className="bg-muted border-border flex items-center justify-between rounded-t-md border p-2 font-semibold">
-        <span>{category.category}</span>
-        {category.description && (
-          <span className="text-muted-foreground text-xs">
-            {category.description}
-          </span>
-        )}
+    <div className="border-border border-t">
+      <div className="bg-muted/50 p-4">
+        <h3 className="font-semibold">{category.category}</h3>
+        <p className="text-muted-foreground text-sm">{category.description}</p>
       </div>
-      <div className="border-border border-r border-l">
-        {category.items.map((item, itemIndex) => (
+      {category.items.map((item, itemIndex) => {
+        const dbCompetency = area.competencies.find(
+          (c) => c.title === item.name,
+        );
+
+        return (
           <CompetencyMatrixRow
             key={`${category.id}-${item.id}`}
             competencyName={item.name}
             competency={item}
+            dbCompetency={dbCompetency}
             isHeatmapView={isHeatmapView}
             showBothRatings={showBothRatings}
             viewMode={viewMode}
@@ -71,10 +75,8 @@ const CompetencyAreaSection: React.FC<CompetencyAreaSectionProps> = ({
               updateCompetency(categoryIndex, itemIndex, "managerNote", note)
             }
           />
-        ))}
-      </div>
+        );
+      })}
     </div>
   );
-};
-
-export default CompetencyAreaSection;
+}

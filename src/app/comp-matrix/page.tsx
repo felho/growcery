@@ -308,17 +308,23 @@ const CompetencyMatrix = () => {
                 showBothRatings={false}
               />
 
-              {competencyData.competencies.map((category, categoryIndex) => (
-                <CompetencyAreaSection
-                  key={category.id}
-                  category={category}
-                  isHeatmapView={isHeatmapView}
-                  showBothRatings={phase === "discussion"}
-                  viewMode={phase === "discussion" ? "both" : viewMode}
-                  updateCompetency={updateCompetency}
-                  categoryIndex={categoryIndex}
-                />
-              ))}
+              {compMatrix?.areas?.map((area, categoryIndex) => {
+                const category = competencyData.competencies[categoryIndex];
+                if (!category) return null;
+
+                return (
+                  <CompetencyAreaSection
+                    key={area.id}
+                    area={area}
+                    category={category}
+                    isHeatmapView={isHeatmapView}
+                    showBothRatings={phase === "discussion"}
+                    viewMode={phase === "discussion" ? "both" : viewMode}
+                    updateCompetency={updateCompetency}
+                    categoryIndex={categoryIndex}
+                  />
+                );
+              })}
             </div>
           ) : (
             <div className="text-muted-foreground p-8 text-center">
