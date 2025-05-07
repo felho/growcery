@@ -3,7 +3,7 @@
 import { updateOrgUnitSchema } from "~/zod-schemas/org-unit";
 import { actionClient } from "~/lib/safe-action";
 import { flattenValidationErrors } from "next-safe-action";
-import { updateOrgUnit } from "~/server/queries/org-units";
+import { updateOrgUnit } from "~/server/queries/org-unit";
 
 export const updateOrgUnitAction = actionClient
   .metadata({ actionName: "updateOrgUnitAction" })

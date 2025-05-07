@@ -3,7 +3,7 @@ import OrgUnitFormPage from "./org-unit-form-page";
 import {
   getAllOrgUnitsForOrg,
   getOrgUnitById,
-} from "~/server/queries/org-units";
+} from "~/server/queries/org-unit";
 import type { InsertOrgUnitInputFromForm } from "~/zod-schemas/org-unit";
 import { notFound } from "next/navigation";
 

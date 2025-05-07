@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getUserArchetypeById } from "~/server/queries/user-archetypes";
+import { getUserArchetypeById } from "~/server/queries/user-archetype";
 import { UserArchetypeForm } from "./user-archetype-form";
 import { type Metadata } from "next";
 import Breadcrumbs from "~/app/admin/_components/breadcrumbs";

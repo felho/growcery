@@ -1,4 +1,4 @@
-import type { Function } from "~/server/queries/functions";
+import type { Function } from "~/server/queries/function";
 
 export async function fetchFunctions(): Promise<Function[]> {
   const res = await fetch("/api/functions");

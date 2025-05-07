@@ -1,4 +1,4 @@
-import type { UserArchetype } from "~/server/queries/user-archetypes";
+import type { UserArchetype } from "~/server/queries/user-archetype";
 
 export async function fetchUserArchetypes(): Promise<UserArchetype[]> {
   const res = await fetch("/api/user-archetypes");

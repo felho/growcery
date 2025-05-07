@@ -3,7 +3,7 @@
 import { insertUserSchemaFromForm } from "~/zod-schemas/user";
 import { flattenValidationErrors } from "next-safe-action";
 import { actionClient } from "~/lib/safe-action";
-import { createUser } from "~/server/queries/users";
+import { createUser } from "~/server/queries/user";
 import { getCurrentUserOrgId } from "~/lib/auth/get-org-id";
 
 export const createUserAction = actionClient

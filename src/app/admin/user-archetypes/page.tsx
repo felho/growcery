@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { fetchUserArchetypes } from "~/lib/client-api/user-archetypes";
-import type { UserArchetype } from "~/server/queries/user-archetypes";
+import type { UserArchetype } from "~/server/queries/user-archetype";
 import {
   Table,
   TableBody,

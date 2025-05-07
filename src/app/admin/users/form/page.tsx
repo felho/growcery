@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
-import { getUserById, getAllUsersForOrg } from "~/server/queries/users";
-import { getFunctionsByOrg } from "~/server/queries/functions";
-import { getAllOrgUnitsForOrg } from "~/server/queries/org-units";
-import { getAllUserArchetypesForOrg } from "~/server/queries/user-archetypes";
+import { getUserById, getAllUsersForOrg } from "~/server/queries/user";
+import { getFunctionsByOrg } from "~/server/queries/function";
+import { getAllOrgUnitsForOrg } from "~/server/queries/org-unit";
+import { getAllUserArchetypesForOrg } from "~/server/queries/user-archetype";
 import { getCurrentUserOrgId } from "~/lib/auth/get-org-id";
 import { UserForm } from "./user-form";
 import { type Metadata } from "next";

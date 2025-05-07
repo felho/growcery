@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import Breadcrumbs from "../_components/breadcrumbs";
-import type { Function } from "~/server/queries/functions";
+import type { Function } from "~/server/queries/function";
 import useSWR from "swr";
 import { fetchFunctions } from "~/lib/client-api";
 

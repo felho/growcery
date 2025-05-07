@@ -3,7 +3,7 @@
 import { insertUserArchetypeSchemaFromForm } from "~/zod-schemas/user-archetype";
 import { actionClient } from "~/lib/safe-action";
 import { flattenValidationErrors } from "next-safe-action";
-import { createUserArchetype } from "~/server/queries/user-archetypes";
+import { createUserArchetype } from "~/server/queries/user-archetype";
 import { getCurrentUserOrgId } from "~/lib/auth/get-org-id";
 
 export const createUserArchetypeAction = actionClient

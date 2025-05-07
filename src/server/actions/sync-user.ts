@@ -2,7 +2,7 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 import {
   createUserOnFirstLogin,
   getUserByAuthProviderId,
-} from "~/server/queries/users";
+} from "~/server/queries/user";
 import { getCurrentUserOrgId } from "~/lib/auth/get-org-id";
 
 export async function syncUserToDb() {

@@ -3,7 +3,7 @@
 import { insertOrgUnitSchemaFromForm } from "~/zod-schemas/org-unit";
 import { actionClient } from "~/lib/safe-action";
 import { flattenValidationErrors } from "next-safe-action";
-import { createOrgUnit } from "~/server/queries/org-units";
+import { createOrgUnit } from "~/server/queries/org-unit";
 import { z } from "zod";
 
 export const createOrgUnitAction = actionClient

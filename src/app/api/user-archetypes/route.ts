@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentUserOrgId } from "~/lib/auth/get-org-id";
-import { getAllUserArchetypesForOrg } from "~/server/queries/user-archetypes";
+import { getAllUserArchetypesForOrg } from "~/server/queries/user-archetype";
 
 export async function GET() {
   try {

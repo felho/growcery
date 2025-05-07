@@ -1,4 +1,4 @@
-import { getAllUsersForOrg } from "~/server/queries/users";
+import { getAllUsersForOrg } from "~/server/queries/user";
 import { getCurrentUserOrgId } from "~/lib/auth/get-org-id";
 import { NextResponse } from "next/server";
 

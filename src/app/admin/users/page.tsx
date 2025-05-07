@@ -24,7 +24,7 @@ import { getOrgUnitName } from "~/data/mock-data";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { fetchUsers } from "~/lib/client-api";
-import type { UserWithArchetype } from "~/server/queries/users";
+import type { UserWithArchetype } from "~/server/queries/user";
 
 export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState("");
