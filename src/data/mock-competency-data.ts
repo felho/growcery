@@ -1,5 +1,7 @@
 export type Rating = "Inexperienced" | "Novice" | "Intermediate" | "Proficient";
 
+export type Phase = "assessment" | "joint-discussion" | "calibration";
+
 export interface CompetencyItem {
   id: string;
   name: string;

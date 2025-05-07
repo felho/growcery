@@ -20,6 +20,7 @@ import {
   mockFunctions,
   type OrgUnit,
   type Function,
+  type Phase,
 } from "~/data/mock-competency-data";
 import CompetencyMatrixHeader from "./_components/competency-matrix-header";
 import CompetencyAreaSection from "./_components/competency-area-section";
@@ -46,9 +47,7 @@ interface CellRating {
 
 const CompetencyMatrix = () => {
   const [competencyData, setCompetencyData] = useState(mockCompetencyData);
-  const [phase, setPhase] = useState<
-    "assessment" | "discussion" | "calibration"
-  >("assessment");
+  const [phase, setPhase] = useState<Phase>("assessment");
   const [viewMode, setViewMode] = useState<"employee" | "manager">("employee");
 
   // Selection state
@@ -113,9 +112,7 @@ const CompetencyMatrix = () => {
     toast.success(`Updated ${updatedField} rating for ${competencyItem.name}`);
   };
 
-  const switchPhase = (
-    newPhase: "assessment" | "discussion" | "calibration",
-  ) => {
+  const switchPhase = (newPhase: Phase) => {
     setPhase(newPhase);
 
     // Reset view mode to employee when switching to assessment phase
@@ -299,7 +296,9 @@ const CompetencyMatrix = () => {
             >
               <TabsList>
                 <TabsTrigger value="assessment">Assessment</TabsTrigger>
-                <TabsTrigger value="discussion">Joint Discussion</TabsTrigger>
+                <TabsTrigger value="joint-discussion">
+                  Joint Discussion
+                </TabsTrigger>
                 <TabsTrigger value="calibration">Calibration</TabsTrigger>
               </TabsList>
             </Tabs>

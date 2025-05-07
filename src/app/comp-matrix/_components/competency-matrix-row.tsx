@@ -6,6 +6,7 @@ import {
   type Rating,
   getRatingColor,
   experienceLevels,
+  type Phase,
 } from "~/data/mock-competency-data";
 import CompetencyMatrixCell from "./competency-matrix-cell";
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -22,7 +23,7 @@ interface CompetencyMatrixRowProps {
   competencyName: string;
   competency: CompetencyItem;
   dbCompetency?: CompMatrixCompetencyWithDefinitions;
-  phase: "assessment" | "discussion" | "calibration";
+  phase: Phase;
   viewMode: "employee" | "manager";
   onUpdateRating: (rating: CellRating) => void;
 }

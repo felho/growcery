@@ -5,6 +5,7 @@ import {
   type Rating,
   getRatingColor,
   mockCompetencyData,
+  type Phase,
 } from "~/data/mock-competency-data";
 import { Button } from "~/components/ui/button";
 import { CheckIcon } from "lucide-react";
@@ -22,7 +23,7 @@ interface CellRating {
 }
 
 interface CompetencyMatrixCellProps {
-  phase: "assessment" | "discussion" | "calibration";
+  phase: Phase;
   isActive: boolean;
   rating: CellRating;
   onUpdateRating: (rating: CellRating) => void;
@@ -92,9 +93,9 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
     return viewMode === "manager" ? rating.managerNote : rating.employeeNote;
   };
 
-  // Determine if ratings are different in discussion phase
+  // Determine if ratings are different in joint-discussion phase
   const hasDifferentRatings =
-    phase === "discussion" &&
+    phase === "joint-discussion" &&
     rating.employeeRating &&
     rating.managerRating &&
     rating.employeeRating !== rating.managerRating;
@@ -107,7 +108,7 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
         ? "bg-card hover:bg-muted/30"
         : "bg-[#FFDEE2] hover:bg-red-100/70";
 
-  // For the discussion view with different ratings
+  // For the joint-discussion view with different ratings
   if (hasDifferentRatings && !isExpanded) {
     return (
       <JointDiscussionPopover

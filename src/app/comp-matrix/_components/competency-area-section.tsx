@@ -4,6 +4,7 @@ import React from "react";
 import {
   type CompetencyCategory,
   type Rating,
+  type Phase,
 } from "~/data/mock-competency-data";
 import CompetencyMatrixRow from "./competency-matrix-row";
 import type { CompMatrixAreaWithFullRelations } from "~/server/queries/comp-matrix-area";
@@ -18,7 +19,7 @@ interface CellRating {
 interface CompetencyAreaSectionProps {
   area: CompMatrixAreaWithFullRelations;
   category: CompetencyCategory;
-  phase: "assessment" | "discussion" | "calibration";
+  phase: Phase;
   viewMode: "employee" | "manager";
   updateCompetency: (
     categoryIndex: number,
