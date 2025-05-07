@@ -11,6 +11,7 @@ import type { CompMatrixAreaWithFullRelations } from "~/server/queries/comp-matr
 interface CompetencyAreaSectionProps {
   area: CompMatrixAreaWithFullRelations;
   category: CompetencyCategory;
+  phase: "assessment" | "discussion" | "calibration";
   isHeatmapView: boolean;
   showBothRatings: boolean;
   viewMode: "employee" | "manager" | "both";
@@ -26,6 +27,7 @@ interface CompetencyAreaSectionProps {
 const CompetencyAreaSection: React.FC<CompetencyAreaSectionProps> = ({
   area,
   category,
+  phase,
   isHeatmapView,
   showBothRatings,
   viewMode,
@@ -54,6 +56,7 @@ const CompetencyAreaSection: React.FC<CompetencyAreaSectionProps> = ({
               competencyName={item.name}
               competency={item}
               dbCompetency={dbCompetency}
+              phase={phase}
               isHeatmapView={isHeatmapView}
               showBothRatings={showBothRatings}
               viewMode={viewMode}

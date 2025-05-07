@@ -15,6 +15,7 @@ interface CompetencyMatrixRowProps {
   competencyName: string;
   competency: CompetencyItem;
   dbCompetency?: CompMatrixCompetencyWithDefinitions;
+  phase: "assessment" | "discussion" | "calibration";
   isHeatmapView: boolean;
   showBothRatings: boolean;
   viewMode: "employee" | "manager" | "both";
@@ -28,6 +29,7 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
   competencyName,
   competency,
   dbCompetency,
+  phase,
   isHeatmapView,
   showBothRatings,
   viewMode,
@@ -79,6 +81,7 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
           showBothRatings: showBothRatings,
           hasDifferentRatings: hasDifferentRatings,
           viewMode: viewMode,
+          phase: phase,
         };
 
         return <CompetencyMatrixCell key={index} {...cellParams} />;
@@ -130,6 +133,7 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
             level: experienceLevels[index] ?? "",
             isExpanded: isExpanded,
             viewMode: type,
+            phase: phase,
           };
 
           return <CompetencyMatrixCell key={index} {...cellParams} />;
@@ -150,6 +154,7 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
         level: level,
         isExpanded: false,
         viewMode: type,
+        phase: phase,
       };
 
       return <CompetencyMatrixCell key={index} {...cellParams} />;
@@ -231,6 +236,7 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
                   showBothRatings: showBothRatings,
                   hasDifferentRatings: hasDifferentRatings,
                   viewMode: viewMode,
+                  phase: phase,
                 };
               } else {
                 // For employee or manager views
@@ -262,6 +268,7 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
                   level: level,
                   isExpanded: true,
                   viewMode: viewMode,
+                  phase: phase,
                 };
               }
 

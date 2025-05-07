@@ -319,6 +319,7 @@ const CompetencyMatrix = () => {
                     key={area.id}
                     area={area}
                     category={category}
+                    phase={phase}
                     isHeatmapView={isHeatmapView}
                     showBothRatings={phase === "discussion"}
                     viewMode={phase === "discussion" ? "both" : viewMode}

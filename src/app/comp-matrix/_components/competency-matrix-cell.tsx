@@ -19,6 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Badge } from "~/components/ui/badge";
 
 interface CompetencyMatrixCellProps {
+  phase: "assessment" | "discussion" | "calibration";
   isActive: boolean; // Keep prop for backward compatibility
   rating?: Rating;
   employeeRating?: Rating;
@@ -43,6 +44,7 @@ interface CompetencyMatrixCellProps {
 }
 
 const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
+  phase,
   rating,
   employeeRating,
   managerRating,
