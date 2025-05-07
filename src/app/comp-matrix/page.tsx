@@ -308,8 +308,10 @@ const CompetencyMatrix = () => {
                 showBothRatings={false}
               />
 
-              {compMatrix?.areas?.map((area, categoryIndex) => {
-                const category = competencyData.competencies[categoryIndex];
+              {compMatrix?.areas?.map((area) => {
+                const category = competencyData.competencies.find(
+                  (c) => c.category === area.title,
+                );
                 if (!category) return null;
 
                 return (
@@ -321,7 +323,9 @@ const CompetencyMatrix = () => {
                     showBothRatings={phase === "discussion"}
                     viewMode={phase === "discussion" ? "both" : viewMode}
                     updateCompetency={updateCompetency}
-                    categoryIndex={categoryIndex}
+                    categoryIndex={competencyData.competencies.indexOf(
+                      category,
+                    )}
                   />
                 );
               })}
