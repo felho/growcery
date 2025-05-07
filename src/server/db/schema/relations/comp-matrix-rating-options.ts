@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { compMatrixRatingOptions } from "../tables/comp-matrix-ratings";
+import { compMatrixRatingOptions } from "../tables/comp-matrix-rating-options";
 import { compMatrices } from "../tables/comp-matrices";
 
 export const compMatrixRatingOptionRelations = relations(
