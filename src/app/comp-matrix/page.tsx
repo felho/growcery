@@ -35,10 +35,12 @@ import { Building2, Users, UserRound } from "lucide-react";
 import useSWR from "swr";
 import { fetchCompMatrix } from "~/lib/client-api/comp-matrix";
 import { fetchCompMatrixCurrentRating } from "~/lib/client-api/comp-matrix-current-rating";
+import { fetchCompMatrixRatingOptions } from "~/lib/client-api/comp-matrix-rating-option";
 
 import type { CompMatrixWithFullRelations } from "~/server/queries/comp-matrix";
 import type { CompMatrixLevel } from "~/server/queries/comp-matrix-level";
 import type { CompMatrixAreaWithFullRelations } from "~/server/queries/comp-matrix-area";
+import type { CompMatrixRatingOption } from "~/server/queries/comp-matrix-rating-option";
 
 interface CellRating {
   employeeRating?: Rating;
@@ -200,6 +202,14 @@ const CompetencyMatrix = () => {
     error: matrixError,
   } = useSWR(`/api/comp-matrix/${matrixId}`, () => fetchCompMatrix(matrixId));
 
+  const {
+    data: ratingOptions,
+    isLoading: isRatingOptionsLoading,
+    error: ratingOptionsError,
+  } = useSWR(`/api/comp-matrix-rating-option/${matrixId}`, () =>
+    fetchCompMatrixRatingOptions(matrixId),
+  );
+
   const assignmentId = 1; // baked in for now
   const {
     data: compMatrixCurrentRating,
@@ -208,7 +218,6 @@ const CompetencyMatrix = () => {
   } = useSWR(`/api/comp-matrix-current-rating/${assignmentId}`, () =>
     fetchCompMatrixCurrentRating(assignmentId),
   );
-  console.log(compMatrixCurrentRating);
 
   return (
     <div className="animate-fade-in space-y-6">
