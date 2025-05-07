@@ -32,12 +32,10 @@ import {
 } from "~/components/ui/select";
 import { Building2, Users, UserRound } from "lucide-react";
 import useSWR from "swr";
-
-const fetchCompMatrix = async (id: number) => {
-  const res = await fetch(`/api/comp-matrix/${id}`);
-  if (!res.ok) throw new Error("Failed to fetch comp matrix");
-  return res.json();
-};
+import { fetchCompMatrix } from "~/lib/client-api/comp-matrix";
+import type { CompMatrixWithFullRelations } from "~/server/queries/comp-matrix";
+import type { CompMatrixLevel } from "~/server/queries/comp-matrix-level";
+import type { CompMatrixAreaWithFullRelations } from "~/server/queries/comp-matrix-area";
 
 const CompetencyMatrix = () => {
   const [competencyData, setCompetencyData] = useState(mockCompetencyData);
@@ -197,7 +195,6 @@ const CompetencyMatrix = () => {
     isLoading: isMatrixLoading,
     error: matrixError,
   } = useSWR(`/api/comp-matrix/${matrixId}`, () => fetchCompMatrix(matrixId));
-  console.log(compMatrix);
 
   return (
     <div className="animate-fade-in space-y-6">
