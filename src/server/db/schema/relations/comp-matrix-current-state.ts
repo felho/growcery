@@ -2,7 +2,7 @@ import { relations } from "drizzle-orm";
 import { compMatrixCurrentState } from "../tables/comp-matrix-current-state";
 import { users } from "../tables/users";
 import { compMatrixDefinitions } from "../tables/comp-matrix-definitions";
-import { compMatrixRatings } from "../tables/comp-matrix-ratings";
+import { compMatrixRatingOptions } from "../tables/comp-matrix-ratings";
 
 export const compMatrixCurrentStateRelations = relations(
   compMatrixCurrentState,
@@ -15,17 +15,17 @@ export const compMatrixCurrentStateRelations = relations(
       fields: [compMatrixCurrentState.compMatrixDefinitionId],
       references: [compMatrixDefinitions.id],
     }),
-    selfRating: one(compMatrixRatings, {
+    selfRating: one(compMatrixRatingOptions, {
       fields: [compMatrixCurrentState.selfRatingId],
-      references: [compMatrixRatings.id],
+      references: [compMatrixRatingOptions.id],
     }),
     manager: one(users, {
       fields: [compMatrixCurrentState.managerId],
       references: [users.id],
     }),
-    managerRating: one(compMatrixRatings, {
+    managerRating: one(compMatrixRatingOptions, {
       fields: [compMatrixCurrentState.managerRatingId],
-      references: [compMatrixRatings.id],
+      references: [compMatrixRatingOptions.id],
     }),
   }),
 );
