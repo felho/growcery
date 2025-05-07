@@ -3,7 +3,7 @@ import { bigint, varchar, timestamp } from "drizzle-orm/pg-core";
 import { createTable } from "../utils";
 import { users } from "./users";
 import { compMatrixDefinitions } from "./comp-matrix-definitions";
-import { compMatrixRatingOptions } from "./comp-matrix-ratings";
+import { compMatrixRatingOptions } from "./comp-matrix-rating-options";
 import { userCompMatrixAssignments } from "./user_comp_matrix_assignments";
 
 export const compMatrixCurrentRatings = createTable(
