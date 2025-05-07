@@ -9,6 +9,8 @@ export * from "./schema/tables/comp-matrix-areas";
 export * from "./schema/tables/comp-matrix-levels";
 export * from "./schema/tables/comp-matrix-competencies";
 export * from "./schema/tables/comp-matrix-definitions";
+export * from "./schema/tables/comp-matrix-ratings";
+export * from "./schema/tables/comp-matrix-current-state";
 
 export * from "./schema/relations/users";
 export * from "./schema/relations/functions";
@@ -19,3 +21,5 @@ export * from "./schema/relations/comp-matrix-areas";
 export * from "./schema/relations/comp-matrix-levels";
 export * from "./schema/relations/comp-matrix-competencies";
 export * from "./schema/relations/comp-matrix-definitions";
+export * from "./schema/relations/comp-matrix-ratings";
+export * from "./schema/relations/comp-matrix-current-state";
