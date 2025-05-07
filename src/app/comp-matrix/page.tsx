@@ -303,10 +303,7 @@ const CompetencyMatrix = () => {
         <CardContent>
           {selectedEmployee ? (
             <div className="border-border overflow-hidden rounded-md border">
-              <CompetencyMatrixHeader
-                levels={competencyData.levels}
-                showBothRatings={false}
-              />
+              <CompetencyMatrixHeader levels={competencyData.levels} />
 
               {compMatrix?.areas?.map((area) => {
                 const category = competencyData.competencies.find(
@@ -321,8 +318,7 @@ const CompetencyMatrix = () => {
                     category={category}
                     phase={phase}
                     isHeatmapView={isHeatmapView}
-                    showBothRatings={phase === "discussion"}
-                    viewMode={phase === "discussion" ? "both" : viewMode}
+                    viewMode={viewMode}
                     updateCompetency={updateCompetency}
                     categoryIndex={competencyData.competencies.indexOf(
                       category,

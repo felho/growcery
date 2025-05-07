@@ -4,12 +4,10 @@ import React from "react";
 
 interface CompetencyMatrixHeaderProps {
   levels: string[];
-  showBothRatings: boolean;
 }
 
 const CompetencyMatrixHeader: React.FC<CompetencyMatrixHeaderProps> = ({
   levels,
-  showBothRatings,
 }) => {
   return (
     <div className="border-border bg-muted/30 flex border-b">
@@ -43,11 +41,6 @@ const CompetencyMatrixHeader: React.FC<CompetencyMatrixHeaderProps> = ({
           );
         })}
       </div>
-      {showBothRatings && (
-        <div className="border-border w-48 border-l p-3 text-center text-sm font-medium">
-          Assessment
-        </div>
-      )}
     </div>
   );
 };

@@ -40,7 +40,7 @@ interface CompetencyMatrixCellProps {
   isExpanded?: boolean;
   showBothRatings?: boolean;
   hasDifferentRatings?: boolean;
-  viewMode?: "employee" | "manager" | "both";
+  viewMode?: "employee" | "manager";
 }
 
 const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
@@ -129,16 +129,15 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
 
   // For the discussion view with both ratings (non-expanded)
   if (
-    showBothRatings &&
+    phase === "discussion" &&
     !isHeatmapView &&
     employeeRating &&
     managerRating &&
-    !isExpanded
+    !isExpanded &&
+    hasDifferentRatings
   ) {
     // Determine cell background color based on whether ratings differ
-    const discussionCellBackground = hasDifferentRatings
-      ? "bg-red-100/50 hover:bg-red-100/70"
-      : "bg-card hover:bg-muted/30";
+    const discussionCellBackground = "bg-red-100/50 hover:bg-red-100/70";
 
     // Render non-expanded cell for discussion view
     return (
@@ -155,11 +154,9 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
                 M: {managerRating}
               </div>
             </div>
-            {hasDifferentRatings && (
-              <div className="absolute top-0 right-0">
-                <div className="h-0 w-0 border-t-8 border-r-8 border-t-red-400 border-r-transparent"></div>
-              </div>
-            )}
+            <div className="absolute top-0 right-0">
+              <div className="h-0 w-0 border-t-8 border-r-8 border-t-red-400 border-r-transparent"></div>
+            </div>
           </div>
         </PopoverTrigger>
         <PopoverContent className="w-80">
