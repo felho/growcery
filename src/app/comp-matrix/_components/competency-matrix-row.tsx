@@ -16,8 +16,6 @@ interface CompetencyMatrixRowProps {
   competency: CompetencyItem;
   dbCompetency?: CompMatrixCompetencyWithDefinitions;
   phase: "assessment" | "discussion" | "calibration";
-  isHeatmapView: boolean;
-  showBothRatings: boolean;
   viewMode: "employee" | "manager";
   updateEmployeeRating: (rating: Rating) => void;
   updateManagerRating: (rating: Rating) => void;
@@ -30,8 +28,6 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
   competency,
   dbCompetency,
   phase,
-  isHeatmapView,
-  showBothRatings,
   viewMode,
   updateEmployeeRating,
   updateManagerRating,
@@ -102,8 +98,8 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
     const updateNote =
       type === "employee" ? updateEmployeeNote : updateManagerNote;
 
-    // For heatmap view, we only show one cell that corresponds to the rating
-    if (isHeatmapView) {
+    // For calibration phase, we only show one cell that corresponds to the rating
+    if (phase === "calibration") {
       // Get the index based on the available rating options
       const ratingToIndexMap: Record<Rating, number> = {
         Inexperienced: 0,
@@ -124,7 +120,6 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
             note: index === ratingIndex ? note : "",
             onUpdateRating: (newRating: Rating) => updateRating(newRating),
             onUpdateNote: (newNote: string) => updateNote(newNote),
-            isHeatmapView: true,
             cellIndex: index,
             competencyDefinition: getLevelDefinition(
               experienceLevels[index] ?? "",
@@ -196,7 +191,7 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
       </div>
 
       {/* Expanded view */}
-      {isExpanded && !isHeatmapView && (
+      {isExpanded && phase !== "calibration" && (
         <div
           className="border-border flex border-b"
           style={{ minHeight: "200px" }}
@@ -242,11 +237,11 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
         </div>
       )}
 
-      {/* If expanded with heatmap view, show message */}
-      {isExpanded && isHeatmapView && (
+      {/* If expanded with calibration phase, show message */}
+      {isExpanded && phase === "calibration" && (
         <div className="bg-muted/5 border-border border-t p-4">
           <div className="text-center text-sm">
-            Expanded view is not available in heatmap mode
+            Expanded view is not available in calibration mode
           </div>
         </div>
       )}

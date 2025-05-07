@@ -12,7 +12,6 @@ interface CompetencyAreaSectionProps {
   area: CompMatrixAreaWithFullRelations;
   category: CompetencyCategory;
   phase: "assessment" | "discussion" | "calibration";
-  isHeatmapView: boolean;
   viewMode: "employee" | "manager";
   updateCompetency: (
     categoryIndex: number,
@@ -27,7 +26,6 @@ const CompetencyAreaSection: React.FC<CompetencyAreaSectionProps> = ({
   area,
   category,
   phase,
-  isHeatmapView,
   viewMode,
   updateCompetency,
   categoryIndex,
@@ -55,8 +53,6 @@ const CompetencyAreaSection: React.FC<CompetencyAreaSectionProps> = ({
               competency={item}
               dbCompetency={dbCompetency}
               phase={phase}
-              isHeatmapView={isHeatmapView}
-              showBothRatings={phase === "discussion"}
               viewMode={viewMode}
               updateEmployeeRating={(rating) =>
                 updateCompetency(

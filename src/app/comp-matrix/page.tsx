@@ -43,7 +43,6 @@ const CompetencyMatrix = () => {
     "assessment" | "discussion" | "calibration"
   >("assessment");
   const [viewMode, setViewMode] = useState<"employee" | "manager">("employee");
-  const [isHeatmapView, setIsHeatmapView] = useState(false);
 
   // Selection state
   const [selectedFunction, setSelectedFunction] = useState(
@@ -106,17 +105,7 @@ const CompetencyMatrix = () => {
     // Reset view mode to employee when switching to assessment phase
     if (newPhase === "assessment") {
       setViewMode("employee");
-      setIsHeatmapView(false);
     }
-
-    // Switch to heatmap view when entering calibration phase
-    if (newPhase === "calibration") {
-      setIsHeatmapView(true);
-    } else {
-      setIsHeatmapView(false);
-    }
-
-    // Toast notifications removed as requested
   };
 
   const handleFunctionChange = (functionId: string) => {
@@ -317,7 +306,6 @@ const CompetencyMatrix = () => {
                     area={area}
                     category={category}
                     phase={phase}
-                    isHeatmapView={isHeatmapView}
                     viewMode={viewMode}
                     updateCompetency={updateCompetency}
                     categoryIndex={competencyData.competencies.indexOf(

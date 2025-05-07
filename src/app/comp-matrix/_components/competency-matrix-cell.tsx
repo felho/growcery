@@ -33,12 +33,10 @@ interface CompetencyMatrixCellProps {
   onUpdateManagerRating?: (rating: Rating) => void;
   onUpdateEmployeeNote?: (note: string) => void;
   onUpdateManagerNote?: (note: string) => void;
-  isHeatmapView?: boolean;
   cellIndex: number;
   competencyDefinition?: string;
   level?: string;
   isExpanded?: boolean;
-  showBothRatings?: boolean;
   hasDifferentRatings?: boolean;
   viewMode?: "employee" | "manager";
 }
@@ -57,12 +55,10 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
   onUpdateManagerRating,
   onUpdateEmployeeNote,
   onUpdateManagerNote,
-  isHeatmapView = false,
   cellIndex,
   competencyDefinition,
   level,
   isExpanded = false,
-  showBothRatings = false,
   hasDifferentRatings = false,
   viewMode = "employee",
 }) => {
@@ -107,11 +103,6 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
 
   // Check if the cell has been rated
   const isRated = (): boolean => {
-    if (showBothRatings) {
-      if (viewMode === "employee") return !!employeeRating;
-      if (viewMode === "manager") return !!managerRating;
-      return !!employeeRating || !!managerRating;
-    }
     return !!rating;
   };
 
@@ -120,17 +111,17 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
     return mockCompetencyData.ratingDescriptions[ratingValue] || "";
   };
 
-  // Only use background colors for the heatmap view
-  const cellBackground = isHeatmapView
-    ? getRatingColor(rating || "Inexperienced")
-    : isRated()
-      ? "bg-card hover:bg-muted/30"
-      : "bg-[#FFDEE2] hover:bg-red-100/70"; // Pink background for unrated cells
+  // Only use background colors for the calibration phase
+  const cellBackground =
+    phase === "calibration"
+      ? getRatingColor(rating || "Inexperienced")
+      : isRated()
+        ? "bg-card hover:bg-muted/30"
+        : "bg-[#FFDEE2] hover:bg-red-100/70"; // Pink background for unrated cells
 
   // For the discussion view with both ratings (non-expanded)
   if (
     phase === "discussion" &&
-    !isHeatmapView &&
     employeeRating &&
     managerRating &&
     !isExpanded &&
@@ -233,7 +224,7 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
   }
 
   // Render expanded cell with definition, rating selector, and notes
-  if (isExpanded && !isHeatmapView) {
+  if (isExpanded && phase !== "calibration") {
     // For joint assessment (showBothRatings is true), we'll determine which rating/note to show based on viewMode
     const currentRating =
       viewMode === "manager" ? managerRating : employeeRating;
@@ -263,9 +254,9 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
               )}
             </div>
             <RadioGroup
-              value={showBothRatings ? currentRating : rating}
+              value={viewMode === "manager" ? currentRating : rating}
               onValueChange={(value) => {
-                if (showBothRatings) {
+                if (viewMode === "manager") {
                   updateCurrentRating?.(value as Rating);
                 } else {
                   onUpdateRating(value as Rating);
@@ -291,10 +282,10 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
             </RadioGroup>
 
             {/* Rating description */}
-            {(showBothRatings ? currentRating : rating) && (
+            {(viewMode === "manager" ? currentRating : rating) && (
               <p className="text-muted-foreground mt-1 text-xs">
                 {getRatingDescription(
-                  showBothRatings
+                  viewMode === "manager"
                     ? (currentRating as Rating)
                     : (rating as Rating),
                 )}
@@ -307,29 +298,21 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
             <Textarea
               placeholder="Add notes..."
               value={
-                showBothRatings
-                  ? viewMode === "manager"
-                    ? localManagerNote
-                    : localEmployeeNote
-                  : localNote
+                viewMode === "manager" ? localManagerNote : localEmployeeNote
               }
               onChange={
-                showBothRatings
-                  ? viewMode === "manager"
-                    ? handleManagerNoteChange
-                    : handleEmployeeNoteChange
-                  : handleNoteChange
+                viewMode === "manager"
+                  ? handleManagerNoteChange
+                  : handleEmployeeNoteChange
               }
               className="bg-background min-h-[80px] resize-none text-sm"
             />
             <div className="mt-1 flex justify-end">
               <Button
                 onClick={
-                  showBothRatings
-                    ? viewMode === "manager"
-                      ? handleManagerNoteSave
-                      : handleEmployeeNoteSave
-                    : handleNoteSave
+                  viewMode === "manager"
+                    ? handleManagerNoteSave
+                    : handleEmployeeNoteSave
                 }
                 size="sm"
                 variant="ghost"
@@ -352,7 +335,7 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
         <div
           className={`border-border flex h-12 flex-1 cursor-pointer items-center justify-center border-r transition-colors last:border-r-0 ${cellBackground} relative`}
         >
-          {!isHeatmapView && (
+          {phase !== "calibration" && (
             <>
               {isRated() ? (
                 <span className="text-sm font-medium">{rating}</span>
