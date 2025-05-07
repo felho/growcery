@@ -7,7 +7,7 @@ import {
 } from "~/data/mock-competency-data";
 import CompetencyMatrixRow from "./competency-matrix-row";
 
-interface CompetencyCategorySectionProps {
+interface CompetencyAreaSectionProps {
   category: CompetencyCategory;
   isHeatmapView: boolean;
   showBothRatings: boolean;
@@ -21,7 +21,7 @@ interface CompetencyCategorySectionProps {
   categoryIndex: number;
 }
 
-const CompetencyCategorySection: React.FC<CompetencyCategorySectionProps> = ({
+const CompetencyAreaSection: React.FC<CompetencyAreaSectionProps> = ({
   category,
   isHeatmapView,
   showBothRatings,
@@ -77,4 +77,4 @@ const CompetencyCategorySection: React.FC<CompetencyCategorySectionProps> = ({
   );
 };
 
-export default CompetencyCategorySection;
+export default CompetencyAreaSection;

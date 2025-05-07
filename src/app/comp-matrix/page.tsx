@@ -22,7 +22,7 @@ import {
   type Function,
 } from "~/data/mock-competency-data";
 import CompetencyMatrixHeader from "./_components/competency-matrix-header";
-import CompetencyCategorySection from "./_components/competency-category-section";
+import CompetencyAreaSection from "./_components/competency-area-section";
 import {
   Select,
   SelectContent,
@@ -309,7 +309,7 @@ const CompetencyMatrix = () => {
               />
 
               {competencyData.competencies.map((category, categoryIndex) => (
-                <CompetencyCategorySection
+                <CompetencyAreaSection
                   key={category.id}
                   category={category}
                   isHeatmapView={isHeatmapView}
