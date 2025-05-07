@@ -61,7 +61,7 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
           className="border-border bg-muted/10 flex w-[17.55%] cursor-pointer items-center border-r p-3"
           onClick={handleToggleExpand}
         >
-          <div className="flex w-full items-center gap-2">
+          <div className="flex w-full gap-2">
             {isExpanded ? (
               <ChevronUp className="h-4 w-4 flex-shrink-0" />
             ) : (
