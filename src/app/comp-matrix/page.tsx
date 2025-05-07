@@ -34,6 +34,8 @@ import {
 import { Building2, Users, UserRound } from "lucide-react";
 import useSWR from "swr";
 import { fetchCompMatrix } from "~/lib/client-api/comp-matrix";
+import { fetchCompMatrixCurrentRating } from "~/lib/client-api/comp-matrix-current-rating";
+
 import type { CompMatrixWithFullRelations } from "~/server/queries/comp-matrix";
 import type { CompMatrixLevel } from "~/server/queries/comp-matrix-level";
 import type { CompMatrixAreaWithFullRelations } from "~/server/queries/comp-matrix-area";
@@ -197,6 +199,16 @@ const CompetencyMatrix = () => {
     isLoading: isMatrixLoading,
     error: matrixError,
   } = useSWR(`/api/comp-matrix/${matrixId}`, () => fetchCompMatrix(matrixId));
+
+  const assignmentId = 1; // baked in for now
+  const {
+    data: compMatrixCurrentRating,
+    isLoading: isCompMatrixCurrentRatingLoading,
+    error: compMatrixCurrentRatingError,
+  } = useSWR(`/api/comp-matrix-current-rating/${assignmentId}`, () =>
+    fetchCompMatrixCurrentRating(assignmentId),
+  );
+  console.log(compMatrixCurrentRating);
 
   return (
     <div className="animate-fade-in space-y-6">

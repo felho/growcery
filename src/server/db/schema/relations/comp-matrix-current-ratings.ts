@@ -4,6 +4,7 @@ import { users } from "../tables/users";
 import { compMatrixDefinitions } from "../tables/comp-matrix-definitions";
 import { compMatrixRatingOptions } from "../tables/comp-matrix-rating-options";
 import { userCompMatrixAssignments } from "../tables/user_comp_matrix_assignments";
+import { compMatrices } from "../tables/comp-matrices";
 
 export const compMatrixCurrentRatingRelations = relations(
   compMatrixCurrentRatings,
@@ -11,6 +12,10 @@ export const compMatrixCurrentRatingRelations = relations(
     userCompMatrixAssignment: one(userCompMatrixAssignments, {
       fields: [compMatrixCurrentRatings.userCompMatrixAssignmentId],
       references: [userCompMatrixAssignments.id],
+    }),
+    compMatrix: one(compMatrices, {
+      fields: [compMatrixCurrentRatings.compMatrixId],
+      references: [compMatrices.id],
     }),
     definition: one(compMatrixDefinitions, {
       fields: [compMatrixCurrentRatings.compMatrixDefinitionId],

@@ -15,7 +15,6 @@ export async function GET(
   }
 
   const matrix = await getCompMatrixById(id);
-  console.log(matrix);
   if (!matrix) {
     return new Response(JSON.stringify({ error: "Not found" }), {
       status: 404,

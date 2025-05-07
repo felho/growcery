@@ -5,7 +5,7 @@ import { users } from "./users";
 import { compMatrixDefinitions } from "./comp-matrix-definitions";
 import { compMatrixRatingOptions } from "./comp-matrix-rating-options";
 import { userCompMatrixAssignments } from "./user_comp_matrix_assignments";
-
+import { compMatrices } from "./comp-matrices";
 export const compMatrixCurrentRatings = createTable(
   "comp_matrix_current_ratings",
   {
@@ -16,6 +16,9 @@ export const compMatrixCurrentRatings = createTable(
     userCompMatrixAssignmentId: bigint({ mode: "number" })
       .notNull()
       .references(() => userCompMatrixAssignments.id),
+    compMatrixId: bigint({ mode: "number" })
+      .notNull()
+      .references(() => compMatrices.id),
     compMatrixDefinitionId: bigint({ mode: "number" })
       .notNull()
       .references(() => compMatrixDefinitions.id),
