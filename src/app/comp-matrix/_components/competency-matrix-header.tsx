@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-
+import type { CompMatrixLevel } from "~/server/queries/comp-matrix-level";
 interface CompetencyMatrixHeaderProps {
-  levels: string[];
+  levels: CompMatrixLevel[];
 }
 
 const CompetencyMatrixHeader: React.FC<CompetencyMatrixHeaderProps> = ({
@@ -15,28 +15,15 @@ const CompetencyMatrixHeader: React.FC<CompetencyMatrixHeaderProps> = ({
         Competency
       </div>
       <div className="flex flex-1">
-        {levels.map((level, index) => {
-          // Split level name if it contains parentheses
-          const parts = level.split(/(\([^)]+\))/);
-
+        {levels?.map((level, index) => {
           return (
             <div
               key={index}
               className="border-border flex-1 border-r p-3 text-center text-sm font-medium last:border-r-0"
             >
-              {parts.length > 1 ? (
-                <>
-                  <span className="whitespace-nowrap">
-                    {parts[0]?.trim() || ""}
-                  </span>
-                  <br />
-                  <span className="whitespace-nowrap">
-                    {parts[1]?.trim() || ""}
-                  </span>
-                </>
-              ) : (
-                <span className="whitespace-nowrap">{level}</span>
-              )}
+              <span className="whitespace-nowrap">{level.jobTitle}</span>
+              <br />
+              <span className="whitespace-nowrap">({level.levelCode})</span>
             </div>
           );
         })}

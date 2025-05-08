@@ -87,7 +87,7 @@ export const CompetencyMatrix = ({
       <CardContent>
         {selectedEmployee ? (
           <div className="border-border overflow-hidden rounded-md border">
-            <CompetencyMatrixHeader levels={competencyData.levels} />
+            <CompetencyMatrixHeader levels={compMatrix?.levels ?? []} />
 
             {compMatrix?.areas?.map((area) => {
               const category = competencyData.competencies.find(
