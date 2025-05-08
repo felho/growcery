@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   type Rating,
   getRatingColor,
@@ -16,30 +16,22 @@ import JointDiscussionPopover from "./joint-discussion-popover";
 import RatingPopover from "./rating-popover";
 import type { CompMatrixRatingsForUI } from "~/server/queries/comp-matrix-current-rating";
 import type { CompMatrixRatingOption } from "~/server/queries/comp-matrix-rating-option";
-interface CellRating {
-  employeeRating?: Rating;
-  managerRating?: Rating;
-  employeeNote?: string;
-  managerNote?: string;
-}
 
 interface CompetencyMatrixCellProps {
   phase: Phase;
   isActive: boolean;
-  rating: CellRating;
-  onUpdateRating: (rating: CellRating) => void;
+  onUpdateRating: (rating: CompMatrixRatingsForUI) => Promise<void>;
   cellIndex: number;
   competencyDefinition?: string;
-  dbRatingOptions?: CompMatrixRatingOption[];
-  currentRating?: CompMatrixRatingsForUI;
-  isExpanded?: boolean;
+  dbRatingOptions: CompMatrixRatingOption[];
+  currentRating: CompMatrixRatingsForUI;
+  isExpanded: boolean;
   hasDifferentRatings?: boolean;
   viewMode?: "employee" | "manager";
 }
 
 const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
   phase,
-  rating,
   onUpdateRating,
   cellIndex,
   competencyDefinition,
@@ -48,95 +40,110 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
   isExpanded = false,
   viewMode = "employee",
 }) => {
-  const [localRating, setLocalRating] = useState<CellRating>(rating);
+  const emptyRating: CompMatrixRatingsForUI = {
+    selfRatingId: undefined,
+    selfComment: null,
+    selfRatingUpdatedAt: new Date(),
+    managerId: null,
+    managerRatingId: undefined,
+    managerComment: null,
+    managerRatingUpdatedAt: new Date(),
+  };
+
+  const [localRating, setLocalRating] = useState<CompMatrixRatingsForUI>(
+    currentRating ?? emptyRating,
+  );
+
+  useEffect(() => {
+    setLocalRating(currentRating ?? emptyRating);
+  }, [currentRating]);
 
   // Get available rating options from the mock data
   const ratingOptions: Rating[] = mockCompetencyData.ratingOptions;
 
   const handleNoteChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newNote = e.target.value;
+
     setLocalRating((prev) => ({
       ...prev,
-      [viewMode === "manager" ? "managerNote" : "employeeNote"]: newNote,
+      [viewMode === "manager" ? "managerComment" : "selfComment"]: newNote,
     }));
   };
 
-  const handleRatingChange = (newRating: Rating) => {
-    const updatedRating = {
+  const handleRatingChange = async (newTitle: string) => {
+    const previous = localRating;
+
+    const selectedOption = dbRatingOptions.find(
+      (opt) => opt.title === newTitle,
+    );
+    if (!selectedOption) return;
+
+    const updatedRating: CompMatrixRatingsForUI = {
       ...localRating,
-      [viewMode === "manager" ? "managerRating" : "employeeRating"]: newRating,
+      [viewMode === "manager" ? "managerRatingId" : "selfRatingId"]:
+        selectedOption.id,
     };
-    setLocalRating(updatedRating);
-    onUpdateRating(updatedRating);
-  };
 
-  const handleSave = () => {
-    onUpdateRating(localRating);
-  };
+    setLocalRating(updatedRating); // optimistic UI
 
-  // Check if the cell has been rated
-  const isRated = (
-    currentRating: CompMatrixRatingsForUI | undefined,
-  ): boolean => {
-    if (!currentRating) return false;
-
-    if (viewMode === "manager") {
-      return currentRating.managerRatingId !== null;
-    } else {
-      return currentRating.selfRatingId !== null;
+    try {
+      await onUpdateRating(updatedRating); // saving to db
+    } catch (error) {
+      console.error("Saving error:", error);
+      setLocalRating(previous); // rollback, if error
     }
   };
+
+  const handleSave = async () => {
+    const previous = localRating;
+
+    try {
+      await onUpdateRating(localRating); // háttér mentés
+    } catch (error) {
+      console.error("Mentési hiba:", error);
+      setLocalRating(previous); // rollback, ha gond van
+    }
+  };
+
+  const isRated =
+    viewMode === "manager"
+      ? localRating.managerRatingId != null
+      : localRating.selfRatingId != null;
 
   // Get rating description
   const getRatingDescription = (ratingValue: Rating): string => {
     return mockCompetencyData.ratingDescriptions[ratingValue] || "";
   };
 
-  // Get current rating based on view mode
-  const getCurrentRating = (
-    currentRating: CompMatrixRatingsForUI | undefined,
-    ratingOptions: CompMatrixRatingOption[] | undefined,
-  ): string | undefined => {
-    if (!currentRating || !ratingOptions) return undefined;
+  const currentRatingId =
+    viewMode === "manager"
+      ? localRating.managerRatingId
+      : localRating.selfRatingId;
 
-    const ratingId =
-      viewMode === "manager"
-        ? currentRating.managerRatingId
-        : currentRating.selfRatingId;
+  const currentRatingOption = dbRatingOptions?.find(
+    (option) => option.id === currentRatingId,
+  );
 
-    const ratingOption = ratingOptions.find((option) => option.id === ratingId);
+  const currentRatingTitle = currentRatingOption?.title;
 
-    if (!ratingOption) return undefined;
-
-    return ratingOption.title;
-  };
-
-  // Get current note based on view mode
-  const getCurrentNote = (
-    currentRating: CompMatrixRatingsForUI | undefined,
-  ): string | undefined => {
-    if (!currentRating) return undefined;
-
-    return viewMode === "manager"
-      ? (currentRating.managerComment ?? undefined)
-      : (currentRating.selfComment ?? undefined);
-  };
+  const currentComment =
+    viewMode === "manager"
+      ? (localRating.managerComment ?? "")
+      : (localRating.selfComment ?? "");
 
   // Determine if ratings are different in joint-discussion phase
   const hasDifferentRatings =
     phase === "joint-discussion" &&
-    currentRating &&
-    currentRating.managerRatingId &&
-    currentRating.selfRatingId &&
-    currentRating.managerRatingId !== currentRating.selfRatingId;
+    localRating &&
+    localRating.managerRatingId &&
+    localRating.selfRatingId &&
+    localRating.managerRatingId !== localRating.selfRatingId;
 
   // Only use background colors for the calibration phase
   const cellBackground =
     phase === "calibration"
-      ? getRatingColor(
-          getCurrentRating(currentRating, dbRatingOptions) || "Inexperienced",
-        )
-      : isRated(currentRating)
+      ? getRatingColor(currentRatingTitle || "Inexperienced")
+      : isRated
         ? "bg-card hover:bg-muted/30"
         : "bg-[#FFDEE2] hover:bg-red-100/70";
 
@@ -148,17 +155,15 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
           {hasDifferentRatings ? (
             <JointDiscussionPopover
               competencyDefinition={competencyDefinition}
-              currentRating={currentRating}
+              currentRating={localRating}
               ratingOptions={dbRatingOptions}
             />
           ) : (
             <RatingPopover
-              rating={
-                getCurrentRating(currentRating, dbRatingOptions) as Rating
-              }
-              note={getCurrentNote(currentRating)}
+              rating={currentRatingTitle || "Inexperienced"}
+              note={currentComment}
               competencyDefinition={competencyDefinition}
-              isRated={isRated(currentRating)}
+              isRated={isRated}
               phase={phase}
               cellBackground={cellBackground}
               cellIndex={cellIndex}
@@ -180,7 +185,7 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
             <div className="mb-3">
               <div className="mb-2 flex items-center justify-between">
                 <h4 className="text-sm font-medium">Rating</h4>
-                {!isRated(currentRating) && (
+                {!isRated && (
                   <Badge
                     variant="destructive"
                     className="px-2 py-0 text-[10px]"
@@ -190,7 +195,7 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
                 )}
               </div>
               <RadioGroup
-                value={getCurrentRating(currentRating, dbRatingOptions)}
+                value={currentRatingTitle}
                 onValueChange={handleRatingChange}
                 className="flex justify-between gap-1"
               >
@@ -215,9 +220,9 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
             <div className="mb-2">
               <Textarea
                 placeholder="Add notes..."
-                value={getCurrentNote(currentRating) || ""}
+                value={currentComment}
                 onChange={handleNoteChange}
-                className="bg-background min-h-[80px] resize-none text-sm"
+                className="bg-background h-[120px] resize-none text-sm break-words break-all"
               />
               <div className="mt-1 flex justify-end">
                 <Button
