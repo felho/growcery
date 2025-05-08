@@ -6,6 +6,7 @@
 
 ### Small improvement ideas
 
+- [ ] The API URLs are inconsistent (plural vs singular)
 - [ ] The actionClient error handling has to be tested
 - [ ] I like extend more in the zod file than the current merge
 - [ ] On the function edit page, and probably elsewhere later, the icons should be aligned with the Action header
