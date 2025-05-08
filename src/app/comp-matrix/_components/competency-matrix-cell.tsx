@@ -14,15 +14,20 @@ import { Textarea } from "~/components/ui/textarea";
 import { Badge } from "~/components/ui/badge";
 import JointDiscussionPopover from "./joint-discussion-popover";
 import RatingPopover from "./rating-popover";
-import type { CompMatrixRatingsForUI } from "~/server/queries/comp-matrix-current-rating";
+import type {
+  CompMatrixCellSavePayloadUI,
+  CompMatrixRatingsForUI,
+} from "~/server/queries/comp-matrix-current-rating";
 import type { CompMatrixRatingOption } from "~/server/queries/comp-matrix-rating-option";
 
 interface CompetencyMatrixCellProps {
   phase: Phase;
   isActive: boolean;
   onUpdateRating: (rating: CompMatrixRatingsForUI) => Promise<void>;
+  onSaveCell: (payload: CompMatrixCellSavePayloadUI) => Promise<void>;
   cellIndex: number;
   competencyDefinition?: string;
+  definitionId: number;
   dbRatingOptions: CompMatrixRatingOption[];
   currentRating: CompMatrixRatingsForUI;
   isExpanded: boolean;
@@ -33,8 +38,10 @@ interface CompetencyMatrixCellProps {
 const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
   phase,
   onUpdateRating,
+  onSaveCell,
   cellIndex,
   competencyDefinition,
+  definitionId,
   dbRatingOptions,
   currentRating,
   isExpanded = false,
@@ -70,9 +77,31 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
     }));
   };
 
-  const handleRatingChange = async (newTitle: string) => {
+  const saveRatingAndSync = async (
+    updated: CompMatrixRatingsForUI,
+    ratingId: number | null,
+    comment: string | null,
+  ) => {
     const previous = localRating;
 
+    const uiPayload: CompMatrixCellSavePayloadUI = {
+      definitionId,
+      ratingId,
+      comment,
+    };
+
+    setLocalRating(updated);
+
+    try {
+      await onSaveCell(uiPayload);
+      // await onUpdateRating(updated);
+    } catch (error) {
+      console.error("Save error:", error);
+      setLocalRating(previous);
+    }
+  };
+
+  const handleRatingChange = async (newTitle: string) => {
     const selectedOption = dbRatingOptions.find(
       (opt) => opt.title === newTitle,
     );
@@ -84,27 +113,25 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
         selectedOption.id,
     };
 
-    setLocalRating(updatedRating); // optimistic UI
+    const comment =
+      viewMode === "manager"
+        ? (localRating.managerComment ?? null)
+        : (localRating.selfComment ?? null);
 
-    try {
-      await onUpdateRating(updatedRating); // saving to db
-    } catch (error) {
-      console.error("Saving error:", error);
-      setLocalRating(previous); // rollback, if error
-    }
+    await saveRatingAndSync(updatedRating, selectedOption.id, comment);
   };
 
   const handleSave = async () => {
-    const previous = localRating;
-
-    try {
-      await onUpdateRating(localRating); // háttér mentés
-    } catch (error) {
-      console.error("Mentési hiba:", error);
-      setLocalRating(previous); // rollback, ha gond van
-    }
+    await saveRatingAndSync(
+      localRating,
+      viewMode === "manager"
+        ? (localRating.managerRatingId ?? null)
+        : (localRating.selfRatingId ?? null),
+      viewMode === "manager"
+        ? (localRating.managerComment ?? null)
+        : (localRating.selfComment ?? null),
+    );
   };
-
   const isRated =
     viewMode === "manager"
       ? localRating.managerRatingId != null
@@ -195,7 +222,7 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
                 )}
               </div>
               <RadioGroup
-                value={currentRatingTitle}
+                value={currentRatingTitle ?? ""}
                 onValueChange={handleRatingChange}
                 className="flex justify-between gap-1"
               >

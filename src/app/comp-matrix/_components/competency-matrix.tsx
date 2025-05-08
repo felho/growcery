@@ -14,7 +14,10 @@ import CompetencyAreaSection from "./competency-area-section";
 import type { Phase, CompetencyCategory } from "~/data/mock-competency-data";
 import type { CompMatrixWithFullRelations } from "~/server/queries/comp-matrix";
 import type { CompMatrixRatingOption } from "~/server/queries/comp-matrix-rating-option";
-import type { CompMatrixRatingsForUIMap } from "~/server/queries/comp-matrix-current-rating";
+import type {
+  CompMatrixCellSavePayloadUI,
+  CompMatrixRatingsForUIMap,
+} from "~/server/queries/comp-matrix-current-rating";
 
 interface CompetencyMatrixProps {
   competencyData: {
@@ -36,6 +39,7 @@ interface CompetencyMatrixProps {
     itemIndex: number,
     rating: any,
   ) => void;
+  onSaveCell: (uiPayload: CompMatrixCellSavePayloadUI) => Promise<void>;
 }
 
 export const CompetencyMatrix = ({
@@ -51,6 +55,7 @@ export const CompetencyMatrix = ({
   getCurrentFunction,
   switchPhase,
   updateCompetency,
+  onSaveCell,
 }: CompetencyMatrixProps) => {
   return (
     <Card>
@@ -106,6 +111,7 @@ export const CompetencyMatrix = ({
                   viewMode={viewMode}
                   updateCompetency={updateCompetency}
                   categoryIndex={competencyData.competencies.indexOf(category)}
+                  onSaveCell={onSaveCell}
                 />
               );
             })}

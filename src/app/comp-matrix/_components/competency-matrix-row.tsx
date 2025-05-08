@@ -12,7 +12,10 @@ import CompetencyMatrixCell from "./competency-matrix-cell";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import type { CompMatrixCompetencyWithDefinitions } from "~/server/queries/comp-matrix-competency";
 import type { CompMatrixRatingOption } from "~/server/queries/comp-matrix-rating-option";
-import type { CompMatrixRatingsForUIMap } from "~/server/queries/comp-matrix-current-rating";
+import type {
+  CompMatrixCellSavePayloadUI,
+  CompMatrixRatingsForUIMap,
+} from "~/server/queries/comp-matrix-current-rating";
 
 interface CellRating {
   employeeRating?: Rating;
@@ -30,6 +33,7 @@ interface CompetencyMatrixRowProps {
   phase: Phase;
   viewMode: "employee" | "manager";
   onUpdateRating: (rating: CellRating) => void;
+  onSaveCell: (uiPayload: CompMatrixCellSavePayloadUI) => Promise<void>;
 }
 
 const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
@@ -40,6 +44,7 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
   phase,
   viewMode,
   onUpdateRating,
+  onSaveCell,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -85,10 +90,12 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
                 managerNote: competency.managerNote,
               }}
               onUpdateRating={onUpdateRating}
+              onSaveCell={onSaveCell}
               cellIndex={index}
               competencyDefinition={
                 dbCompetency?.definitions[index]?.definition || ""
               }
+              definitionId={dbCompetency?.definitions[index]?.id || 0}
               isExpanded={isExpanded}
               viewMode={viewMode}
               dbRatingOptions={ratingOptions}

@@ -20,3 +20,15 @@ export type CompMatrixRatingsForUI = {
 };
 
 export type CompMatrixRatingsForUIMap = Record<number, CompMatrixRatingsForUI>;
+
+export type CompMatrixCellSavePayloadUI = {
+  definitionId: number;
+  ratingId: number | null;
+  comment: string | null;
+};
+
+export interface CompMatrixCellSavePayloadAPI
+  extends CompMatrixCellSavePayloadUI {
+  assignmentId: number;
+  raterType: "employee" | "manager";
+}

@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { Building2, Users, UserRound } from "lucide-react";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { fetchCompMatrix } from "~/lib/client-api/comp-matrix";
 import { fetchCompMatrixCurrentRating } from "~/lib/client-api/comp-matrix-current-rating";
 import { fetchCompMatrixRatingOptions } from "~/lib/client-api/comp-matrix-rating-option";
@@ -32,6 +32,7 @@ import type { CompMatrixLevel } from "~/server/queries/comp-matrix-level";
 import type { CompMatrixAreaWithFullRelations } from "~/server/queries/comp-matrix-area";
 import type { CompMatrixRatingOption } from "~/server/queries/comp-matrix-rating-option";
 import CompetencyMatrix from "./_components/competency-matrix";
+import type { CompMatrixCellSavePayloadUI } from "~/server/queries/comp-matrix-current-rating";
 
 interface CellRating {
   employeeRating?: Rating;
@@ -43,7 +44,7 @@ interface CellRating {
 const CompMatrixPage = () => {
   const [competencyData, setCompetencyData] = useState(mockCompetencyData);
   const [phase, setPhase] = useState<Phase>("assessment");
-  const [viewMode, setViewMode] = useState<"employee" | "manager">("employee");
+  const [viewMode, setViewMode] = useState<"employee" | "manager">("manager");
 
   // Selection state
   const [selectedFunction, setSelectedFunction] = useState(
@@ -203,12 +204,42 @@ const CompMatrixPage = () => {
 
   const assignmentId = 1; // baked in for now
   const {
-    data: compMatrixCurrentRating,
-    isLoading: isCompMatrixCurrentRatingLoading,
-    error: compMatrixCurrentRatingError,
-  } = useSWR(`/api/comp-matrix-current-rating/${assignmentId}`, () =>
-    fetchCompMatrixCurrentRating(assignmentId),
+    data: compMatrixCurrentRatings,
+    isLoading: isCompMatrixCurrentRatingsLoading,
+    error: compMatrixCurrentRatingsError,
+  } = useSWR(
+    assignmentId
+      ? `/api/comp-matrix-current-ratings?assignmentId=${assignmentId}`
+      : null,
+    fetchCompMatrixCurrentRating,
   );
+
+  const onSaveCell = async (uiPayload: CompMatrixCellSavePayloadUI) => {
+    console.log("onSaveCell", uiPayload);
+    const raterType = viewMode === "manager" ? "manager" : "employee";
+
+    const apiPayload = {
+      ...uiPayload,
+      assignmentId,
+      raterType,
+    };
+
+    const res = await fetch("/api/comp-matrix-current-ratings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(apiPayload),
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error("Save failed:", errorText);
+      throw new Error("Save failed");
+    }
+
+    toast.success("Rating saved successfully");
+
+    mutate(`/api/comp-matrix-current-ratings?assignmentId=${assignmentId}`);
+  };
 
   return (
     <div className="animate-fade-in space-y-6">
@@ -292,12 +323,13 @@ const CompMatrixPage = () => {
         selectedEmployee={selectedEmployee}
         compMatrix={compMatrix}
         ratingOptions={ratingOptions}
-        compMatrixCurrentRating={compMatrixCurrentRating}
+        compMatrixCurrentRating={compMatrixCurrentRatings}
         getCurrentEmployee={getCurrentEmployee}
         getCurrentOrgUnit={getCurrentOrgUnit}
         getCurrentFunction={getCurrentFunction}
         switchPhase={switchPhase}
         updateCompetency={updateCompetency}
+        onSaveCell={onSaveCell}
       />
     </div>
   );

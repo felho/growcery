@@ -9,7 +9,10 @@ import {
 import CompetencyMatrixRow from "./competency-matrix-row";
 import type { CompMatrixAreaWithFullRelations } from "~/server/queries/comp-matrix-area";
 import type { CompMatrixRatingOption } from "~/server/queries/comp-matrix-rating-option";
-import type { CompMatrixRatingsForUIMap } from "~/server/queries/comp-matrix-current-rating";
+import type {
+  CompMatrixCellSavePayloadUI,
+  CompMatrixRatingsForUIMap,
+} from "~/server/queries/comp-matrix-current-rating";
 import type { CompMatrixCompetencyWithDefinitions } from "~/server/queries/comp-matrix-competency";
 interface CellRating {
   employeeRating?: Rating;
@@ -31,6 +34,7 @@ interface CompetencyAreaSectionProps {
     rating: CellRating,
   ) => void;
   categoryIndex: number;
+  onSaveCell: (uiPayload: CompMatrixCellSavePayloadUI) => Promise<void>;
 }
 
 const CompetencyAreaSection: React.FC<CompetencyAreaSectionProps> = ({
@@ -42,6 +46,7 @@ const CompetencyAreaSection: React.FC<CompetencyAreaSectionProps> = ({
   viewMode,
   updateCompetency,
   categoryIndex,
+  onSaveCell,
 }) => {
   return (
     <div className="mb-0">
@@ -72,6 +77,7 @@ const CompetencyAreaSection: React.FC<CompetencyAreaSectionProps> = ({
               onUpdateRating={(rating) =>
                 updateCompetency(categoryIndex, itemIndex, rating)
               }
+              onSaveCell={onSaveCell}
             />
           );
         })}
