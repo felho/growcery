@@ -140,98 +140,101 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
         ? "bg-card hover:bg-muted/30"
         : "bg-[#FFDEE2] hover:bg-red-100/70";
 
-  // For the joint-discussion view with different ratings
-  if (hasDifferentRatings && !isExpanded) {
-    return (
-      <JointDiscussionPopover
-        competencyDefinition={competencyDefinition}
-        currentRating={currentRating}
-        ratingOptions={dbRatingOptions}
-      />
-    );
-  }
-
-  // Render expanded cell with definition, rating selector, and notes
-  if (isExpanded && phase !== "calibration") {
-    return (
-      <div className="border-border flex-1 border-r last:border-r-0">
-        <div className="flex h-full flex-col p-3">
-          <div className="mb-3 flex-grow">
-            <p className="text-sm">{competencyDefinition}</p>
-          </div>
-
-          <div className="mb-3">
-            <div className="mb-2 flex items-center justify-between">
-              <h4 className="text-sm font-medium">Rating</h4>
-              {!isRated(currentRating) && (
-                <Badge variant="destructive" className="px-2 py-0 text-[10px]">
-                  Not rated
-                </Badge>
-              )}
-            </div>
-            <RadioGroup
-              value={getCurrentRating(currentRating, dbRatingOptions)}
-              onValueChange={handleRatingChange}
-              className="flex justify-between gap-1"
-            >
-              {dbRatingOptions?.map((ratingOption, idx) => (
-                <div key={idx} className="flex flex-col items-center gap-1">
-                  <RadioGroupItem
-                    value={ratingOption.title}
-                    id={`${ratingOption.title}-${cellIndex}`}
-                    className="border-green-500 text-green-500 data-[state=checked]:!border-green-500 data-[state=checked]:!bg-green-500 [&_[data-slot=radio-group-indicator]]:hidden"
-                  />
-                  <label
-                    htmlFor={`${ratingOption.title}-${cellIndex}`}
-                    className="cursor-pointer text-[10px] font-medium"
-                  >
-                    {ratingOption.radioButtonLabel}
-                  </label>
-                </div>
-              ))}
-            </RadioGroup>
-          </div>
-
-          <div className="mb-2">
-            <Textarea
-              placeholder="Add notes..."
-              value={getCurrentNote(currentRating) || ""}
-              onChange={handleNoteChange}
-              className="bg-background min-h-[80px] resize-none text-sm"
-            />
-            <div className="mt-1 flex justify-end">
-              <Button
-                onClick={handleSave}
-                size="sm"
-                variant="ghost"
-                className="h-6 px-2 text-xs"
-              >
-                <CheckIcon className="mr-1 h-3 w-3" />
-                Save
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Render normal cell (non-expanded) with popover
   return (
-    <RatingPopover
-      rating={getCurrentRating(currentRating, dbRatingOptions) as Rating}
-      note={getCurrentNote(currentRating)}
-      competencyDefinition={competencyDefinition}
-      isRated={isRated(currentRating)}
-      phase={phase}
-      cellBackground={cellBackground}
-      cellIndex={cellIndex}
-      ratingOptions={ratingOptions}
-      getRatingDescription={getRatingDescription}
-      onRatingChange={handleRatingChange}
-      onNoteChange={handleNoteChange}
-      onSave={handleSave}
-    />
+    <div className="border-border flex-1 border-r last:border-r-0">
+      <div className="flex h-full flex-col">
+        {/* Popover trigger cella */}
+        <div className="h-12 w-full">
+          {hasDifferentRatings ? (
+            <JointDiscussionPopover
+              competencyDefinition={competencyDefinition}
+              currentRating={currentRating}
+              ratingOptions={dbRatingOptions}
+            />
+          ) : (
+            <RatingPopover
+              rating={
+                getCurrentRating(currentRating, dbRatingOptions) as Rating
+              }
+              note={getCurrentNote(currentRating)}
+              competencyDefinition={competencyDefinition}
+              isRated={isRated(currentRating)}
+              phase={phase}
+              cellBackground={cellBackground}
+              cellIndex={cellIndex}
+              ratingOptions={ratingOptions}
+              getRatingDescription={getRatingDescription}
+              onRatingChange={handleRatingChange}
+              onNoteChange={handleNoteChange}
+              onSave={handleSave}
+            />
+          )}
+        </div>
+
+        {isExpanded && phase !== "calibration" && (
+          <div className="flex flex-1 flex-col p-3">
+            <div className="mb-3 flex-grow">
+              <p className="text-sm">{competencyDefinition}</p>
+            </div>
+
+            <div className="mb-3">
+              <div className="mb-2 flex items-center justify-between">
+                <h4 className="text-sm font-medium">Rating</h4>
+                {!isRated(currentRating) && (
+                  <Badge
+                    variant="destructive"
+                    className="px-2 py-0 text-[10px]"
+                  >
+                    Not rated
+                  </Badge>
+                )}
+              </div>
+              <RadioGroup
+                value={getCurrentRating(currentRating, dbRatingOptions)}
+                onValueChange={handleRatingChange}
+                className="flex justify-between gap-1"
+              >
+                {dbRatingOptions?.map((ratingOption, idx) => (
+                  <div key={idx} className="flex flex-col items-center gap-1">
+                    <RadioGroupItem
+                      value={ratingOption.title}
+                      id={`${ratingOption.title}-${cellIndex}`}
+                      className="border-green-500 text-green-500 data-[state=checked]:!border-green-500 data-[state=checked]:!bg-green-500 [&_[data-slot=radio-group-indicator]]:hidden"
+                    />
+                    <label
+                      htmlFor={`${ratingOption.title}-${cellIndex}`}
+                      className="cursor-pointer text-[10px] font-medium"
+                    >
+                      {ratingOption.radioButtonLabel}
+                    </label>
+                  </div>
+                ))}
+              </RadioGroup>
+            </div>
+
+            <div className="mb-2">
+              <Textarea
+                placeholder="Add notes..."
+                value={getCurrentNote(currentRating) || ""}
+                onChange={handleNoteChange}
+                className="bg-background min-h-[80px] resize-none text-sm"
+              />
+              <div className="mt-1 flex justify-end">
+                <Button
+                  onClick={handleSave}
+                  size="sm"
+                  variant="ghost"
+                  className="h-6 px-2 text-xs"
+                >
+                  <CheckIcon className="mr-1 h-3 w-3" />
+                  Save
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 
