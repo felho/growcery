@@ -1,14 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { toast } from "sonner";
 import {
   mockCompetencyData,
@@ -22,8 +14,6 @@ import {
   type Function,
   type Phase,
 } from "~/data/mock-competency-data";
-import CompetencyMatrixHeader from "./_components/competency-matrix-header";
-import CompetencyAreaSection from "./_components/competency-area-section";
 import {
   Select,
   SelectContent,
@@ -41,6 +31,7 @@ import type { CompMatrixWithFullRelations } from "~/server/queries/comp-matrix";
 import type { CompMatrixLevel } from "~/server/queries/comp-matrix-level";
 import type { CompMatrixAreaWithFullRelations } from "~/server/queries/comp-matrix-area";
 import type { CompMatrixRatingOption } from "~/server/queries/comp-matrix-rating-option";
+import CompetencyMatrix from "./_components/competency-matrix";
 
 interface CellRating {
   employeeRating?: Rating;
@@ -49,7 +40,7 @@ interface CellRating {
   managerNote?: string;
 }
 
-const CompetencyMatrix = () => {
+const CompMatrixPage = () => {
   const [competencyData, setCompetencyData] = useState(mockCompetencyData);
   const [phase, setPhase] = useState<Phase>("assessment");
   const [viewMode, setViewMode] = useState<"employee" | "manager">("employee");
@@ -294,73 +285,22 @@ const CompetencyMatrix = () => {
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>
-                {getCurrentEmployee()?.name
-                  ? `${getCurrentEmployee()?.name}'s Competency Assessment`
-                  : "Competency Assessment"}
-              </CardTitle>
-              <CardDescription>
-                {getCurrentEmployee()?.position || ""}
-                {getCurrentOrgUnit() && ` - ${getCurrentOrgUnit()?.name}`}
-                {getCurrentFunction() && ` - ${getCurrentFunction()?.name}`}
-              </CardDescription>
-            </div>
-
-            <Tabs
-              defaultValue="assessment"
-              value={phase}
-              onValueChange={(value) => switchPhase(value as any)}
-            >
-              <TabsList>
-                <TabsTrigger value="assessment">Assessment</TabsTrigger>
-                <TabsTrigger value="joint-discussion">
-                  Joint Discussion
-                </TabsTrigger>
-                <TabsTrigger value="calibration">Calibration</TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {selectedEmployee ? (
-            <div className="border-border overflow-hidden rounded-md border">
-              <CompetencyMatrixHeader levels={competencyData.levels} />
-
-              {compMatrix?.areas?.map((area) => {
-                const category = competencyData.competencies.find(
-                  (c) => c.category === area.title,
-                );
-                if (!category) return null;
-
-                return (
-                  <CompetencyAreaSection
-                    key={area.id}
-                    area={area}
-                    category={category}
-                    phase={phase}
-                    viewMode={viewMode}
-                    updateCompetency={updateCompetency}
-                    categoryIndex={competencyData.competencies.indexOf(
-                      category,
-                    )}
-                  />
-                );
-              })}
-            </div>
-          ) : (
-            <div className="text-muted-foreground p-8 text-center">
-              Please select a function, team, and employee to view competency
-              assessment
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <CompetencyMatrix
+        competencyData={competencyData}
+        phase={phase}
+        viewMode={viewMode}
+        selectedEmployee={selectedEmployee}
+        compMatrix={compMatrix}
+        ratingOptions={ratingOptions}
+        compMatrixCurrentRating={compMatrixCurrentRating}
+        getCurrentEmployee={getCurrentEmployee}
+        getCurrentOrgUnit={getCurrentOrgUnit}
+        getCurrentFunction={getCurrentFunction}
+        switchPhase={switchPhase}
+        updateCompetency={updateCompetency}
+      />
     </div>
   );
 };
 
-export default CompetencyMatrix;
+export default CompMatrixPage;
