@@ -76,8 +76,8 @@ export const ratingColors: Record<Rating, string> = {
 };
 
 // Helper function to get color for rating in heatmap view
-export const getRatingColor = (rating: Rating): string => {
-  return ratingColors[rating] || "bg-muted";
+export const getRatingColor = (rating: string): string => {
+  return ratingColors[rating as Rating] || "bg-muted";
 };
 
 // Mock functions (departments) data

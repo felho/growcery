@@ -14,7 +14,8 @@ import { Textarea } from "~/components/ui/textarea";
 import { Badge } from "~/components/ui/badge";
 import JointDiscussionPopover from "./joint-discussion-popover";
 import RatingPopover from "./rating-popover";
-
+import type { CompMatrixRatingsForUI } from "~/server/queries/comp-matrix-current-rating";
+import type { CompMatrixRatingOption } from "~/server/queries/comp-matrix-rating-option";
 interface CellRating {
   employeeRating?: Rating;
   managerRating?: Rating;
@@ -29,6 +30,8 @@ interface CompetencyMatrixCellProps {
   onUpdateRating: (rating: CellRating) => void;
   cellIndex: number;
   competencyDefinition?: string;
+  dbRatingOptions?: CompMatrixRatingOption[];
+  currentRating?: CompMatrixRatingsForUI;
   isExpanded?: boolean;
   hasDifferentRatings?: boolean;
   viewMode?: "employee" | "manager";
@@ -40,6 +43,8 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
   onUpdateRating,
   cellIndex,
   competencyDefinition,
+  dbRatingOptions,
+  currentRating,
   isExpanded = false,
   viewMode = "employee",
 }) => {
@@ -70,10 +75,16 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
   };
 
   // Check if the cell has been rated
-  const isRated = (): boolean => {
-    return viewMode === "manager"
-      ? !!rating.managerRating
-      : !!rating.employeeRating;
+  const isRated = (
+    currentRating: CompMatrixRatingsForUI | undefined,
+  ): boolean => {
+    if (!currentRating) return false;
+
+    if (viewMode === "manager") {
+      return currentRating.managerRatingId !== null;
+    } else {
+      return currentRating.selfRatingId !== null;
+    }
   };
 
   // Get rating description
@@ -82,29 +93,50 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
   };
 
   // Get current rating based on view mode
-  const getCurrentRating = (): Rating | undefined => {
-    return viewMode === "manager"
-      ? rating.managerRating
-      : rating.employeeRating;
+  const getCurrentRating = (
+    currentRating: CompMatrixRatingsForUI | undefined,
+    ratingOptions: CompMatrixRatingOption[] | undefined,
+  ): string | undefined => {
+    if (!currentRating || !ratingOptions) return undefined;
+
+    const ratingId =
+      viewMode === "manager"
+        ? currentRating.managerRatingId
+        : currentRating.selfRatingId;
+
+    const ratingOption = ratingOptions.find((option) => option.id === ratingId);
+
+    if (!ratingOption) return undefined;
+
+    return ratingOption.title;
   };
 
   // Get current note based on view mode
-  const getCurrentNote = (): string | undefined => {
-    return viewMode === "manager" ? rating.managerNote : rating.employeeNote;
+  const getCurrentNote = (
+    currentRating: CompMatrixRatingsForUI | undefined,
+  ): string | undefined => {
+    if (!currentRating) return undefined;
+
+    return viewMode === "manager"
+      ? (currentRating.managerComment ?? undefined)
+      : (currentRating.selfComment ?? undefined);
   };
 
   // Determine if ratings are different in joint-discussion phase
   const hasDifferentRatings =
     phase === "joint-discussion" &&
-    rating.employeeRating &&
-    rating.managerRating &&
-    rating.employeeRating !== rating.managerRating;
+    currentRating &&
+    currentRating.managerRatingId &&
+    currentRating.selfRatingId &&
+    currentRating.managerRatingId !== currentRating.selfRatingId;
 
   // Only use background colors for the calibration phase
   const cellBackground =
     phase === "calibration"
-      ? getRatingColor(getCurrentRating() || "Inexperienced")
-      : isRated()
+      ? getRatingColor(
+          getCurrentRating(currentRating, dbRatingOptions) || "Inexperienced",
+        )
+      : isRated(currentRating)
         ? "bg-card hover:bg-muted/30"
         : "bg-[#FFDEE2] hover:bg-red-100/70";
 
@@ -134,45 +166,39 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
           <div className="mb-3">
             <div className="mb-2 flex items-center justify-between">
               <h4 className="text-sm font-medium">Rating</h4>
-              {!isRated() && (
+              {!isRated(currentRating) && (
                 <Badge variant="destructive" className="px-2 py-0 text-[10px]">
                   Not rated
                 </Badge>
               )}
             </div>
             <RadioGroup
-              value={getCurrentRating()}
+              value={getCurrentRating(currentRating, dbRatingOptions)}
               onValueChange={handleRatingChange}
               className="flex justify-between gap-1"
             >
-              {ratingOptions.map((ratingOption, idx) => (
+              {dbRatingOptions?.map((ratingOption, idx) => (
                 <div key={idx} className="flex flex-col items-center gap-1">
                   <RadioGroupItem
-                    value={ratingOption}
-                    id={`${ratingOption}-${cellIndex}`}
+                    value={ratingOption.title}
+                    id={`${ratingOption.title}-${cellIndex}`}
                     className="border-green-500 text-green-500 data-[state=checked]:!border-green-500 data-[state=checked]:!bg-green-500 [&_[data-slot=radio-group-indicator]]:hidden"
                   />
                   <label
-                    htmlFor={`${ratingOption}-${cellIndex}`}
+                    htmlFor={`${ratingOption.title}-${cellIndex}`}
                     className="cursor-pointer text-[10px] font-medium"
                   >
-                    {ratingOption.substring(0, 4)}
+                    {ratingOption.radioButtonLabel}
                   </label>
                 </div>
               ))}
             </RadioGroup>
-
-            {getCurrentRating() && (
-              <p className="text-muted-foreground mt-1 text-xs">
-                {getRatingDescription(getCurrentRating()!)}
-              </p>
-            )}
           </div>
 
           <div className="mb-2">
             <Textarea
               placeholder="Add notes..."
-              value={getCurrentNote() || ""}
+              value={getCurrentNote(currentRating) || ""}
               onChange={handleNoteChange}
               className="bg-background min-h-[80px] resize-none text-sm"
             />
@@ -196,10 +222,10 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
   // Render normal cell (non-expanded) with popover
   return (
     <RatingPopover
-      rating={getCurrentRating()}
-      note={getCurrentNote()}
+      rating={getCurrentRating(currentRating, dbRatingOptions) as Rating}
+      note={getCurrentNote(currentRating)}
       competencyDefinition={competencyDefinition}
-      isRated={isRated()}
+      isRated={isRated(currentRating)}
       phase={phase}
       cellBackground={cellBackground}
       cellIndex={cellIndex}
