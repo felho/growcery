@@ -58,7 +58,7 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
       {/* Row header with competency name */}
       <div className="flex">
         <div
-          className="border-border bg-muted/10 flex w-[17.55%] cursor-pointer items-center border-r p-3"
+          className="border-border bg-muted/10 flex w-[17.55%] cursor-pointer border-r p-3"
           onClick={handleToggleExpand}
         >
           <div className="flex w-full gap-2">
