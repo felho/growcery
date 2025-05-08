@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { bigint, varchar, timestamp } from "drizzle-orm/pg-core";
+import { bigint, varchar, timestamp, unique } from "drizzle-orm/pg-core";
 import { createTable } from "../utils";
 import { users } from "./users";
 import { compMatrixDefinitions } from "./comp-matrix-definitions";
@@ -38,4 +38,10 @@ export const compMatrixCurrentRatings = createTable(
       .default(sql`CURRENT_TIMESTAMP`)
       .$onUpdate(() => new Date()),
   },
+  (t) => [
+    unique("uq_rating_assignment_definition").on(
+      t.userCompMatrixAssignmentId,
+      t.compMatrixDefinitionId,
+    ),
+  ],
 );
