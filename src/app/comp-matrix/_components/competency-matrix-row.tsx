@@ -29,7 +29,6 @@ interface CompetencyMatrixRowProps {
 }
 
 const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
-  competencyName,
   competency,
   dbCompetency,
   phase,
@@ -37,17 +36,6 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
   onUpdateRating,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-
-  // Get level-specific definition or fallback to general definition
-  const getLevelDefinition = (level: string): string => {
-    if (competency.levelDefinitions && competency.levelDefinitions[level]) {
-      return competency.levelDefinitions[level] || "";
-    }
-
-    return competency.definition
-      ? `${competency.definition} for ${level} level.`
-      : `This competency evaluates the ability to effectively apply skills and knowledge in ${competencyName} at the ${level} level.`;
-  };
 
   const handleToggleExpand = () => {
     setIsExpanded(!isExpanded);
@@ -69,9 +57,9 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
             )}
             <span
               className="truncate text-sm whitespace-nowrap"
-              title={competencyName}
+              title={dbCompetency?.title}
             >
-              {competencyName}
+              {dbCompetency?.title}
             </span>
           </div>
         </div>
@@ -92,7 +80,9 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
               }}
               onUpdateRating={onUpdateRating}
               cellIndex={index}
-              competencyDefinition={getLevelDefinition(level)}
+              competencyDefinition={
+                dbCompetency?.definitions[index]?.definition || ""
+              }
               isExpanded={isExpanded}
               viewMode={viewMode}
             />
