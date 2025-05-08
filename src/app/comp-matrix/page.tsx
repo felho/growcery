@@ -44,7 +44,7 @@ interface CellRating {
 const CompMatrixPage = () => {
   const [competencyData, setCompetencyData] = useState(mockCompetencyData);
   const [phase, setPhase] = useState<Phase>("assessment");
-  const [viewMode, setViewMode] = useState<"employee" | "manager">("manager");
+  const [viewMode, setViewMode] = useState<"employee" | "manager">("employee");
 
   // Selection state
   const [selectedFunction, setSelectedFunction] = useState(
@@ -110,11 +110,6 @@ const CompMatrixPage = () => {
 
   const switchPhase = (newPhase: Phase) => {
     setPhase(newPhase);
-
-    // Reset view mode to employee when switching to assessment phase
-    if (newPhase === "assessment") {
-      setViewMode("employee");
-    }
   };
 
   const handleFunctionChange = (functionId: string) => {
