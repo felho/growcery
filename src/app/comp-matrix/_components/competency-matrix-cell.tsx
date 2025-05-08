@@ -144,12 +144,9 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
   if (hasDifferentRatings && !isExpanded) {
     return (
       <JointDiscussionPopover
-        employeeRating={rating.employeeRating}
-        managerRating={rating.managerRating}
-        employeeNote={rating.employeeNote}
-        managerNote={rating.managerNote}
         competencyDefinition={competencyDefinition}
-        getRatingDescription={getRatingDescription}
+        currentRating={currentRating}
+        ratingOptions={dbRatingOptions}
       />
     );
   }

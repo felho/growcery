@@ -5,25 +5,51 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { type Rating } from "~/data/mock-competency-data";
+import type { CompMatrixRatingsForUI } from "~/server/queries/comp-matrix-current-rating";
+import type { CompMatrixRatingOption } from "~/server/queries/comp-matrix-rating-option";
 
 interface DiscussionPopoverProps {
-  employeeRating?: Rating;
-  managerRating?: Rating;
-  employeeNote?: string;
-  managerNote?: string;
   competencyDefinition?: string;
-  getRatingDescription: (rating: Rating) => string;
+  currentRating: CompMatrixRatingsForUI | undefined;
+  ratingOptions: CompMatrixRatingOption[] | undefined;
 }
 
 const DiscussionPopover: React.FC<DiscussionPopoverProps> = ({
-  employeeRating,
-  managerRating,
-  employeeNote,
-  managerNote,
   competencyDefinition,
-  getRatingDescription,
+  currentRating,
+  ratingOptions,
 }) => {
+  const getCurrentRating = (
+    currentRating: CompMatrixRatingsForUI | undefined,
+    ratingOptions: CompMatrixRatingOption[] | undefined,
+    viewMode: "employee" | "manager",
+  ): string | undefined => {
+    if (!currentRating || !ratingOptions) return undefined;
+
+    const ratingId =
+      viewMode === "manager"
+        ? currentRating.managerRatingId
+        : currentRating.selfRatingId;
+
+    const ratingOption = ratingOptions.find((option) => option.id === ratingId);
+
+    if (!ratingOption) return undefined;
+
+    return ratingOption.title;
+  };
+
+  // Get current note based on view mode
+  const getCurrentNote = (
+    currentRating: CompMatrixRatingsForUI | undefined,
+    viewMode: "employee" | "manager",
+  ): string | undefined => {
+    if (!currentRating) return undefined;
+
+    return viewMode === "manager"
+      ? (currentRating.managerComment ?? undefined)
+      : (currentRating.selfComment ?? undefined);
+  };
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -32,10 +58,10 @@ const DiscussionPopover: React.FC<DiscussionPopoverProps> = ({
         >
           <div className="flex flex-col items-center">
             <div className="bg-primary/20 rounded-md px-2 py-0.5 text-xs">
-              E: {employeeRating}
+              E: {getCurrentRating(currentRating, ratingOptions, "employee")}
             </div>
             <div className="bg-secondary/30 mt-1 rounded-md px-2 py-0.5 text-xs">
-              M: {managerRating}
+              M: {getCurrentRating(currentRating, ratingOptions, "manager")}
             </div>
           </div>
           <div className="absolute top-0 right-0">
@@ -62,20 +88,16 @@ const DiscussionPopover: React.FC<DiscussionPopoverProps> = ({
                 <h4 className="mb-2 font-medium">Rating</h4>
                 <div className="flex items-center gap-2">
                   <span className="bg-primary/20 rounded-md px-3 py-1 text-sm font-medium">
-                    {employeeRating}
+                    {getCurrentRating(currentRating, ratingOptions, "employee")}
                   </span>
-                  {employeeRating && (
-                    <span className="text-muted-foreground text-xs">
-                      {getRatingDescription(employeeRating)}
-                    </span>
-                  )}
                 </div>
               </div>
 
               <div>
                 <h4 className="mb-2 font-medium">Notes</h4>
                 <p className="text-sm">
-                  {employeeNote || "No notes provided."}
+                  {getCurrentNote(currentRating, "employee") ||
+                    "No notes provided."}
                 </p>
               </div>
             </TabsContent>
@@ -85,19 +107,17 @@ const DiscussionPopover: React.FC<DiscussionPopoverProps> = ({
                 <h4 className="mb-2 font-medium">Rating</h4>
                 <div className="flex items-center gap-2">
                   <span className="bg-secondary/30 rounded-md px-3 py-1 text-sm font-medium">
-                    {managerRating}
+                    {getCurrentRating(currentRating, ratingOptions, "manager")}
                   </span>
-                  {managerRating && (
-                    <span className="text-muted-foreground text-xs">
-                      {getRatingDescription(managerRating)}
-                    </span>
-                  )}
                 </div>
               </div>
 
               <div>
                 <h4 className="mb-2 font-medium">Notes</h4>
-                <p className="text-sm">{managerNote || "No notes provided."}</p>
+                <p className="text-sm">
+                  {getCurrentNote(currentRating, "manager") ||
+                    "No notes provided."}
+                </p>
               </div>
             </TabsContent>
           </Tabs>
