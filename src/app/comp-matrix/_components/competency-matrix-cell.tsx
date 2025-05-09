@@ -1,12 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import {
-  type Rating,
-  getRatingColor,
-  mockCompetencyData,
-  type Phase,
-} from "~/data/mock-competency-data";
+import { getRatingColor, type Phase } from "~/data/mock-competency-data";
 import { Button } from "~/components/ui/button";
 import { CheckIcon } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
@@ -27,7 +22,7 @@ interface CompetencyMatrixCellProps {
   cellIndex: number;
   competencyDefinition?: string;
   definitionId: number;
-  dbRatingOptions: CompMatrixRatingOption[];
+  ratingOptions: CompMatrixRatingOption[];
   currentRating: CompMatrixRatingsForUI;
   isExpanded: boolean;
   hasDifferentRatings?: boolean;
@@ -40,7 +35,7 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
   cellIndex,
   competencyDefinition,
   definitionId,
-  dbRatingOptions,
+  ratingOptions,
   currentRating,
   isExpanded = false,
   viewMode = "employee",
@@ -62,9 +57,6 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
   useEffect(() => {
     setLocalRating(currentRating ?? emptyRating);
   }, [currentRating]);
-
-  // Get available rating options from the mock data
-  const ratingOptions: Rating[] = mockCompetencyData.ratingOptions;
 
   const handleNoteChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newNote = e.target.value;
@@ -100,9 +92,7 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
   };
 
   const handleRatingChange = async (newTitle: string) => {
-    const selectedOption = dbRatingOptions.find(
-      (opt) => opt.title === newTitle,
-    );
+    const selectedOption = ratingOptions.find((opt) => opt.title === newTitle);
     if (!selectedOption) return;
 
     const updatedRating: CompMatrixRatingsForUI = {
@@ -135,17 +125,12 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
       ? localRating.managerRatingId != null
       : localRating.selfRatingId != null;
 
-  // Get rating description
-  const getRatingDescription = (ratingValue: Rating): string => {
-    return mockCompetencyData.ratingDescriptions[ratingValue] || "";
-  };
-
   const currentRatingId =
     viewMode === "manager"
       ? localRating.managerRatingId
       : localRating.selfRatingId;
 
-  const currentRatingOption = dbRatingOptions?.find(
+  const currentRatingOption = ratingOptions?.find(
     (option) => option.id === currentRatingId,
   );
 
@@ -181,11 +166,11 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
             <JointDiscussionPopover
               competencyDefinition={competencyDefinition}
               currentRating={localRating}
-              ratingOptions={dbRatingOptions}
+              ratingOptions={ratingOptions}
             />
           ) : (
             <RatingPopover
-              rating={currentRatingTitle || "Inexperienced"}
+              rating={currentRatingTitle}
               note={currentComment}
               competencyDefinition={competencyDefinition}
               isRated={isRated}
@@ -193,7 +178,6 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
               cellBackground={cellBackground}
               cellIndex={cellIndex}
               ratingOptions={ratingOptions}
-              getRatingDescription={getRatingDescription}
               onRatingChange={handleRatingChange}
               onNoteChange={handleNoteChange}
               onSave={handleSave}
@@ -224,7 +208,7 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
                 onValueChange={handleRatingChange}
                 className="flex justify-between gap-1"
               >
-                {dbRatingOptions?.map((ratingOption, idx) => (
+                {ratingOptions?.map((ratingOption, idx) => (
                   <div key={idx} className="flex flex-col items-center gap-1">
                     <RadioGroupItem
                       value={ratingOption.title}

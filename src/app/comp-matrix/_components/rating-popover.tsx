@@ -10,17 +10,17 @@ import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import { Textarea } from "~/components/ui/textarea";
 import { Badge } from "~/components/ui/badge";
 import { type Rating } from "~/data/mock-competency-data";
+import type { CompMatrixRatingOption } from "~/server/queries/comp-matrix-rating-option";
 
 interface DefaultPopoverProps {
-  rating?: Rating;
+  rating?: string;
   note?: string;
   competencyDefinition?: string;
   isRated: boolean;
   phase: string;
   cellBackground: string;
   cellIndex: number;
-  ratingOptions: Rating[];
-  getRatingDescription: (rating: Rating) => string;
+  ratingOptions: CompMatrixRatingOption[];
   onRatingChange: (rating: Rating) => void;
   onNoteChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   onSave: () => void;
@@ -35,7 +35,6 @@ const DefaultPopover: React.FC<DefaultPopoverProps> = ({
   cellBackground,
   cellIndex,
   ratingOptions,
-  getRatingDescription,
   onRatingChange,
   onNoteChange,
   onSave,
@@ -83,26 +82,20 @@ const DefaultPopover: React.FC<DefaultPopoverProps> = ({
                 {ratingOptions.map((ratingOption, idx) => (
                   <div key={idx} className="flex flex-col items-center gap-1">
                     <RadioGroupItem
-                      value={ratingOption}
-                      id={`popover-${ratingOption}-${cellIndex}`}
-                      className="border-green-500 text-green-500 data-[state=checked]:border-green-500 data-[state=checked]:bg-green-500"
+                      value={ratingOption.title}
+                      id={`popover-${ratingOption.title}-${cellIndex}`}
+                      className="border-green-500 text-green-500 data-[state=checked]:!border-green-500 data-[state=checked]:!bg-green-500 [&_[data-slot=radio-group-indicator]]:hidden"
                     />
                     <label
-                      htmlFor={`popover-${ratingOption}-${cellIndex}`}
+                      htmlFor={`popover-${ratingOption.title}-${cellIndex}`}
                       className="cursor-pointer text-[10px] font-medium"
                     >
-                      {ratingOption.substring(0, 4)}
+                      {ratingOption.radioButtonLabel}
                     </label>
                   </div>
                 ))}
               </RadioGroup>
             </div>
-
-            {rating && (
-              <p className="text-muted-foreground mb-4 text-xs">
-                {getRatingDescription(rating)}
-              </p>
-            )}
           </div>
 
           <div>

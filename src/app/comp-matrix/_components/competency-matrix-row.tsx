@@ -95,7 +95,7 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
               definitionId={dbCompetency?.definitions[index]?.id || 0}
               isExpanded={isExpanded}
               viewMode={viewMode}
-              dbRatingOptions={ratingOptions}
+              ratingOptions={ratingOptions}
               currentRating={
                 compMatrixCurrentRating?.[
                   dbCompetency?.definitions[index]?.id || 0
