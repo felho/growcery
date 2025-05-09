@@ -11,7 +11,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import CompetencyMatrixHeader from "./competency-matrix-header";
 import CompetencyAreaSection from "./competency-area-section";
-import type { Phase, CompetencyCategory } from "~/data/mock-competency-data";
+import type { Phase, ViewMode } from "./types";
 import type { CompMatrixWithFullRelations } from "~/server/queries/comp-matrix";
 import type { CompMatrixRatingOption } from "~/server/queries/comp-matrix-rating-option";
 import type {
@@ -20,12 +20,8 @@ import type {
 } from "~/server/queries/comp-matrix-current-rating";
 
 interface CompetencyMatrixProps {
-  competencyData: {
-    competencies: CompetencyCategory[];
-    levels: any[];
-  };
   phase: Phase;
-  viewMode: "employee" | "manager";
+  viewMode: ViewMode;
   selectedEmployee: string;
   compMatrix?: CompMatrixWithFullRelations;
   ratingOptions?: CompMatrixRatingOption[];
@@ -38,7 +34,6 @@ interface CompetencyMatrixProps {
 }
 
 export const CompetencyMatrix = ({
-  competencyData,
   phase,
   viewMode,
   selectedEmployee,
@@ -89,11 +84,6 @@ export const CompetencyMatrix = ({
             <CompetencyMatrixHeader levels={compMatrix?.levels ?? []} />
 
             {compMatrix?.areas?.map((area) => {
-              const category = competencyData.competencies.find(
-                (c: CompetencyCategory) => c.category === area.title,
-              );
-              if (!category) return null;
-
               return (
                 <CompetencyAreaSection
                   key={area.id}
@@ -101,10 +91,8 @@ export const CompetencyMatrix = ({
                   area={area}
                   ratingOptions={ratingOptions}
                   compMatrixCurrentRating={compMatrixCurrentRating}
-                  category={category}
                   phase={phase}
                   viewMode={viewMode}
-                  categoryIndex={competencyData.competencies.indexOf(category)}
                   onSaveCell={onSaveCell}
                 />
               );

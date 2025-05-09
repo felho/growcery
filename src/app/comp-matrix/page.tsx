@@ -3,16 +3,12 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import {
-  mockCompetencyData,
-  type CompetencyCategory,
-  type Rating,
   mockEmployees,
   type Employee,
   mockOrgUnits,
   mockFunctions,
   type OrgUnit,
   type Function,
-  type Phase,
 } from "~/data/mock-competency-data";
 import {
   Select,
@@ -27,24 +23,13 @@ import { fetchCompMatrix } from "~/lib/client-api/comp-matrix";
 import { fetchCompMatrixCurrentRating } from "~/lib/client-api/comp-matrix-current-rating";
 import { fetchCompMatrixRatingOptions } from "~/lib/client-api/comp-matrix-rating-option";
 
-import type { CompMatrixWithFullRelations } from "~/server/queries/comp-matrix";
-import type { CompMatrixLevel } from "~/server/queries/comp-matrix-level";
-import type { CompMatrixAreaWithFullRelations } from "~/server/queries/comp-matrix-area";
-import type { CompMatrixRatingOption } from "~/server/queries/comp-matrix-rating-option";
 import CompetencyMatrix from "./_components/competency-matrix";
 import type { CompMatrixCellSavePayloadUI } from "~/server/queries/comp-matrix-current-rating";
-
-interface CellRating {
-  employeeRating?: Rating;
-  managerRating?: Rating;
-  employeeNote?: string;
-  managerNote?: string;
-}
+import type { ViewMode, Phase } from "./_components/types";
 
 const CompMatrixPage = () => {
-  const [competencyData, setCompetencyData] = useState(mockCompetencyData);
   const [phase, setPhase] = useState<Phase>("assessment");
-  const [viewMode, setViewMode] = useState<"employee" | "manager">("employee");
+  const [viewMode, setViewMode] = useState<ViewMode>("employee");
 
   // Selection state
   const [selectedFunction, setSelectedFunction] = useState(
@@ -76,37 +61,6 @@ const CompMatrixPage = () => {
       setSelectedEmployee("");
     }
   }, []);
-
-  const updateCompetency = (
-    categoryIndex: number,
-    itemIndex: number,
-    rating: CellRating,
-  ) => {
-    const updatedCompetencyData = { ...competencyData };
-    const competencyItem =
-      updatedCompetencyData.competencies[categoryIndex]?.items[itemIndex];
-    if (!competencyItem) return;
-
-    // Update all fields from the rating object, only if they are defined
-    if (rating.employeeRating !== undefined) {
-      competencyItem.employeeRating = rating.employeeRating;
-    }
-    if (rating.managerRating !== undefined) {
-      competencyItem.managerRating = rating.managerRating;
-    }
-    if (rating.employeeNote !== undefined) {
-      competencyItem.employeeNote = rating.employeeNote;
-    }
-    if (rating.managerNote !== undefined) {
-      competencyItem.managerNote = rating.managerNote;
-    }
-
-    setCompetencyData(updatedCompetencyData);
-
-    // Show success message with the updated field
-    const updatedField = viewMode === "manager" ? "manager" : "employee";
-    toast.success(`Updated ${updatedField} rating for ${competencyItem.name}`);
-  };
 
   const switchPhase = (newPhase: Phase) => {
     setPhase(newPhase);
@@ -312,7 +266,6 @@ const CompMatrixPage = () => {
       </div>
 
       <CompetencyMatrix
-        competencyData={competencyData}
         phase={phase}
         viewMode={viewMode}
         selectedEmployee={selectedEmployee}

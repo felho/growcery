@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { type Phase } from "~/data/mock-competency-data";
 import CompetencyMatrixCell from "./competency-matrix-cell";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import type { CompMatrixCompetencyWithDefinitions } from "~/server/queries/comp-matrix-competency";
@@ -11,6 +10,7 @@ import type {
   CompMatrixRatingsForUIMap,
 } from "~/server/queries/comp-matrix-current-rating";
 import type { CompMatrixLevel } from "~/server/queries/comp-matrix-level";
+import { type ViewMode, type Phase } from "./types";
 
 interface CompetencyMatrixRowProps {
   levels: CompMatrixLevel[];
@@ -18,7 +18,7 @@ interface CompetencyMatrixRowProps {
   ratingOptions?: CompMatrixRatingOption[];
   compMatrixCurrentRating?: CompMatrixRatingsForUIMap;
   phase: Phase;
-  viewMode: "employee" | "manager";
+  viewMode: ViewMode;
   onSaveCell: (uiPayload: CompMatrixCellSavePayloadUI) => Promise<void>;
 }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getRatingColor, type Phase } from "~/data/mock-competency-data";
+import { getRatingColor } from "~/data/mock-competency-data";
 import { Button } from "~/components/ui/button";
 import { CheckIcon } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
@@ -14,6 +14,7 @@ import type {
   CompMatrixRatingsForUI,
 } from "~/server/queries/comp-matrix-current-rating";
 import type { CompMatrixRatingOption } from "~/server/queries/comp-matrix-rating-option";
+import { type ViewMode, type Phase } from "./types";
 
 interface CompetencyMatrixCellProps {
   phase: Phase;
@@ -26,7 +27,7 @@ interface CompetencyMatrixCellProps {
   currentRating: CompMatrixRatingsForUI;
   isExpanded: boolean;
   hasDifferentRatings?: boolean;
-  viewMode?: "employee" | "manager";
+  viewMode?: ViewMode;
 }
 
 const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
