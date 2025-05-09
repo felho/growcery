@@ -43,7 +43,8 @@ const Sidebar = ({ isOpen, hasBeenToggled }: SidebarProps) => {
         <nav className="mt-4 space-y-1">
           {navItems.map((item) => {
             const isActive = item.path.endsWith("*")
-              ? pathname.startsWith(item.path.slice(0, -1))
+              ? pathname.startsWith(item.path.slice(0, -1)) &&
+                !pathname.slice(item.path.slice(0, -1).length).startsWith("-")
               : pathname === item.path;
             return (
               <Link
