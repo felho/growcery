@@ -3,7 +3,7 @@ import { createTable } from "../utils";
 import { compMatrices } from "./comp-matrices";
 
 export const compMatrixRatingOptions = createTable(
-  "comp_matrix_rating_option",
+  "comp_matrix_rating_options",
   {
     id: bigint({ mode: "number" })
       .primaryKey()

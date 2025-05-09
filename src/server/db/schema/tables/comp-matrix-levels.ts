@@ -2,7 +2,7 @@ import { bigint, varchar, integer } from "drizzle-orm/pg-core";
 import { createTable } from "../utils";
 import { compMatrices } from "./comp-matrices";
 
-export const compMatrixLevels = createTable("comp_matrix_level", {
+export const compMatrixLevels = createTable("comp_matrix_levels", {
   id: bigint({ mode: "number" }).primaryKey().generatedByDefaultAsIdentity(),
   compMatrixId: bigint({ mode: "number" })
     .notNull()
