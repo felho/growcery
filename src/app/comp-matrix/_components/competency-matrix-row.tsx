@@ -32,7 +32,6 @@ interface CompetencyMatrixRowProps {
   compMatrixCurrentRating?: CompMatrixRatingsForUIMap;
   phase: Phase;
   viewMode: "employee" | "manager";
-  onUpdateRating: (rating: CellRating) => void;
   onSaveCell: (uiPayload: CompMatrixCellSavePayloadUI) => Promise<void>;
 }
 
@@ -43,7 +42,6 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
   compMatrixCurrentRating,
   phase,
   viewMode,
-  onUpdateRating,
   onSaveCell,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -89,7 +87,6 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
                 employeeNote: competency.employeeNote,
                 managerNote: competency.managerNote,
               }}
-              onUpdateRating={onUpdateRating}
               onSaveCell={onSaveCell}
               cellIndex={index}
               competencyDefinition={

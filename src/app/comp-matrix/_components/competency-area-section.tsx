@@ -28,11 +28,6 @@ interface CompetencyAreaSectionProps {
   category: CompetencyCategory;
   phase: Phase;
   viewMode: "employee" | "manager";
-  updateCompetency: (
-    categoryIndex: number,
-    itemIndex: number,
-    rating: CellRating,
-  ) => void;
   categoryIndex: number;
   onSaveCell: (uiPayload: CompMatrixCellSavePayloadUI) => Promise<void>;
 }
@@ -44,7 +39,6 @@ const CompetencyAreaSection: React.FC<CompetencyAreaSectionProps> = ({
   category,
   phase,
   viewMode,
-  updateCompetency,
   categoryIndex,
   onSaveCell,
 }) => {
@@ -74,9 +68,6 @@ const CompetencyAreaSection: React.FC<CompetencyAreaSectionProps> = ({
               compMatrixCurrentRating={compMatrixCurrentRating}
               phase={phase}
               viewMode={viewMode}
-              onUpdateRating={(rating) =>
-                updateCompetency(categoryIndex, itemIndex, rating)
-              }
               onSaveCell={onSaveCell}
             />
           );

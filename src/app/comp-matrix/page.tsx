@@ -323,7 +323,6 @@ const CompMatrixPage = () => {
         getCurrentOrgUnit={getCurrentOrgUnit}
         getCurrentFunction={getCurrentFunction}
         switchPhase={switchPhase}
-        updateCompetency={updateCompetency}
         onSaveCell={onSaveCell}
       />
     </div>

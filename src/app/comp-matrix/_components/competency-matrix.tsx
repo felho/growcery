@@ -34,11 +34,6 @@ interface CompetencyMatrixProps {
   getCurrentOrgUnit: () => any;
   getCurrentFunction: () => any;
   switchPhase: (phase: Phase) => void;
-  updateCompetency: (
-    categoryIndex: number,
-    itemIndex: number,
-    rating: any,
-  ) => void;
   onSaveCell: (uiPayload: CompMatrixCellSavePayloadUI) => Promise<void>;
 }
 
@@ -54,7 +49,6 @@ export const CompetencyMatrix = ({
   getCurrentOrgUnit,
   getCurrentFunction,
   switchPhase,
-  updateCompetency,
   onSaveCell,
 }: CompetencyMatrixProps) => {
   return (
@@ -109,7 +103,6 @@ export const CompetencyMatrix = ({
                   category={category}
                   phase={phase}
                   viewMode={viewMode}
-                  updateCompetency={updateCompetency}
                   categoryIndex={competencyData.competencies.indexOf(category)}
                   onSaveCell={onSaveCell}
                 />

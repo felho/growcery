@@ -23,7 +23,6 @@ import type { CompMatrixRatingOption } from "~/server/queries/comp-matrix-rating
 interface CompetencyMatrixCellProps {
   phase: Phase;
   isActive: boolean;
-  onUpdateRating: (rating: CompMatrixRatingsForUI) => Promise<void>;
   onSaveCell: (payload: CompMatrixCellSavePayloadUI) => Promise<void>;
   cellIndex: number;
   competencyDefinition?: string;
@@ -37,7 +36,6 @@ interface CompetencyMatrixCellProps {
 
 const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
   phase,
-  onUpdateRating,
   onSaveCell,
   cellIndex,
   competencyDefinition,
