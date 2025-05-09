@@ -1,6 +1,4 @@
 import { db } from "~/server/db";
-import { compMatrices } from "~/server/db/schema";
-import { eq } from "drizzle-orm";
 import type { CompMatrixWithFullRelations } from "./index";
 
 export async function getCompMatrixById(
@@ -10,6 +8,7 @@ export async function getCompMatrixById(
     where: (m, { eq }) => eq(m.id, matrixId),
     with: {
       areas: {
+        orderBy: (areas, { asc }) => [asc(areas.sortOrder)],
         with: {
           competencies: {
             with: {

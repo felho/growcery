@@ -1,4 +1,4 @@
-import { bigint, varchar } from "drizzle-orm/pg-core";
+import { bigint, varchar, integer } from "drizzle-orm/pg-core";
 import { createTable } from "../utils";
 import { compMatrices } from "./comp-matrices";
 
@@ -9,4 +9,5 @@ export const compMatrixAreas = createTable("comp_matrix_area", {
   compMatrixId: bigint({ mode: "number" })
     .notNull()
     .references(() => compMatrices.id),
+  sortOrder: integer("sort_order").notNull().default(0),
 });
