@@ -45,7 +45,6 @@ export interface CompetencyMatrix {
   levels: string[];
   ratingOptions: Rating[];
   ratingDescriptions: Record<Rating, string>;
-  ratingColors: Record<Rating, string>;
   competencies: CompetencyCategory[];
 }
 
@@ -65,19 +64,6 @@ export const ratingDescriptions: Record<Rating, string> = {
   Novice: "Basic understanding but needs guidance",
   Intermediate: "Can work independently with occasional guidance",
   Proficient: "Deep understanding and can mentor others",
-};
-
-// Exportable rating colors
-export const ratingColors: Record<Rating, string> = {
-  Inexperienced: "bg-destructive/60",
-  Novice: "bg-blue-300/80",
-  Intermediate: "bg-blue-600/80",
-  Proficient: "bg-primary/80",
-};
-
-// Helper function to get color for rating in heatmap view
-export const getRatingColor = (rating: string): string => {
-  return ratingColors[rating as Rating] || "bg-muted";
 };
 
 // Mock functions (departments) data
@@ -225,12 +211,6 @@ export const mockCompetencyData: CompetencyMatrix = {
     Novice: "Basic understanding but needs guidance",
     Intermediate: "Can work independently with occasional guidance",
     Proficient: "Deep understanding and can mentor others",
-  },
-  ratingColors: {
-    Inexperienced: "bg-destructive/60",
-    Novice: "bg-blue-300/80",
-    Intermediate: "bg-blue-600/80",
-    Proficient: "bg-primary/80",
   },
   competencies: [
     {

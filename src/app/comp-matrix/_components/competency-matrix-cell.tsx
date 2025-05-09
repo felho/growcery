@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getRatingColor } from "~/data/mock-competency-data";
 import { Button } from "~/components/ui/button";
 import { CheckIcon } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
@@ -150,13 +149,25 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
     localRating.selfRatingId &&
     localRating.managerRatingId !== localRating.selfRatingId;
 
-  // Only use background colors for the calibration phase
+  const ratingId =
+    viewMode === "manager"
+      ? localRating.managerRatingId
+      : localRating.selfRatingId;
+  const ratingOption = ratingOptions.find((option) => option.id === ratingId);
+
+  const isCalibration = phase === "calibration";
   const cellBackground =
-    phase === "calibration"
-      ? getRatingColor(currentRatingTitle || "Inexperienced")
-      : isRated
+    isCalibration && !ratingOption?.color
+      ? "bg-muted"
+      : !isCalibration && isRated
         ? "bg-card hover:bg-muted/30"
-        : "bg-[#FFDEE2] hover:bg-red-100/70";
+        : !isCalibration && !isRated
+          ? "bg-[#FFDEE2] hover:bg-red-100/70"
+          : undefined;
+  const inlineBackground =
+    isCalibration && ratingOption?.color
+      ? { backgroundColor: ratingOption.color }
+      : undefined;
 
   return (
     <div className="border-border flex-1 border-r last:border-r-0">
@@ -177,6 +188,7 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
               isRated={isRated}
               phase={phase}
               cellBackground={cellBackground}
+              inlineBackground={inlineBackground}
               cellIndex={cellIndex}
               ratingOptions={ratingOptions}
               onRatingChange={handleRatingChange}

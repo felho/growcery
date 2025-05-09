@@ -1,4 +1,5 @@
 import React from "react";
+import type { CSSProperties } from "react";
 import {
   Popover,
   PopoverContent,
@@ -9,7 +10,6 @@ import { CheckIcon, AlertCircle } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import { Textarea } from "~/components/ui/textarea";
 import { Badge } from "~/components/ui/badge";
-import { type Rating } from "~/data/mock-competency-data";
 import type { CompMatrixRatingOption } from "~/server/queries/comp-matrix-rating-option";
 
 interface DefaultPopoverProps {
@@ -18,10 +18,11 @@ interface DefaultPopoverProps {
   competencyDefinition?: string;
   isRated: boolean;
   phase: string;
-  cellBackground: string;
+  cellBackground: string | undefined;
+  inlineBackground: CSSProperties | undefined;
   cellIndex: number;
   ratingOptions: CompMatrixRatingOption[];
-  onRatingChange: (rating: Rating) => void;
+  onRatingChange: (rating: string) => void;
   onNoteChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   onSave: () => void;
 }
@@ -33,6 +34,7 @@ const DefaultPopover: React.FC<DefaultPopoverProps> = ({
   isRated,
   phase,
   cellBackground,
+  inlineBackground,
   cellIndex,
   ratingOptions,
   onRatingChange,
@@ -43,7 +45,8 @@ const DefaultPopover: React.FC<DefaultPopoverProps> = ({
     <Popover>
       <PopoverTrigger asChild>
         <div
-          className={`border-border flex h-12 flex-1 cursor-pointer items-center justify-center border-r transition-colors last:border-r-0 ${cellBackground} relative`}
+          className={`border-border flex h-12 flex-1 cursor-pointer items-center justify-center border-r transition-colors last:border-r-0 ${cellBackground ?? ""} relative`}
+          {...(inlineBackground && { style: inlineBackground })}
         >
           {phase !== "calibration" && (
             <>

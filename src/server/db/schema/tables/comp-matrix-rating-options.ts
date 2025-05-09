@@ -17,5 +17,6 @@ export const compMatrixRatingOptions = createTable(
     definition: varchar({ length: 500 }).notNull(),
     calculationWeight: smallint().notNull(),
     sortOrder: smallint().notNull(),
+    color: varchar({ length: 10 }).notNull(),
   },
 );
