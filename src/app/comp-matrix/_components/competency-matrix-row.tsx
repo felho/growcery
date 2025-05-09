@@ -1,13 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  type CompetencyItem,
-  type Rating,
-  getRatingColor,
-  experienceLevels,
-  type Phase,
-} from "~/data/mock-competency-data";
+import { experienceLevels, type Phase } from "~/data/mock-competency-data";
 import CompetencyMatrixCell from "./competency-matrix-cell";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import type { CompMatrixCompetencyWithDefinitions } from "~/server/queries/comp-matrix-competency";
@@ -17,17 +11,9 @@ import type {
   CompMatrixRatingsForUIMap,
 } from "~/server/queries/comp-matrix-current-rating";
 
-interface CellRating {
-  employeeRating?: Rating;
-  managerRating?: Rating;
-  employeeNote?: string;
-  managerNote?: string;
-}
-
 interface CompetencyMatrixRowProps {
   competencyName: string;
-  competency: CompetencyItem;
-  dbCompetency: CompMatrixCompetencyWithDefinitions;
+  competency: CompMatrixCompetencyWithDefinitions;
   ratingOptions?: CompMatrixRatingOption[];
   compMatrixCurrentRating?: CompMatrixRatingsForUIMap;
   phase: Phase;
@@ -37,7 +23,6 @@ interface CompetencyMatrixRowProps {
 
 const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
   competency,
-  dbCompetency,
   ratingOptions,
   compMatrixCurrentRating,
   phase,
@@ -66,9 +51,9 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
             )}
             <span
               className="truncate text-sm whitespace-nowrap"
-              title={dbCompetency?.title}
+              title={competency?.title}
             >
-              {dbCompetency?.title}
+              {competency?.title}
             </span>
           </div>
         </div>
@@ -81,25 +66,27 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
               key={index}
               phase={phase}
               isActive={false}
-              rating={{
-                employeeRating: competency.employeeRating,
-                managerRating: competency.managerRating,
-                employeeNote: competency.employeeNote,
-                managerNote: competency.managerNote,
-              }}
               onSaveCell={onSaveCell}
               cellIndex={index}
               competencyDefinition={
-                dbCompetency?.definitions[index]?.definition || ""
+                competency?.definitions[index]?.definition || ""
               }
-              definitionId={dbCompetency?.definitions[index]?.id || 0}
+              definitionId={competency?.definitions[index]?.id || 0}
               isExpanded={isExpanded}
               viewMode={viewMode}
-              ratingOptions={ratingOptions}
+              ratingOptions={ratingOptions ?? []}
               currentRating={
                 compMatrixCurrentRating?.[
-                  dbCompetency?.definitions[index]?.id || 0
-                ]
+                  competency?.definitions[index]?.id || 0
+                ] ?? {
+                  selfRatingId: undefined,
+                  selfComment: null,
+                  selfRatingUpdatedAt: new Date(),
+                  managerId: null,
+                  managerRatingId: undefined,
+                  managerComment: null,
+                  managerRatingUpdatedAt: new Date(),
+                }
               }
             />
           ))}

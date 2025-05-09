@@ -3,7 +3,6 @@
 import React from "react";
 import {
   type CompetencyCategory,
-  type Rating,
   type Phase,
 } from "~/data/mock-competency-data";
 import CompetencyMatrixRow from "./competency-matrix-row";
@@ -14,12 +13,6 @@ import type {
   CompMatrixRatingsForUIMap,
 } from "~/server/queries/comp-matrix-current-rating";
 import type { CompMatrixCompetencyWithDefinitions } from "~/server/queries/comp-matrix-competency";
-interface CellRating {
-  employeeRating?: Rating;
-  managerRating?: Rating;
-  employeeNote?: string;
-  managerNote?: string;
-}
 
 interface CompetencyAreaSectionProps {
   area: CompMatrixAreaWithFullRelations;
@@ -39,7 +32,6 @@ const CompetencyAreaSection: React.FC<CompetencyAreaSectionProps> = ({
   category,
   phase,
   viewMode,
-  categoryIndex,
   onSaveCell,
 }) => {
   return (
@@ -54,7 +46,7 @@ const CompetencyAreaSection: React.FC<CompetencyAreaSectionProps> = ({
       </div>
       <div className="border-border border-r border-l">
         {category.items.map((item, itemIndex) => {
-          const dbCompetency = area.competencies.find(
+          const competency = area.competencies.find(
             (c) => c.title === item.name,
           );
 
@@ -62,8 +54,7 @@ const CompetencyAreaSection: React.FC<CompetencyAreaSectionProps> = ({
             <CompetencyMatrixRow
               key={`${category.id}-${item.id}`}
               competencyName={item.name}
-              competency={item}
-              dbCompetency={dbCompetency as CompMatrixCompetencyWithDefinitions}
+              competency={competency as CompMatrixCompetencyWithDefinitions}
               ratingOptions={ratingOptions}
               compMatrixCurrentRating={compMatrixCurrentRating}
               phase={phase}
