@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { experienceLevels, type Phase } from "~/data/mock-competency-data";
+import { type Phase } from "~/data/mock-competency-data";
 import CompetencyMatrixCell from "./competency-matrix-cell";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import type { CompMatrixCompetencyWithDefinitions } from "~/server/queries/comp-matrix-competency";
@@ -10,9 +10,10 @@ import type {
   CompMatrixCellSavePayloadUI,
   CompMatrixRatingsForUIMap,
 } from "~/server/queries/comp-matrix-current-rating";
+import type { CompMatrixLevel } from "~/server/queries/comp-matrix-level";
 
 interface CompetencyMatrixRowProps {
-  competencyName: string;
+  levels: CompMatrixLevel[];
   competency: CompMatrixCompetencyWithDefinitions;
   ratingOptions?: CompMatrixRatingOption[];
   compMatrixCurrentRating?: CompMatrixRatingsForUIMap;
@@ -22,6 +23,7 @@ interface CompetencyMatrixRowProps {
 }
 
 const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
+  levels,
   competency,
   ratingOptions,
   compMatrixCurrentRating,
@@ -61,7 +63,7 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
         <div
           className={`flex flex-1 ${isExpanded ? "border-b-0" : "border-b"} border-border`}
         >
-          {experienceLevels.map((level, index) => (
+          {levels.map((level, index) => (
             <CompetencyMatrixCell
               key={index}
               phase={phase}

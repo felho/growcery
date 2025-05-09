@@ -97,6 +97,7 @@ export const CompetencyMatrix = ({
               return (
                 <CompetencyAreaSection
                   key={area.id}
+                  levels={compMatrix?.levels ?? []}
                   area={area}
                   ratingOptions={ratingOptions}
                   compMatrixCurrentRating={compMatrixCurrentRating}

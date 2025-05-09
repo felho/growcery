@@ -13,8 +13,9 @@ import type {
   CompMatrixRatingsForUIMap,
 } from "~/server/queries/comp-matrix-current-rating";
 import type { CompMatrixCompetencyWithDefinitions } from "~/server/queries/comp-matrix-competency";
-
+import type { CompMatrixLevel } from "~/server/queries/comp-matrix-level";
 interface CompetencyAreaSectionProps {
+  levels: CompMatrixLevel[];
   area: CompMatrixAreaWithFullRelations;
   ratingOptions?: CompMatrixRatingOption[];
   compMatrixCurrentRating?: CompMatrixRatingsForUIMap;
@@ -27,6 +28,7 @@ interface CompetencyAreaSectionProps {
 
 const CompetencyAreaSection: React.FC<CompetencyAreaSectionProps> = ({
   area,
+  levels,
   ratingOptions,
   compMatrixCurrentRating,
   category,
@@ -53,7 +55,7 @@ const CompetencyAreaSection: React.FC<CompetencyAreaSectionProps> = ({
           return (
             <CompetencyMatrixRow
               key={`${category.id}-${item.id}`}
-              competencyName={item.name}
+              levels={levels}
               competency={competency as CompMatrixCompetencyWithDefinitions}
               ratingOptions={ratingOptions}
               compMatrixCurrentRating={compMatrixCurrentRating}
