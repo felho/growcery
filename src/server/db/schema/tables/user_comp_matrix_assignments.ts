@@ -1,8 +1,8 @@
-import { bigint, timestamp, boolean } from "drizzle-orm/pg-core";
+import { bigint, timestamp, boolean, uniqueIndex } from "drizzle-orm/pg-core";
 import { createTable } from "../utils";
 import { users } from "./users";
 import { compMatrices } from "./comp-matrices";
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 export const userCompMatrixAssignments = createTable(
   "user_comp_matrix_assignments",
@@ -22,11 +22,9 @@ export const userCompMatrixAssignments = createTable(
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
   },
-  (table) => ({
-    uniqueActiveMatrixPerUser: sql`
-      CREATE UNIQUE INDEX unique_active_matrix_per_user 
-      ON user_comp_matrix_assignments (reviewee_id) 
-      WHERE is_active = true
-    `,
-  }),
+  (table) => [
+    uniqueIndex("unique_active_matrix_per_user")
+      .on(table.revieweeId)
+      .where(sql`"isActive" = true`),
+  ],
 );
