@@ -4,16 +4,7 @@ import React, { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
-import {
-  Plus,
-  X,
-  ChevronDown,
-  ChevronUp,
-  Check,
-  Edit,
-  GripVertical,
-} from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Plus, Check } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -22,19 +13,15 @@ import {
   DialogTitle,
   DialogFooter,
 } from "~/components/ui/dialog";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "~/components/ui/collapsible";
 import { Label } from "~/components/ui/label";
 import { Checkbox } from "~/components/ui/checkbox";
 import { v4 as uuidv4 } from "uuid";
-import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import { DragDropContext } from "react-beautiful-dnd";
 import type {
   CompetencyCategory,
   CompetencyItem,
 } from "~/data/mock-competency-data";
+import CompetencyArea from "./competency-area";
 
 interface CompetencyAreaEditorProps {
   competencies: CompetencyCategory[];
@@ -133,7 +120,7 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
     };
 
     const updatedCategories = [...competencies];
-    const category = updatedCategories[categoryIndex]!; // biztosan létezik
+    const category = updatedCategories[categoryIndex]!;
 
     const updatedItems = competency
       ? category.items.map((item) =>
@@ -232,135 +219,19 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
             </p>
           ) : (
             competencies.map((category) => (
-              <Collapsible
+              <CompetencyArea
                 key={category.id}
-                open={openAreaId === category.id}
-                onOpenChange={() =>
-                  setOpenAreaId(openAreaId === category.id ? null : category.id)
+                category={category}
+                onUpdateName={handleUpdateCategoryName}
+                onRemove={handleRemoveCategory}
+                onAddCompetency={openCompetencyDialog}
+                onEditCompetency={openCompetencyDialog}
+                onRemoveCompetency={handleRemoveCompetency}
+                isOpen={openAreaId === category.id}
+                onOpenChange={(open) =>
+                  setOpenAreaId(open ? category.id : null)
                 }
-                className="rounded-md border"
-              >
-                <div className="bg-muted/50 flex items-center justify-between p-4">
-                  <div className="flex items-center gap-2">
-                    <GripVertical className="text-muted-foreground h-5 w-5" />
-                    <Input
-                      value={category.category}
-                      onChange={(e) =>
-                        handleUpdateCategoryName(category.id, e.target.value)
-                      }
-                      className="h-auto border-none bg-transparent p-0 focus-visible:ring-0"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CollapsibleTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        {openAreaId === category.id ? (
-                          <ChevronUp className="h-4 w-4" />
-                        ) : (
-                          <ChevronDown className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </CollapsibleTrigger>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => handleRemoveCategory(category.id)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-
-                <CollapsibleContent className="space-y-4 border-t p-4">
-                  <div className="space-y-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => openCompetencyDialog(category.id)}
-                      className="w-full"
-                    >
-                      <Plus className="mr-2 h-4 w-4" /> Add Competency
-                    </Button>
-                  </div>
-
-                  {category.items.length === 0 ? (
-                    <p className="text-muted-foreground py-2 text-center">
-                      No competencies in this area yet.
-                    </p>
-                  ) : (
-                    <Droppable droppableId={category.id} type="competency">
-                      {(provided: any) => (
-                        <div
-                          className="space-y-2"
-                          ref={provided.innerRef}
-                          {...provided.droppableProps}
-                        >
-                          {category.items.map((item, index) => (
-                            <Draggable
-                              key={item.id}
-                              draggableId={item.id}
-                              index={index}
-                            >
-                              {(provided: any, snapshot: any) => (
-                                <div
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  className={`${snapshot.isDragging ? "opacity-70" : ""}`}
-                                >
-                                  <Card className="border-border">
-                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 px-4 py-3">
-                                      <div className="flex items-center gap-2">
-                                        <div {...provided.dragHandleProps}>
-                                          <GripVertical className="text-muted-foreground h-4 w-4 cursor-grab" />
-                                        </div>
-                                        <CardTitle className="text-base">
-                                          {item.name}
-                                        </CardTitle>
-                                      </div>
-                                      <div className="flex items-center gap-2">
-                                        <Button
-                                          size="sm"
-                                          variant="ghost"
-                                          onClick={() =>
-                                            openCompetencyDialog(
-                                              category.id,
-                                              item,
-                                            )
-                                          }
-                                        >
-                                          <Edit className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                          size="sm"
-                                          variant="destructive"
-                                          onClick={() =>
-                                            handleRemoveCompetency(
-                                              category.id,
-                                              item.id,
-                                            )
-                                          }
-                                        >
-                                          <X className="h-4 w-4" />
-                                        </Button>
-                                      </div>
-                                    </CardHeader>
-                                    <CardContent className="px-4 py-2">
-                                      <p className="text-muted-foreground text-sm">
-                                        {item.definition ||
-                                          "No definition provided"}
-                                      </p>
-                                    </CardContent>
-                                  </Card>
-                                </div>
-                              )}
-                            </Draggable>
-                          ))}
-                          {provided.placeholder}
-                        </div>
-                      )}
-                    </Droppable>
-                  )}
-                </CollapsibleContent>
-              </Collapsible>
+              />
             ))
           )}
         </div>
