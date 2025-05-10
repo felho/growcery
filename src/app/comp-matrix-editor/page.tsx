@@ -12,24 +12,6 @@ import {
 } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "~/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
-import { Switch } from "~/components/ui/switch";
-import {
   Table,
   TableBody,
   TableCell,
@@ -37,17 +19,17 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { Plus, Edit, FileText } from "lucide-react";
+import { Plus, Edit } from "lucide-react";
 import useSWR from "swr";
 import { fetchCompMatrices } from "~/lib/client-api/comp-matrix";
 import { fetchFunctions } from "~/lib/client-api/functions";
 import type { CompMatrix } from "~/server/queries/comp-matrix";
 import type { Function } from "~/server/queries/function";
+import { CreateMatrixDialog } from "./_components/create-matrix-dialog";
 
 const CompetencyMatrixList = () => {
   const router = useRouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  // TODO: add type here
   const [newMatrix, setNewMatrix] = useState({
     name: "",
     functionId: "",
@@ -90,7 +72,10 @@ const CompetencyMatrixList = () => {
     <div className="container mx-auto space-y-6 py-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Competency Matrices</h1>
-        <Button onClick={() => setIsDialogOpen(true)}>
+        <Button
+          onClick={() => setIsDialogOpen(true)}
+          className="cursor-pointer"
+        >
           <Plus className="mr-2 h-4 w-4" />
           Create Matrix
         </Button>
@@ -161,70 +146,14 @@ const CompetencyMatrixList = () => {
         </CardContent>
       </Card>
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create New Competency Matrix</DialogTitle>
-            <DialogDescription>
-              Define the basic properties of your new competency matrix.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="name">Matrix Name</Label>
-              <Input
-                id="name"
-                value={newMatrix.name}
-                onChange={(e) =>
-                  setNewMatrix({ ...newMatrix, name: e.target.value })
-                }
-                placeholder="e.g., Engineering Competency Matrix"
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="function">Function</Label>
-              <Select
-                value={newMatrix.functionId}
-                onValueChange={(value) =>
-                  setNewMatrix({ ...newMatrix, functionId: value })
-                }
-              >
-                <SelectTrigger id="function">
-                  <SelectValue placeholder="Select a function" />
-                </SelectTrigger>
-                <SelectContent>
-                  {functions.map((func: Function) => (
-                    <SelectItem key={func.id} value={func.id.toString()}>
-                      {func.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex items-center gap-2">
-              <Switch
-                id="published"
-                checked={newMatrix.published}
-                onCheckedChange={(checked) =>
-                  setNewMatrix({ ...newMatrix, published: checked })
-                }
-              />
-              <Label htmlFor="published">Publish immediately</Label>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button
-              onClick={() => setIsDialogOpen(false)}
-              disabled={!newMatrix.name || !newMatrix.functionId}
-            >
-              Create Matrix
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <CreateMatrixDialog
+        isOpen={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        functions={functions}
+        newMatrix={newMatrix}
+        onMatrixChange={setNewMatrix}
+        onSubmit={() => setIsDialogOpen(false)}
+      />
     </div>
   );
 };
