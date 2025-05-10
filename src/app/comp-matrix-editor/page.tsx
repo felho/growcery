@@ -38,83 +38,53 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import { Plus, Edit, FileText } from "lucide-react";
-import { mockFunctions } from "~/data/mock-competency-data";
-
-// Interface for our matrix metadata
-interface CompetencyMatrixMeta {
-  id: string;
-  name: string;
-  functionId: string;
-  functionName: string;
-  published: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-// Mock data for matrices
-const mockMatrices: CompetencyMatrixMeta[] = [
-  {
-    id: "1",
-    name: "Software Engineering Matrix",
-    functionId: "func1",
-    functionName: "Engineering",
-    published: true,
-    createdAt: "2025-04-01",
-    updatedAt: "2025-05-01",
-  },
-  {
-    id: "2",
-    name: "Product Management Matrix",
-    functionId: "func2",
-    functionName: "Product",
-    published: false,
-    createdAt: "2025-04-10",
-    updatedAt: "2025-04-30",
-  },
-  {
-    id: "3",
-    name: "Design Matrix",
-    functionId: "func3",
-    functionName: "Design",
-    published: true,
-    createdAt: "2025-03-15",
-    updatedAt: "2025-04-20",
-  },
-];
+import useSWR from "swr";
+import { fetchCompMatrices } from "~/lib/client-api/comp-matrix";
+import { fetchFunctions } from "~/lib/client-api/functions";
+import type { CompMatrix } from "~/server/queries/comp-matrix";
+import type { Function } from "~/server/queries/function";
 
 const CompetencyMatrixList = () => {
   const router = useRouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [matrices, setMatrices] =
-    useState<CompetencyMatrixMeta[]>(mockMatrices);
+  // TODO: add type here
   const [newMatrix, setNewMatrix] = useState({
     name: "",
     functionId: "",
     published: false,
   });
 
-  const handleCreateMatrix = () => {
-    const id = `matrix-${Date.now()}`;
-    const functionName =
-      mockFunctions.find((f) => f.id === newMatrix.functionId)?.name || "";
+  const {
+    data: matrices = [],
+    isLoading: isLoadingMatrices,
+    error: matricesError,
+  } = useSWR("/comp-matrices", fetchCompMatrices);
 
-    const matrix: CompetencyMatrixMeta = {
-      id,
-      name: newMatrix.name,
-      functionId: newMatrix.functionId,
-      functionName,
-      published: newMatrix.published,
-      createdAt: new Date().toISOString().split("T")[0] || "",
-      updatedAt: new Date().toISOString().split("T")[0] || "",
-    };
+  const {
+    data: functions = [],
+    isLoading: isLoadingFunctions,
+    error: functionsError,
+  } = useSWR("/functions", fetchFunctions);
 
-    setMatrices([...matrices, matrix]);
-    setIsDialogOpen(false);
-    setNewMatrix({ name: "", functionId: "", published: false });
+  if (isLoadingMatrices || isLoadingFunctions) {
+    return (
+      <div className="container mx-auto space-y-6 py-6">
+        <div className="flex items-center justify-center py-8">
+          <div className="text-muted-foreground">Loading...</div>
+        </div>
+      </div>
+    );
+  }
 
-    // Navigate to the new matrix editor
-    router.push(`/comp-matrix-editor/${id}`);
-  };
+  if (matricesError || functionsError) {
+    return (
+      <div className="container mx-auto space-y-6 py-6">
+        <div className="flex items-center justify-center py-8">
+          <div className="text-destructive">Failed to load data</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto space-y-6 py-6">
@@ -145,22 +115,26 @@ const CompetencyMatrixList = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {matrices.map((matrix) => (
+              {matrices.map((matrix: CompMatrix) => (
                 <TableRow key={matrix.id}>
-                  <TableCell className="font-medium">{matrix.name}</TableCell>
-                  <TableCell>{matrix.functionName}</TableCell>
+                  <TableCell className="font-medium">{matrix.title}</TableCell>
+                  <TableCell>
+                    {functions.find((f) => f.id === matrix.functionId)?.name}
+                  </TableCell>
                   <TableCell>
                     <span
                       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        matrix.published
+                        matrix.isPublished
                           ? "bg-green-100 text-green-800"
                           : "bg-yellow-100 text-yellow-800"
                       }`}
                     >
-                      {matrix.published ? "Published" : "Draft"}
+                      {matrix.isPublished ? "Published" : "Draft"}
                     </span>
                   </TableCell>
-                  <TableCell>{matrix.updatedAt}</TableCell>
+                  <TableCell>
+                    {new Date(matrix.updatedAt).toLocaleDateString()}
+                  </TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
                       <Link href={`/comp-matrix-editor/${matrix.id}`}>
@@ -172,6 +146,16 @@ const CompetencyMatrixList = () => {
                   </TableCell>
                 </TableRow>
               ))}
+              {matrices.length === 0 && (
+                <TableRow>
+                  <TableCell
+                    colSpan={5}
+                    className="text-muted-foreground py-8 text-center"
+                  >
+                    No matrices found
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>
@@ -209,8 +193,8 @@ const CompetencyMatrixList = () => {
                   <SelectValue placeholder="Select a function" />
                 </SelectTrigger>
                 <SelectContent>
-                  {mockFunctions.map((func) => (
-                    <SelectItem key={func.id} value={func.id}>
+                  {functions.map((func: Function) => (
+                    <SelectItem key={func.id} value={func.id.toString()}>
                       {func.name}
                     </SelectItem>
                   ))}
@@ -233,7 +217,7 @@ const CompetencyMatrixList = () => {
               Cancel
             </Button>
             <Button
-              onClick={handleCreateMatrix}
+              onClick={() => setIsDialogOpen(false)}
               disabled={!newMatrix.name || !newMatrix.functionId}
             >
               Create Matrix

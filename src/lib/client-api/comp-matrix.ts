@@ -1,4 +1,7 @@
-import type { CompMatrixWithFullRelations } from "~/server/queries/comp-matrix";
+import type {
+  CompMatrix,
+  CompMatrixWithFullRelations,
+} from "~/server/queries/comp-matrix";
 
 export async function fetchCompMatrix(
   id: number,
@@ -6,4 +9,12 @@ export async function fetchCompMatrix(
   const res = await fetch(`/api/comp-matrix/${id}`);
   if (!res.ok) throw new Error("Failed to fetch comp matrix");
   return res.json();
+}
+
+export async function fetchCompMatrices(): Promise<CompMatrix[]> {
+  const response = await fetch("/api/comp-matrices");
+  if (!response.ok) {
+    throw new Error("Failed to fetch comp matrices");
+  }
+  return response.json();
 }
