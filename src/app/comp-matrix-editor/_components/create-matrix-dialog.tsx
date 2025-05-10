@@ -22,6 +22,7 @@ import type { Function } from "~/server/queries/function";
 import { createCompMatrix } from "~/lib/client-api/comp-matrix";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { mutate } from "swr";
 
 interface CreateMatrixDialogProps {
   isOpen: boolean;
@@ -62,7 +63,7 @@ export function CreateMatrixDialog({
 
       toast.success("Competency matrix created successfully");
       onOpenChange(false);
-      router.refresh();
+      await mutate("/comp-matrices");
       onSubmit();
     } catch (error) {
       console.error("Failed to create matrix:", error);
