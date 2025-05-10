@@ -123,7 +123,11 @@ const CompetencyMatrixList = () => {
                   <TableCell>
                     <div className="flex space-x-2">
                       <Link href={`/comp-matrix-editor/${matrix.id}`}>
-                        <Button variant="ghost" size="icon">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="cursor-pointer"
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
                       </Link>
