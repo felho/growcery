@@ -9,7 +9,22 @@ import {
   CollapsibleTrigger,
 } from "~/components/ui/collapsible";
 import { ChevronDown, ChevronUp, GripVertical, Plus, X } from "lucide-react";
-import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  sortableKeyboardCoordinates,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import CompetencyItem from "./competency-item";
 import type {
   CompetencyCategory,
@@ -26,6 +41,7 @@ interface CompetencyAreaProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   dragHandleProps: any;
+  onReorderItems: (categoryId: string, items: CompetencyItemType[]) => void;
 }
 
 const CompetencyArea: React.FC<CompetencyAreaProps> = ({
@@ -38,7 +54,32 @@ const CompetencyArea: React.FC<CompetencyAreaProps> = ({
   isOpen,
   onOpenChange,
   dragHandleProps,
+  onReorderItems,
 }) => {
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = category.items.findIndex((item) => item.id === active.id);
+    const newIndex = category.items.findIndex((item) => item.id === over.id);
+
+    if (oldIndex !== -1 && newIndex !== -1) {
+      const updatedItems = [...category.items];
+      const [moved] = updatedItems.splice(oldIndex, 1);
+      if (moved) {
+        updatedItems.splice(newIndex, 0, moved);
+        onReorderItems(category.id, updatedItems);
+      }
+    }
+  };
+
   return (
     <Collapsible
       open={isOpen}
@@ -47,7 +88,9 @@ const CompetencyArea: React.FC<CompetencyAreaProps> = ({
     >
       <div className="bg-muted/50 flex items-center justify-between p-4">
         <div className="flex items-center gap-2">
-          <GripVertical className="text-muted-foreground h-5 w-5" />
+          <div {...dragHandleProps}>
+            <GripVertical className="text-muted-foreground h-5 w-5" />
+          </div>
           <Input
             value={category.category}
             onChange={(e) => onUpdateName(category.id, e.target.value)}
@@ -90,39 +133,66 @@ const CompetencyArea: React.FC<CompetencyAreaProps> = ({
             No competencies in this area yet.
           </p>
         ) : (
-          <Droppable droppableId={category.id} type="competency">
-            {(provided: any) => (
-              <div
-                className="space-y-2"
-                ref={provided.innerRef}
-                {...provided.droppableProps}
-              >
-                {category.items.map((item, index) => (
-                  <Draggable key={item.id} draggableId={item.id} index={index}>
-                    {(provided: any, snapshot: any) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        className={`${snapshot.isDragging ? "opacity-70" : ""}`}
-                      >
-                        <CompetencyItem
-                          item={item}
-                          categoryId={category.id}
-                          onEdit={onEditCompetency}
-                          onRemove={onRemoveCompetency}
-                          dragHandleProps={provided.dragHandleProps}
-                        />
-                      </div>
-                    )}
-                  </Draggable>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={category.items.map((item) => item.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="space-y-2">
+                {category.items.map((item) => (
+                  <SortableCompetencyItem
+                    key={item.id}
+                    item={item}
+                    categoryId={category.id}
+                    onEdit={onEditCompetency}
+                    onRemove={onRemoveCompetency}
+                  />
                 ))}
-                {provided.placeholder}
               </div>
-            )}
-          </Droppable>
+            </SortableContext>
+          </DndContext>
         )}
       </CollapsibleContent>
     </Collapsible>
+  );
+};
+
+interface SortableCompetencyItemProps {
+  item: CompetencyItemType;
+  categoryId: string;
+  onEdit: (areaId: string, competency: CompetencyItemType) => void;
+  onRemove: (areaId: string, competencyId: string) => void;
+}
+
+const SortableCompetencyItem: React.FC<SortableCompetencyItemProps> = (
+  props,
+) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: props.item.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <CompetencyItem
+        {...props}
+        dragHandleProps={{ ...attributes, ...listeners }}
+      />
+    </div>
   );
 };
 

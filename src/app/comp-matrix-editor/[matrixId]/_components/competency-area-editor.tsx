@@ -16,7 +16,23 @@ import {
 import { Label } from "~/components/ui/label";
 import { Checkbox } from "~/components/ui/checkbox";
 import { v4 as uuidv4 } from "uuid";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import type { DragEndEvent } from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import type {
   CompetencyCategory,
   CompetencyItem,
@@ -48,6 +64,28 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
     levelDefinitions: {} as Record<string, string>,
     skipLevels: [] as string[],
   });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) {
+      return;
+    }
+
+    const oldIndex = competencies.findIndex((c) => c.id === active.id);
+    const newIndex = competencies.findIndex((c) => c.id === over.id);
+
+    if (oldIndex !== -1 && newIndex !== -1) {
+      onChange(arrayMove(competencies, oldIndex, newIndex));
+    }
+  };
 
   const handleAddCategory = () => {
     if (!newCategoryName.trim()) return;
@@ -158,45 +196,12 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
     setCompetencyForm({ ...competencyForm, skipLevels });
   };
 
-  const handleDragEnd = (result: any) => {
-    const { source, destination, type } = result;
-    if (!destination) return;
-
-    if (
-      source.index === destination.index &&
-      source.droppableId === destination.droppableId
-    ) {
-      return;
-    }
-
-    if (type === "area") {
-      const updated = Array.from(competencies);
-      const [moved] = updated.splice(source.index, 1);
-      if (!moved) return;
-      updated.splice(destination.index, 0, moved);
-      onChange(updated);
-      return;
-    }
-
-    const areaId = source.droppableId;
-    const categoryIndex = competencies.findIndex((c) => c.id === areaId);
-    if (categoryIndex === -1) return;
-
-    const updatedCategories = [...competencies];
-    const category = updatedCategories[categoryIndex]!;
-    const updatedItems = [...category.items];
-
-    const [moved] = updatedItems.splice(source.index, 1);
-    if (!moved) return;
-
-    updatedItems.splice(destination.index, 0, moved);
-
-    updatedCategories[categoryIndex] = {
-      ...category,
-      items: updatedItems,
-    };
-
-    onChange(updatedCategories);
+  const handleReorderItems = (categoryId: string, items: CompetencyItem[]) => {
+    onChange(
+      competencies.map((category) =>
+        category.id === categoryId ? { ...category, items } : category,
+      ),
+    );
   };
 
   return (
@@ -220,54 +225,41 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
         </Button>
       </div>
 
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable droppableId="areas" type="area">
-          {(provided: any) => (
-            <div
-              className="space-y-4"
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-            >
-              {competencies.length === 0 ? (
-                <p className="text-muted-foreground py-4 text-center">
-                  No competency areas defined yet. Add your first area above.
-                </p>
-              ) : (
-                competencies.map((category, index) => (
-                  <Draggable
-                    draggableId={category.id}
-                    index={index}
-                    key={category.id}
-                  >
-                    {(provided: any, snapshot: any) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        className={snapshot.isDragging ? "opacity-70" : ""}
-                      >
-                        <CompetencyArea
-                          category={category}
-                          onUpdateName={handleUpdateCategoryName}
-                          onRemove={handleRemoveCategory}
-                          onAddCompetency={openCompetencyDialog}
-                          onEditCompetency={openCompetencyDialog}
-                          onRemoveCompetency={handleRemoveCompetency}
-                          isOpen={openAreaId === category.id}
-                          onOpenChange={(open) =>
-                            setOpenAreaId(open ? category.id : null)
-                          }
-                          dragHandleProps={provided.dragHandleProps}
-                        />
-                      </div>
-                    )}
-                  </Draggable>
-                ))
-              )}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext
+          items={competencies.map((c) => c.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          <div className="space-y-4">
+            {competencies.length === 0 ? (
+              <p className="text-muted-foreground py-4 text-center">
+                No competency areas defined yet. Add your first area above.
+              </p>
+            ) : (
+              competencies.map((category) => (
+                <SortableCompetencyArea
+                  key={category.id}
+                  category={category}
+                  onUpdateName={handleUpdateCategoryName}
+                  onRemove={handleRemoveCategory}
+                  onAddCompetency={openCompetencyDialog}
+                  onEditCompetency={openCompetencyDialog}
+                  onRemoveCompetency={handleRemoveCompetency}
+                  isOpen={openAreaId === category.id}
+                  onOpenChange={(open) =>
+                    setOpenAreaId(open ? category.id : null)
+                  }
+                  onReorderItems={handleReorderItems}
+                />
+              ))
+            )}
+          </div>
+        </SortableContext>
+      </DndContext>
 
       {/* Dialog for adding/editing competencies */}
       <Dialog open={isAddingCompetency} onOpenChange={setIsAddingCompetency}>
@@ -390,6 +382,46 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+};
+
+interface SortableCompetencyAreaProps {
+  category: CompetencyCategory;
+  onUpdateName: (id: string, name: string) => void;
+  onRemove: (id: string) => void;
+  onAddCompetency: (areaId: string) => void;
+  onEditCompetency: (areaId: string, competency: CompetencyItem) => void;
+  onRemoveCompetency: (areaId: string, competencyId: string) => void;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  onReorderItems: (categoryId: string, items: CompetencyItem[]) => void;
+}
+
+const SortableCompetencyArea: React.FC<SortableCompetencyAreaProps> = (
+  props,
+) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: props.category.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <CompetencyArea
+        {...props}
+        dragHandleProps={{ ...attributes, ...listeners }}
+      />
     </div>
   );
 };

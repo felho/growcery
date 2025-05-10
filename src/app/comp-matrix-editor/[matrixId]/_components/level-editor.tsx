@@ -14,7 +14,22 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { Card, CardContent } from "~/components/ui/card";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import {
   Collapsible,
   CollapsibleContent,
@@ -28,6 +43,7 @@ import {
   FormControl,
 } from "~/components/ui/form";
 import { useForm } from "react-hook-form";
+import type { DragEndEvent as DragEndEventCore } from "@dnd-kit/core";
 
 interface LevelMetadata {
   title: string;
@@ -80,6 +96,30 @@ export const LevelEditor = ({ levels, onChange }: LevelEditorProps) => {
         metadata: { title: "", description: "", persona: "", areaOfImpact: "" },
       }));
 
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = levelsWithMetadata.findIndex((l) => l.name === active.id);
+    const newIndex = levelsWithMetadata.findIndex((l) => l.name === over.id);
+
+    if (oldIndex !== -1 && newIndex !== -1) {
+      const updatedLevels = [...levelsWithMetadata];
+      const [moved] = updatedLevels.splice(oldIndex, 1);
+      if (moved) {
+        updatedLevels.splice(newIndex, 0, moved);
+        onChange(updatedLevels);
+      }
+    }
+  };
+
   const handleAddLevel = (data: NewLevelFormValues) => {
     if (!data.name.trim()) return;
 
@@ -127,15 +167,6 @@ export const LevelEditor = ({ levels, onChange }: LevelEditorProps) => {
       updatedLevels[index],
     ];
 
-    onChange(updatedLevels);
-  };
-
-  const handleDragEnd = (result: any) => {
-    if (!result.destination) return;
-    const updatedLevels = [...levelsWithMetadata];
-    const [movedItem] = updatedLevels.splice(result.source.index, 1);
-    if (!movedItem) return;
-    updatedLevels.splice(result.destination.index, 0, movedItem);
     onChange(updatedLevels);
   };
 
@@ -300,170 +331,193 @@ export const LevelEditor = ({ levels, onChange }: LevelEditorProps) => {
         </CollapsibleContent>
       </Collapsible>
 
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable droppableId="levels">
-          {(provided: any) => (
-            <div
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-              className="space-y-2"
-            >
-              {levelsWithMetadata.length === 0 ? (
-                <p className="text-muted-foreground py-4 text-center">
-                  No levels defined yet. Add your first level above.
-                </p>
-              ) : (
-                levelsWithMetadata.map((level, index) => (
-                  <Draggable
-                    key={level.name + index}
-                    draggableId={level.name + index}
-                    index={index}
-                  >
-                    {(provided: any) => (
-                      <Card
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        className="border-border border"
-                      >
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <div
-                                {...provided.dragHandleProps}
-                                className="cursor-grab"
-                              >
-                                <GripVertical className="text-muted-foreground h-5 w-5" />
-                              </div>
-                              <span>{level.name}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => {
-                                  setInsertPosition(index);
-                                  setShowNewLevelForm(true);
-                                  form.reset();
-                                }}
-                              >
-                                Insert Before
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handleMoveLevel(index, "up")}
-                                disabled={index === 0}
-                              >
-                                <ArrowUp className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handleMoveLevel(index, "down")}
-                                disabled={
-                                  index === levelsWithMetadata.length - 1
-                                }
-                              >
-                                <ArrowDown className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => toggleExpand(index)}
-                              >
-                                {expandedLevels[index] ? (
-                                  <ChevronUp className="h-4 w-4" />
-                                ) : (
-                                  <ChevronDown className="h-4 w-4" />
-                                )}
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={() => handleRemoveLevel(index)}
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                          {expandedLevels[index] && (
-                            <div className="mt-4 space-y-4">
-                              <div>
-                                <label className="mb-1 block text-sm font-medium">
-                                  Title
-                                </label>
-                                <Input
-                                  value={level.metadata.title}
-                                  onChange={(e) =>
-                                    updateMetadata(
-                                      index,
-                                      "title",
-                                      e.target.value,
-                                    )
-                                  }
-                                />
-                              </div>
-                              <div>
-                                <label className="mb-1 block text-sm font-medium">
-                                  Description
-                                </label>
-                                <Textarea
-                                  value={level.metadata.description}
-                                  onChange={(e) =>
-                                    updateMetadata(
-                                      index,
-                                      "description",
-                                      e.target.value,
-                                    )
-                                  }
-                                  rows={3}
-                                />
-                              </div>
-                              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                <div>
-                                  <label className="mb-1 block text-sm font-medium">
-                                    Persona
-                                  </label>
-                                  <Input
-                                    value={level.metadata.persona}
-                                    onChange={(e) =>
-                                      updateMetadata(
-                                        index,
-                                        "persona",
-                                        e.target.value,
-                                      )
-                                    }
-                                  />
-                                </div>
-                                <div>
-                                  <label className="mb-1 block text-sm font-medium">
-                                    Area of Impact
-                                  </label>
-                                  <Input
-                                    value={level.metadata.areaOfImpact}
-                                    onChange={(e) =>
-                                      updateMetadata(
-                                        index,
-                                        "areaOfImpact",
-                                        e.target.value,
-                                      )
-                                    }
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    )}
-                  </Draggable>
-                ))
-              )}
-              {provided.placeholder}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext
+          items={levelsWithMetadata.map((l) => l.name)}
+          strategy={verticalListSortingStrategy}
+        >
+          <div className="space-y-2">
+            {levelsWithMetadata.length === 0 ? (
+              <p className="text-muted-foreground py-4 text-center">
+                No levels defined yet. Add your first level above.
+              </p>
+            ) : (
+              levelsWithMetadata.map((level, index) => (
+                <SortableLevelCard
+                  key={level.name}
+                  level={level}
+                  index={index}
+                  onRemove={handleRemoveLevel}
+                  onMove={handleMoveLevel}
+                  onToggleExpand={toggleExpand}
+                  onUpdateMetadata={updateMetadata}
+                  isExpanded={expandedLevels[index] ?? false}
+                  onInsertBefore={() => {
+                    setInsertPosition(index);
+                    setShowNewLevelForm(true);
+                    form.reset();
+                  }}
+                  levelsLength={levelsWithMetadata.length}
+                />
+              ))
+            )}
+          </div>
+        </SortableContext>
+      </DndContext>
+    </div>
+  );
+};
+
+interface SortableLevelCardProps {
+  level: LevelData;
+  index: number;
+  onRemove: (index: number) => void;
+  onMove: (index: number, direction: "up" | "down") => void;
+  onToggleExpand: (index: number) => void;
+  onUpdateMetadata: (
+    index: number,
+    field: keyof LevelMetadata,
+    value: string,
+  ) => void;
+  isExpanded: boolean;
+  onInsertBefore: () => void;
+  levelsLength: number;
+}
+
+const SortableLevelCard: React.FC<SortableLevelCardProps> = (props) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: props.level.name });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <Card className="border-border border">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div {...attributes} {...listeners} className="cursor-grab">
+                <GripVertical className="text-muted-foreground h-5 w-5" />
+              </div>
+              <span>{props.level.name}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="ghost" onClick={props.onInsertBefore}>
+                Insert Before
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => props.onMove(props.index, "up")}
+                disabled={props.index === 0}
+              >
+                <ArrowUp className="h-4 w-4" />
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => props.onMove(props.index, "down")}
+                disabled={props.index === props.levelsLength - 1}
+              >
+                <ArrowDown className="h-4 w-4" />
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => props.onToggleExpand(props.index)}
+              >
+                {props.isExpanded ? (
+                  <ChevronUp className="h-4 w-4" />
+                ) : (
+                  <ChevronDown className="h-4 w-4" />
+                )}
+              </Button>
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={() => props.onRemove(props.index)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          {props.isExpanded && (
+            <div className="mt-4 space-y-4">
+              <div>
+                <label className="mb-1 block text-sm font-medium">Title</label>
+                <Input
+                  value={props.level.metadata.title}
+                  onChange={(e) =>
+                    props.onUpdateMetadata(props.index, "title", e.target.value)
+                  }
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium">
+                  Description
+                </label>
+                <Textarea
+                  value={props.level.metadata.description}
+                  onChange={(e) =>
+                    props.onUpdateMetadata(
+                      props.index,
+                      "description",
+                      e.target.value,
+                    )
+                  }
+                  rows={3}
+                />
+              </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-sm font-medium">
+                    Persona
+                  </label>
+                  <Input
+                    value={props.level.metadata.persona}
+                    onChange={(e) =>
+                      props.onUpdateMetadata(
+                        props.index,
+                        "persona",
+                        e.target.value,
+                      )
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium">
+                    Area of Impact
+                  </label>
+                  <Input
+                    value={props.level.metadata.areaOfImpact}
+                    onChange={(e) =>
+                      props.onUpdateMetadata(
+                        props.index,
+                        "areaOfImpact",
+                        e.target.value,
+                      )
+                    }
+                  />
+                </div>
+              </div>
             </div>
           )}
-        </Droppable>
-      </DragDropContext>
+        </CardContent>
+      </Card>
     </div>
   );
 };

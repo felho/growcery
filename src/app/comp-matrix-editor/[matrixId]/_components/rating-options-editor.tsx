@@ -7,7 +7,22 @@ import { Textarea } from "~/components/ui/textarea";
 import { Plus, X, CircleCheck, GripVertical } from "lucide-react";
 import { Card, CardContent } from "~/components/ui/card";
 import { Label } from "~/components/ui/label";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import {
   Form,
   FormField,
@@ -44,6 +59,13 @@ export const RatingOptionsEditor: React.FC<RatingOptionsEditorProps> = ({
   const [newColor, setNewColor] = useState("#9b87f5");
   const [newLabel, setNewLabel] = useState("");
   const [newWeight, setNewWeight] = useState<number>(1);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
 
   const handleAddRating = () => {
     if (!newRating.trim()) return;
@@ -140,19 +162,27 @@ export const RatingOptionsEditor: React.FC<RatingOptionsEditorProps> = ({
     });
   };
 
-  const handleDragEnd = (result: any) => {
-    if (!result.destination) return;
-    const reorderedOptions = [...ratingOptions];
-    const [movedItem] = reorderedOptions.splice(result.source.index, 1);
-    if (!movedItem) return;
-    reorderedOptions.splice(result.destination.index, 0, movedItem);
-    onChange({
-      ratingOptions: reorderedOptions,
-      ratingDescriptions,
-      ratingColors,
-      ratingLabels,
-      ratingWeights,
-    });
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = ratingOptions.findIndex((r) => r === active.id);
+    const newIndex = ratingOptions.findIndex((r) => r === over.id);
+
+    if (oldIndex !== -1 && newIndex !== -1) {
+      const updatedOptions = [...ratingOptions];
+      const [moved] = updatedOptions.splice(oldIndex, 1);
+      if (moved) {
+        updatedOptions.splice(newIndex, 0, moved);
+        onChange({
+          ratingOptions: updatedOptions,
+          ratingDescriptions,
+          ratingColors,
+          ratingLabels,
+          ratingWeights,
+        });
+      }
+    }
   };
 
   return (
@@ -232,175 +262,195 @@ export const RatingOptionsEditor: React.FC<RatingOptionsEditorProps> = ({
         </div>
       </div>
 
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable droppableId="ratings">
-          {(provided) => (
-            <div
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-              className="mt-4 space-y-2"
-            >
-              {ratingOptions.length === 0 ? (
-                <p className="text-muted-foreground py-4 text-center">
-                  No rating options defined yet. Add your first rating above.
-                </p>
-              ) : (
-                ratingOptions.map((rating, index) => (
-                  <Draggable key={rating} draggableId={rating} index={index}>
-                    {(provided) => (
-                      <Card
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        className="border-border border"
-                      >
-                        <CardContent className="p-4">
-                          <div className="flex items-center gap-4">
-                            <div
-                              {...provided.dragHandleProps}
-                              className="cursor-grab"
-                            >
-                              <GripVertical className="text-muted-foreground h-5 w-5" />
-                            </div>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext
+          items={ratingOptions}
+          strategy={verticalListSortingStrategy}
+        >
+          <div className="mt-4 space-y-2">
+            {ratingOptions.length === 0 ? (
+              <p className="text-muted-foreground py-4 text-center">
+                No rating options defined yet. Add your first rating above.
+              </p>
+            ) : (
+              ratingOptions.map((rating) => (
+                <SortableRatingOption
+                  key={rating}
+                  rating={rating}
+                  description={ratingDescriptions[rating] || ""}
+                  color={ratingColors[rating] || "#e2e8f0"}
+                  label={ratingLabels[rating] || ""}
+                  weight={ratingWeights[rating] || 1}
+                  onUpdateDescription={handleUpdateRatingDescription}
+                  onUpdateColor={handleUpdateRatingColor}
+                  onUpdateLabel={handleUpdateRatingLabel}
+                  onUpdateWeight={handleUpdateRatingWeight}
+                  onRemove={handleRemoveRating}
+                  onUpdateName={(newRatingName) => {
+                    if (!newRatingName.trim()) return;
 
-                            <div
-                              className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full"
-                              style={{
-                                backgroundColor:
-                                  ratingColors[rating] || "#e2e8f0",
-                              }}
-                            >
-                              <CircleCheck className="h-5 w-5 text-white" />
-                            </div>
+                    const updatedOptions = ratingOptions.map((r) =>
+                      r === rating ? newRatingName : r,
+                    );
 
-                            <div className="grid flex-1 grid-cols-1 gap-4 md:grid-cols-5">
-                              <Input
-                                value={rating}
-                                onChange={(e) => {
-                                  const newRatingName = e.target.value;
-                                  if (!newRatingName.trim()) return;
+                    const updatedDescriptions = { ...ratingDescriptions };
+                    updatedDescriptions[newRatingName] =
+                      updatedDescriptions[rating] || "";
+                    delete updatedDescriptions[rating];
 
-                                  // Create new arrays/objects with updated rating name
-                                  const updatedOptions = ratingOptions.map(
-                                    (r) => (r === rating ? newRatingName : r),
-                                  );
+                    const updatedColors = { ...ratingColors };
+                    updatedColors[newRatingName] = updatedColors[rating] || "";
+                    delete updatedColors[rating];
 
-                                  const updatedDescriptions = {
-                                    ...ratingDescriptions,
-                                  };
-                                  updatedDescriptions[newRatingName] =
-                                    updatedDescriptions[rating];
-                                  delete updatedDescriptions[rating];
+                    const updatedLabels = { ...ratingLabels };
+                    updatedLabels[newRatingName] = updatedLabels[rating] || "";
+                    delete updatedLabels[rating];
 
-                                  const updatedColors = { ...ratingColors };
-                                  updatedColors[newRatingName] =
-                                    updatedColors[rating];
-                                  delete updatedColors[rating];
+                    const updatedWeights = { ...ratingWeights };
+                    updatedWeights[newRatingName] = updatedWeights[rating] || 1;
+                    delete updatedWeights[rating];
 
-                                  const updatedLabels = { ...ratingLabels };
-                                  updatedLabels[newRatingName] =
-                                    updatedLabels[rating];
-                                  delete updatedLabels[rating];
+                    onChange({
+                      ratingOptions: updatedOptions,
+                      ratingDescriptions: updatedDescriptions,
+                      ratingColors: updatedColors,
+                      ratingLabels: updatedLabels,
+                      ratingWeights: updatedWeights,
+                    });
+                  }}
+                />
+              ))
+            )}
+          </div>
+        </SortableContext>
+      </DndContext>
+    </div>
+  );
+};
 
-                                  const updatedWeights = { ...ratingWeights };
-                                  updatedWeights[newRatingName] =
-                                    updatedWeights[rating];
-                                  delete updatedWeights[rating];
+interface SortableRatingOptionProps {
+  rating: string;
+  description: string;
+  color: string;
+  label: string;
+  weight: number;
+  onUpdateDescription: (rating: string, description: string) => void;
+  onUpdateColor: (rating: string, color: string) => void;
+  onUpdateLabel: (rating: string, label: string) => void;
+  onUpdateWeight: (rating: string, weight: number) => void;
+  onRemove: (rating: string) => void;
+  onUpdateName: (newRatingName: string) => void;
+}
 
-                                  onChange({
-                                    ratingOptions: updatedOptions,
-                                    ratingDescriptions: updatedDescriptions,
-                                    ratingColors: updatedColors,
-                                    ratingLabels: updatedLabels,
-                                    ratingWeights: updatedWeights,
-                                  });
-                                }}
-                                className="w-full"
-                              />
+const SortableRatingOption: React.FC<SortableRatingOptionProps> = (props) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: props.rating });
 
-                              <Textarea
-                                value={ratingDescriptions[rating] || ""}
-                                onChange={(e) =>
-                                  handleUpdateRatingDescription(
-                                    rating,
-                                    e.target.value,
-                                  )
-                                }
-                                placeholder="Description"
-                                className="h-10 w-full resize-none py-2"
-                              />
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
 
-                              <Input
-                                value={ratingLabels[rating] || ""}
-                                onChange={(e) =>
-                                  handleUpdateRatingLabel(
-                                    rating,
-                                    e.target.value.toUpperCase(),
-                                  )
-                                }
-                                placeholder="LABEL"
-                                className="w-full uppercase"
-                                maxLength={6}
-                              />
-
-                              <Input
-                                type="number"
-                                min="1"
-                                step="1"
-                                value={ratingWeights[rating] || 1}
-                                onChange={(e) =>
-                                  handleUpdateRatingWeight(
-                                    rating,
-                                    parseInt(e.target.value) || 1,
-                                  )
-                                }
-                                placeholder="Weight"
-                                className="w-full"
-                              />
-
-                              <div className="flex gap-2">
-                                <Input
-                                  type="color"
-                                  value={ratingColors[rating] || "#e2e8f0"}
-                                  onChange={(e) =>
-                                    handleUpdateRatingColor(
-                                      rating,
-                                      e.target.value,
-                                    )
-                                  }
-                                  className="w-12 p-1"
-                                />
-                                <Input
-                                  type="text"
-                                  value={ratingColors[rating] || "#e2e8f0"}
-                                  onChange={(e) =>
-                                    handleUpdateRatingColor(
-                                      rating,
-                                      e.target.value,
-                                    )
-                                  }
-                                  className="flex-1"
-                                />
-                                <Button
-                                  size="icon"
-                                  variant="destructive"
-                                  onClick={() => handleRemoveRating(rating)}
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    )}
-                  </Draggable>
-                ))
-              )}
-              {provided.placeholder}
+  return (
+    <div ref={setNodeRef} style={style}>
+      <Card className="border-border border">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-4">
+            <div {...attributes} {...listeners} className="cursor-grab">
+              <GripVertical className="text-muted-foreground h-5 w-5" />
             </div>
-          )}
-        </Droppable>
-      </DragDropContext>
+
+            <div
+              className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full"
+              style={{ backgroundColor: props.color }}
+            >
+              <CircleCheck className="h-5 w-5 text-white" />
+            </div>
+
+            <div className="grid flex-1 grid-cols-1 gap-4 md:grid-cols-5">
+              <Input
+                value={props.rating}
+                onChange={(e) => props.onUpdateName(e.target.value)}
+                className="w-full"
+              />
+
+              <Textarea
+                value={props.description}
+                onChange={(e) =>
+                  props.onUpdateDescription(props.rating, e.target.value)
+                }
+                placeholder="Description"
+                className="h-10 w-full resize-none py-2"
+              />
+
+              <Input
+                value={props.label}
+                onChange={(e) =>
+                  props.onUpdateLabel(
+                    props.rating,
+                    e.target.value.toUpperCase(),
+                  )
+                }
+                placeholder="LABEL"
+                className="w-full uppercase"
+                maxLength={6}
+              />
+
+              <Input
+                type="number"
+                min="1"
+                step="1"
+                value={props.weight}
+                onChange={(e) =>
+                  props.onUpdateWeight(
+                    props.rating,
+                    parseInt(e.target.value) || 1,
+                  )
+                }
+                placeholder="Weight"
+                className="w-full"
+              />
+
+              <div className="flex gap-2">
+                <Input
+                  type="color"
+                  value={props.color}
+                  onChange={(e) =>
+                    props.onUpdateColor(props.rating, e.target.value)
+                  }
+                  className="w-12 p-1"
+                />
+                <Input
+                  type="text"
+                  value={props.color}
+                  onChange={(e) =>
+                    props.onUpdateColor(props.rating, e.target.value)
+                  }
+                  className="flex-1"
+                />
+                <Button
+                  size="icon"
+                  variant="destructive"
+                  onClick={() => props.onRemove(props.rating)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
