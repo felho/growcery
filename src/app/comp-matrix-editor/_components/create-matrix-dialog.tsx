@@ -47,14 +47,14 @@ export function CreateMatrixDialog({
 }: CreateMatrixDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="border-[1px] border-[var(--primary)]">
         <DialogHeader>
           <DialogTitle>Create New Competency Matrix</DialogTitle>
           <DialogDescription>
             Define the basic properties of your new competency matrix.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
+        <div className="grid gap-8 py-4">
           <div className="grid gap-2">
             <Label htmlFor="name">Matrix Name</Label>
             <Input
