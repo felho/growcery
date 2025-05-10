@@ -120,7 +120,9 @@ const CompetencyMatrixEditor = () => {
     if (typeof matrix.levels[0] === "string") {
       return matrix.levels as string[];
     } else {
-      return (matrix.levels as LevelData[]).map((level) => level.name);
+      return (matrix.levels as unknown as LevelData[]).map(
+        (level) => level.name,
+      );
     }
   };
 
@@ -210,7 +212,9 @@ const CompetencyMatrixEditor = () => {
             <TabsContent value="levels" className="space-y-4">
               <LevelEditor
                 levels={matrix.levels}
-                onChange={(levels) => setMatrix({ ...matrix, levels })}
+                onChange={(levels) =>
+                  setMatrix({ ...matrix, levels: levels as string[] })
+                }
               />
             </TabsContent>
 
