@@ -110,6 +110,7 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
   const handleSaveCompetency = () => {
     if (!editingCompetency || !competencyForm.name.trim()) return;
     const { areaId, competency } = editingCompetency;
+
     const categoryIndex = competencies.findIndex((c) => c.id === areaId);
     if (categoryIndex === -1) return;
 
@@ -132,13 +133,19 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
     };
 
     const updatedCategories = [...competencies];
+    const category = updatedCategories[categoryIndex]!; // biztosan létezik
+
     const updatedItems = competency
-      ? updatedCategories[categoryIndex].items.map((item) =>
+      ? category.items.map((item) =>
           item.id === competency.id ? updatedCompetency : item,
         )
-      : [...updatedCategories[categoryIndex].items, updatedCompetency];
+      : [...category.items, updatedCompetency];
 
-    updatedCategories[categoryIndex].items = updatedItems;
+    updatedCategories[categoryIndex] = {
+      ...category,
+      items: updatedItems,
+    };
+
     onChange(updatedCategories);
     setIsAddingCompetency(false);
     setEditingCompetency(null);
@@ -167,22 +174,32 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
   const handleDragEnd = (result: any) => {
     const { source, destination } = result;
     if (!destination) return;
+
     if (
       source.index === destination.index &&
       source.droppableId === destination.droppableId
-    )
+    ) {
       return;
+    }
 
     const areaId = source.droppableId;
     const categoryIndex = competencies.findIndex((c) => c.id === areaId);
     if (categoryIndex === -1) return;
 
     const updatedCategories = [...competencies];
-    const items = [...updatedCategories[categoryIndex].items];
-    const [moved] = items.splice(source.index, 1);
-    items.splice(destination.index, 0, moved);
+    const category = updatedCategories[categoryIndex]!;
+    const updatedItems = [...category.items];
 
-    updatedCategories[categoryIndex].items = items;
+    const [moved] = updatedItems.splice(source.index, 1);
+    if (!moved) return;
+
+    updatedItems.splice(destination.index, 0, moved);
+
+    updatedCategories[categoryIndex] = {
+      ...category,
+      items: updatedItems,
+    };
+
     onChange(updatedCategories);
   };
 
