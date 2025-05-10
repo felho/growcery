@@ -17,6 +17,9 @@
 - [ ] Archetype should be unique
 - [ ] All the API calls have to be checked from an authorization perspective
 - [ ] Currently, the comp matrix levels are ordered by levelCode, which works, but probably we need an exact order kept in the DB
+- [ ] The organization of the client-api folder has to be revisited
+- [ ] The API strucutre of the client APIs has to be revisited (for example comp-matrix.ts is probably not the best choice)
+- [ ] comp-matrix-editor/page.tsx --> newMatrix state has no type
 
 ### Comp matrix
 
