@@ -45,6 +45,9 @@ export interface CompetencyMatrix {
   levels: string[];
   ratingOptions: Rating[];
   ratingDescriptions: Record<Rating, string>;
+  ratingColors: Record<Rating, string>;
+  ratingLabels: Record<Rating, string>;
+  ratingWeights: Record<Rating, number>;
   competencies: CompetencyCategory[];
 }
 
@@ -211,6 +214,24 @@ export const mockCompetencyData: CompetencyMatrix = {
     Novice: "Basic understanding but needs guidance",
     Intermediate: "Can work independently with occasional guidance",
     Proficient: "Deep understanding and can mentor others",
+  },
+  ratingColors: {
+    Inexperienced: "#FFD700",
+    Novice: "#C0C0C0",
+    Intermediate: "#00FF00",
+    Proficient: "#0000FF",
+  },
+  ratingLabels: {
+    Inexperienced: "Inexperienced",
+    Novice: "Novice",
+    Intermediate: "Intermediate",
+    Proficient: "Proficient",
+  },
+  ratingWeights: {
+    Inexperienced: 1,
+    Novice: 2,
+    Intermediate: 3,
+    Proficient: 4,
   },
   competencies: [
     {
