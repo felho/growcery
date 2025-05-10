@@ -16,7 +16,7 @@ import {
 import { Label } from "~/components/ui/label";
 import { Checkbox } from "~/components/ui/checkbox";
 import { v4 as uuidv4 } from "uuid";
-import { DragDropContext } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import type {
   CompetencyCategory,
   CompetencyItem,
@@ -159,13 +159,22 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
   };
 
   const handleDragEnd = (result: any) => {
-    const { source, destination } = result;
+    const { source, destination, type } = result;
     if (!destination) return;
 
     if (
       source.index === destination.index &&
       source.droppableId === destination.droppableId
     ) {
+      return;
+    }
+
+    if (type === "area") {
+      const updated = Array.from(competencies);
+      const [moved] = updated.splice(source.index, 1);
+      if (!moved) return;
+      updated.splice(destination.index, 0, moved);
+      onChange(updated);
       return;
     }
 
@@ -212,29 +221,52 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
       </div>
 
       <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="space-y-4">
-          {competencies.length === 0 ? (
-            <p className="text-muted-foreground py-4 text-center">
-              No competency areas defined yet. Add your first area above.
-            </p>
-          ) : (
-            competencies.map((category) => (
-              <CompetencyArea
-                key={category.id}
-                category={category}
-                onUpdateName={handleUpdateCategoryName}
-                onRemove={handleRemoveCategory}
-                onAddCompetency={openCompetencyDialog}
-                onEditCompetency={openCompetencyDialog}
-                onRemoveCompetency={handleRemoveCompetency}
-                isOpen={openAreaId === category.id}
-                onOpenChange={(open) =>
-                  setOpenAreaId(open ? category.id : null)
-                }
-              />
-            ))
+        <Droppable droppableId="areas" type="area">
+          {(provided: any) => (
+            <div
+              className="space-y-4"
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+            >
+              {competencies.length === 0 ? (
+                <p className="text-muted-foreground py-4 text-center">
+                  No competency areas defined yet. Add your first area above.
+                </p>
+              ) : (
+                competencies.map((category, index) => (
+                  <Draggable
+                    draggableId={category.id}
+                    index={index}
+                    key={category.id}
+                  >
+                    {(provided: any, snapshot: any) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        className={snapshot.isDragging ? "opacity-70" : ""}
+                      >
+                        <CompetencyArea
+                          category={category}
+                          onUpdateName={handleUpdateCategoryName}
+                          onRemove={handleRemoveCategory}
+                          onAddCompetency={openCompetencyDialog}
+                          onEditCompetency={openCompetencyDialog}
+                          onRemoveCompetency={handleRemoveCompetency}
+                          isOpen={openAreaId === category.id}
+                          onOpenChange={(open) =>
+                            setOpenAreaId(open ? category.id : null)
+                          }
+                          dragHandleProps={provided.dragHandleProps}
+                        />
+                      </div>
+                    )}
+                  </Draggable>
+                ))
+              )}
+              {provided.placeholder}
+            </div>
           )}
-        </div>
+        </Droppable>
       </DragDropContext>
 
       {/* Dialog for adding/editing competencies */}

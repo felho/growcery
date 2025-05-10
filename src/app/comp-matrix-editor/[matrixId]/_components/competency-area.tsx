@@ -25,6 +25,7 @@ interface CompetencyAreaProps {
   onRemoveCompetency: (areaId: string, competencyId: string) => void;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  dragHandleProps: any;
 }
 
 const CompetencyArea: React.FC<CompetencyAreaProps> = ({
@@ -36,6 +37,7 @@ const CompetencyArea: React.FC<CompetencyAreaProps> = ({
   onRemoveCompetency,
   isOpen,
   onOpenChange,
+  dragHandleProps,
 }) => {
   return (
     <Collapsible
