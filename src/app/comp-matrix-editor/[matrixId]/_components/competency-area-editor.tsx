@@ -288,7 +288,7 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
                     </p>
                   ) : (
                     <Droppable droppableId={category.id} type="competency">
-                      {(provided) => (
+                      {(provided: any) => (
                         <div
                           className="space-y-2"
                           ref={provided.innerRef}
@@ -300,7 +300,7 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
                               draggableId={item.id}
                               index={index}
                             >
-                              {(provided, snapshot) => (
+                              {(provided: any, snapshot: any) => (
                                 <div
                                   ref={provided.innerRef}
                                   {...provided.draggableProps}
