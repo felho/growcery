@@ -88,7 +88,7 @@ const CompetencyArea: React.FC<CompetencyAreaProps> = ({
     >
       <div className="bg-muted/50 flex items-center justify-between p-4">
         <div className="flex items-center gap-2">
-          <div {...dragHandleProps}>
+          <div {...dragHandleProps} className="cursor-grab">
             <GripVertical className="text-muted-foreground h-5 w-5" />
           </div>
           <Input
