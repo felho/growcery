@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -19,6 +19,9 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import type { Function } from "~/server/queries/function";
+import { createCompMatrix } from "~/lib/client-api/comp-matrix";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 interface CreateMatrixDialogProps {
   isOpen: boolean;
@@ -45,6 +48,30 @@ export function CreateMatrixDialog({
   onMatrixChange,
   onSubmit,
 }: CreateMatrixDialogProps) {
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async () => {
+    try {
+      setIsSubmitting(true);
+      await createCompMatrix({
+        title: newMatrix.name,
+        functionId: Number(newMatrix.functionId),
+        isPublished: newMatrix.published,
+      });
+
+      toast.success("Competency matrix created successfully");
+      onOpenChange(false);
+      router.refresh();
+      onSubmit();
+    } catch (error) {
+      console.error("Failed to create matrix:", error);
+      toast.error("Failed to create competency matrix");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="border-[1px] border-[var(--primary)]">
@@ -102,10 +129,10 @@ export function CreateMatrixDialog({
             Cancel
           </Button>
           <Button
-            onClick={onSubmit}
-            disabled={!newMatrix.name || !newMatrix.functionId}
+            onClick={handleSubmit}
+            disabled={!newMatrix.name || !newMatrix.functionId || isSubmitting}
           >
-            Create Matrix
+            {isSubmitting ? "Creating..." : "Create Matrix"}
           </Button>
         </DialogFooter>
       </DialogContent>
