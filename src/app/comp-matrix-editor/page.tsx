@@ -19,13 +19,17 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { Plus, Edit } from "lucide-react";
-import useSWR from "swr";
-import { fetchCompMatrices } from "~/lib/client-api/comp-matrix";
+import { Plus, Edit, Trash2 } from "lucide-react";
+import useSWR, { mutate } from "swr";
+import {
+  fetchCompMatrices,
+  deleteCompMatrix,
+} from "~/lib/client-api/comp-matrix";
 import { fetchFunctions } from "~/lib/client-api/functions";
 import type { CompMatrix } from "~/server/queries/comp-matrix";
 import type { Function } from "~/server/queries/function";
 import { CreateMatrixDialog } from "./_components/create-matrix-dialog";
+import { toast } from "sonner";
 
 const CompetencyMatrixList = () => {
   const router = useRouter();
@@ -47,6 +51,17 @@ const CompetencyMatrixList = () => {
     isLoading: isLoadingFunctions,
     error: functionsError,
   } = useSWR("/functions", fetchFunctions);
+
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteCompMatrix(id);
+      toast.success("Matrix deleted successfully");
+      await mutate("/comp-matrices");
+    } catch (error) {
+      console.error("Failed to delete matrix:", error);
+      toast.error("Failed to delete matrix");
+    }
+  };
 
   if (isLoadingMatrices || isLoadingFunctions) {
     return (
@@ -131,6 +146,14 @@ const CompetencyMatrixList = () => {
                           <Edit className="h-4 w-4" />
                         </Button>
                       </Link>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive bg-destructive/10 hover:bg-destructive/20"
+                        onClick={() => handleDelete(matrix.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>

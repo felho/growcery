@@ -38,3 +38,14 @@ export async function createCompMatrix(
 
   return response.json();
 }
+
+export async function deleteCompMatrix(id: number): Promise<void> {
+  const response = await fetch(`/api/comp-matrices/${id}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "Failed to delete comp matrix");
+  }
+}
