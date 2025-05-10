@@ -121,6 +121,7 @@ export const LevelEditor = ({ levels, onChange }: LevelEditorProps) => {
 
     const updatedLevels = [...levelsWithMetadata];
     const targetIndex = direction === "up" ? index - 1 : index + 1;
+    if (!updatedLevels[index] || !updatedLevels[targetIndex]) return;
     [updatedLevels[index], updatedLevels[targetIndex]] = [
       updatedLevels[targetIndex],
       updatedLevels[index],
@@ -133,6 +134,7 @@ export const LevelEditor = ({ levels, onChange }: LevelEditorProps) => {
     if (!result.destination) return;
     const updatedLevels = [...levelsWithMetadata];
     const [movedItem] = updatedLevels.splice(result.source.index, 1);
+    if (!movedItem) return;
     updatedLevels.splice(result.destination.index, 0, movedItem);
     onChange(updatedLevels);
   };
@@ -147,6 +149,7 @@ export const LevelEditor = ({ levels, onChange }: LevelEditorProps) => {
     value: string,
   ) => {
     const updatedLevels = [...levelsWithMetadata];
+    if (!updatedLevels[index]) return;
     updatedLevels[index] = {
       ...updatedLevels[index],
       metadata: { ...updatedLevels[index].metadata, [field]: value },
@@ -299,7 +302,7 @@ export const LevelEditor = ({ levels, onChange }: LevelEditorProps) => {
 
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId="levels">
-          {(provided) => (
+          {(provided: any) => (
             <div
               ref={provided.innerRef}
               {...provided.droppableProps}
@@ -316,7 +319,7 @@ export const LevelEditor = ({ levels, onChange }: LevelEditorProps) => {
                     draggableId={level.name + index}
                     index={index}
                   >
-                    {(provided) => (
+                    {(provided: any) => (
                       <Card
                         ref={provided.innerRef}
                         {...provided.draggableProps}
