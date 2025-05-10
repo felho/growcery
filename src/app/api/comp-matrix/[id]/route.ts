@@ -5,7 +5,7 @@ export async function GET(
   req: NextRequest,
   context: { params: { id: string } },
 ) {
-  const params = await context.params; // ⬅️ Ezt vártuk meg
+  const params = await context.params;
   const id = Number(params.id);
 
   if (isNaN(id)) {
