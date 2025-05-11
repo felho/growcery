@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# File and Directory Naming Conventions
+
+- All file and directory names in the project must use kebab-case.
+  - Example: `comp-matrix-editor`, `get-all-functions.ts`, `user-profile`
+- No camelCase, PascalCase, or snake_case is allowed for file or directory names.
+- This rule applies to all folders and files, including components, pages, server, and utility files.

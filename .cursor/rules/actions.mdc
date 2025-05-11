@@ -5,6 +5,17 @@ alwaysApply: false
 ---
 # Server Actions Guidelines
 
+## Server Actions Standards
+
+- **Actions must never access the database directly.**
+- All database operations (read, write, update, delete) must be implemented in the `queries` directory.
+- Actions should only call query functions to perform data access or mutations.
+- Actions are responsible for:
+  - Handling authentication and authorization
+  - Orchestrating business logic
+  - Calling one or more query functions as needed
+- This separation ensures a clear boundary between business logic (actions) and data access (queries).
+
 ## Organization
 - Location: All server actions must be in `server/actions/`
 - Structure: One file per entity (e.g., `users.ts`, `products.ts`)
