@@ -115,14 +115,16 @@ const CompetencyArea: React.FC<CompetencyAreaProps> = ({
             <GripVertical className="text-muted-foreground h-5 w-5" />
           </div>
           {isEditing ? (
-            <div className="w-full space-y-2">
-              <div className="flex items-start gap-2">
-                <Input
-                  value={editingName}
-                  onChange={(e) => setEditingName(e.target.value)}
-                  className="flex-1"
-                  placeholder="Area name"
-                />
+            <div className="w-full max-w-xs space-y-2">
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <Input
+                    value={editingName}
+                    onChange={(e) => setEditingName(e.target.value)}
+                    placeholder="Area name"
+                    className="w-full"
+                  />
+                </div>
                 <Button
                   size="sm"
                   onClick={handleSave}
@@ -131,19 +133,21 @@ const CompetencyArea: React.FC<CompetencyAreaProps> = ({
                   <Save className="h-4 w-4" />
                 </Button>
               </div>
-              <Textarea
-                value={editingDescription}
-                onChange={(e) => {
-                  if (e.target.value.length <= 200) {
-                    setEditingDescription(e.target.value);
-                  }
-                }}
-                className="w-full resize-none"
-                placeholder="Short description (max 200 characters)"
-                rows={2}
-              />
-              <div className="text-muted-foreground text-left text-xs">
-                {editingDescription.length}/200
+              <div className="relative">
+                <Textarea
+                  value={editingDescription}
+                  onChange={(e) => {
+                    if (e.target.value.length <= 200) {
+                      setEditingDescription(e.target.value);
+                    }
+                  }}
+                  className="w-full resize-none"
+                  placeholder="Short description (max 200 characters)"
+                  rows={2}
+                />
+                <div className="text-muted-foreground absolute right-2 bottom-1 text-xs">
+                  {editingDescription.length}/200
+                </div>
               </div>
             </div>
           ) : (
