@@ -2,7 +2,7 @@ import { db } from "~/server/db";
 import { compMatrices } from "~/server/db/schema";
 import type { NewCompMatrix } from "./index";
 import { getCurrentUserOrgId } from "~/lib/auth/get-org-id";
-import type { CreateCompMatrixPayload } from "~/zod-schemas/comp-matrix/comp-matrix";
+import type { CreateCompMatrixPayload } from "~/zod-schemas/comp-matrix";
 
 export async function createCompMatrix(
   input: CreateCompMatrixPayload,

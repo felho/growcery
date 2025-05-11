@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getAllCompMatricesByOrg } from "~/server/queries/comp-matrix/get-all-by-org";
 import { getCurrentUserOrgId } from "~/lib/auth/get-org-id";
 import { createCompMatrix } from "~/server/queries/comp-matrix/create";
-import { createCompMatrixSchema } from "~/zod-schemas/comp-matrix/comp-matrix";
+import { createCompMatrixSchema } from "~/zod-schemas/comp-matrix";
 
 export async function GET() {
   try {

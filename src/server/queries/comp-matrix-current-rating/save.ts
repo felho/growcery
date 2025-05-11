@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
 import { compMatrixCurrentRatings } from "~/server/db/schema";
-import type { CompMatrixCellSavePayloadAPI } from "~/zod-schemas/comp-matrix/save-cell";
+import type { CompMatrixCellSavePayloadAPI } from "~/zod-schemas/comp-matrix-current-rating";
 import { getUserByAuthProviderId } from "../user";
 
 export async function saveCompMatrixCellRating(

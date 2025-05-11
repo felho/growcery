@@ -2,7 +2,7 @@ import type {
   CompMatrix,
   CompMatrixWithFullRelations,
 } from "~/server/queries/comp-matrix";
-import type { CreateCompMatrixPayload } from "~/zod-schemas/comp-matrix/comp-matrix";
+import type { CreateCompMatrixPayload } from "~/zod-schemas/comp-matrix";
 
 export async function fetchCompMatrix(
   id: number,

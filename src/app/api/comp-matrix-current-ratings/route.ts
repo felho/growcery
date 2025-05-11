@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { getCurrentRatingsByAssignment } from "~/server/queries/comp-matrix-current-rating/get-all-by-assignment-id";
 import { saveCompMatrixCellRating } from "~/server/queries/comp-matrix-current-rating/save";
-import { compMatrixCellSaveSchema } from "~/zod-schemas/comp-matrix/save-cell";
+import { compMatrixCellSaveSchema } from "~/zod-schemas/comp-matrix-current-rating";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
