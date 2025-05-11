@@ -20,6 +20,7 @@
 - [ ] The organization of the client-api folder has to be revisited
 - [ ] The API strucutre of the client APIs has to be revisited (for example comp-matrix.ts is probably not the best choice)
 - [ ] comp-matrix-editor/page.tsx --> newMatrix state has no type
+- [ ] Authentication is now sometimes in the database, sometimes in the action. This have to be revisited.
 
 ### Comp matrix
 
