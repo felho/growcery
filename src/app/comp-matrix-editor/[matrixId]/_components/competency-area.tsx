@@ -8,7 +8,15 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "~/components/ui/collapsible";
-import { ChevronDown, ChevronUp, GripVertical, Plus, X } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  GripVertical,
+  Plus,
+  X,
+  Save,
+  Pencil,
+} from "lucide-react";
 import {
   DndContext,
   closestCenter,
@@ -30,6 +38,7 @@ import type {
   CompetencyCategory,
   CompetencyItem as CompetencyItemType,
 } from "~/data/mock-competency-data";
+import { Textarea } from "~/components/ui/textarea";
 
 interface CompetencyAreaProps {
   category: CompetencyCategory;
@@ -63,6 +72,18 @@ const CompetencyArea: React.FC<CompetencyAreaProps> = ({
     }),
   );
 
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [editingName, setEditingName] = React.useState(category.category);
+  const [editingDescription, setEditingDescription] = React.useState(
+    category.description || "",
+  );
+
+  const handleSave = () => {
+    onUpdateName(category.id, editingName.trim());
+    category.description = editingDescription.trim(); // optional: can lift this too
+    setIsEditing(false);
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
@@ -87,15 +108,62 @@ const CompetencyArea: React.FC<CompetencyAreaProps> = ({
       className="rounded-md border"
     >
       <div className="bg-muted/50 flex items-center justify-between p-4">
-        <div className="flex items-center gap-2">
-          <div {...dragHandleProps} className="cursor-grab">
+        <div className="flex flex-1 items-start gap-2">
+          <div {...dragHandleProps} className="cursor-grab pt-2">
             <GripVertical className="text-muted-foreground h-5 w-5" />
           </div>
-          <Input
-            value={category.category}
-            onChange={(e) => onUpdateName(category.id, e.target.value)}
-            className="h-auto border-none bg-transparent p-0 focus-visible:ring-0"
-          />
+          {isEditing ? (
+            <div className="w-full space-y-2">
+              <div className="flex items-start gap-2">
+                <Input
+                  value={editingName}
+                  onChange={(e) => setEditingName(e.target.value)}
+                  className="flex-1"
+                  placeholder="Area name"
+                />
+                <Button
+                  size="sm"
+                  onClick={handleSave}
+                  className="bg-green-600 text-white hover:bg-green-500"
+                >
+                  <Save className="h-4 w-4" />
+                </Button>
+              </div>
+              <Textarea
+                value={editingDescription}
+                onChange={(e) => {
+                  if (e.target.value.length <= 200) {
+                    setEditingDescription(e.target.value);
+                  }
+                }}
+                className="w-full resize-none"
+                placeholder="Short description (max 200 characters)"
+                rows={2}
+              />
+              <div className="text-muted-foreground text-left text-xs">
+                {editingDescription.length}/200
+              </div>
+            </div>
+          ) : (
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <span className="font-medium">{category.category}</span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-primary/20 hover:bg-primary/10 h-7 rounded-full px-2"
+                  onClick={() => setIsEditing(true)}
+                >
+                  <Pencil className="h-3 w-3" />
+                </Button>
+              </div>
+              {category.description && (
+                <p className="text-muted-foreground mt-1 text-sm">
+                  {category.description}
+                </p>
+              )}
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <CollapsibleTrigger asChild>
