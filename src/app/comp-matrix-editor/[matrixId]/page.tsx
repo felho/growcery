@@ -39,6 +39,8 @@ import type { CompMatrix } from "~/server/queries/comp-matrix";
 import { fetchFunctions } from "~/lib/client-api/functions";
 import type { Function } from "~/server/queries/function";
 import type { CompMatrixWithFullRelations } from "~/server/queries/comp-matrix";
+import { reorderLevelsAction } from "~/server/actions/comp-matrix-levels/reorder";
+import { useAction } from "next-safe-action/hooks";
 
 // Temporary type that combines DB and mock data
 type HybridMatrix = CompMatrixWithFullRelations & {
@@ -58,6 +60,7 @@ interface LevelMetadata {
 }
 
 interface LevelData {
+  id: number;
   name: string;
   metadata: LevelMetadata;
 }
@@ -135,6 +138,34 @@ const CompetencyMatrixEditor = () => {
     loadData();
   }, [matrixId]);
 
+  const reorder = useAction(reorderLevelsAction, {
+    onSuccess: (result) => {
+      console.log("Reorder result:", result);
+      if (!Array.isArray(result.data?.levels)) {
+        toast.error("Invalid response from server");
+        return;
+      }
+
+      const updatedLevels = result.data?.levels;
+
+      setMatrix((prev) => {
+        if (!prev) return prev;
+
+        const prevSerialized = JSON.stringify(prev.levels);
+        const nextSerialized = JSON.stringify(updatedLevels);
+        if (prevSerialized === nextSerialized) return prev;
+
+        return { ...prev, levels: updatedLevels };
+      });
+
+      toast.success("Levels reordered successfully");
+    },
+    onError: (e) => {
+      toast.error("Failed to reorder levels");
+      console.error(e);
+    },
+  });
+
   const handleMetadataChange = (
     field: keyof MatrixMetadata,
     value: string | number | boolean,
@@ -183,6 +214,16 @@ const CompetencyMatrixEditor = () => {
   if (!matrix) {
     return <div>Matrix not found</div>;
   }
+
+  const handleReorderLevels = (newLevels: LevelData[]) => {
+    reorder.execute({
+      matrixId: matrix.id,
+      levels: newLevels.map((level, index) => ({
+        id: level.id,
+        numericLevel: index + 1,
+      })),
+    });
+  };
 
   return (
     <div className="container mx-auto space-y-6 py-6">
@@ -326,10 +367,7 @@ const CompetencyMatrixEditor = () => {
                     areaOfImpact: level.areaOfImpact || "",
                   },
                 }))}
-                onChange={(levels) => {
-                  // TODO: Implement level update when DB is ready
-                  console.log("Levels changed:", levels);
-                }}
+                onChange={handleReorderLevels}
               />
             </TabsContent>
 
