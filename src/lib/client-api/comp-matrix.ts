@@ -2,12 +2,15 @@ import type {
   CompMatrix,
   CompMatrixWithFullRelations,
 } from "~/server/queries/comp-matrix";
-import type { CreateCompMatrixPayload } from "~/zod-schemas/comp-matrix";
+import type {
+  CreateCompMatrixPayload,
+  UpdateCompMatrixPayload,
+} from "~/zod-schemas/comp-matrix";
 
 export async function fetchCompMatrix(
   id: number,
 ): Promise<CompMatrixWithFullRelations> {
-  const res = await fetch(`/api/comp-matrix/${id}`);
+  const res = await fetch(`/api/comp-matrices/${id}`);
   if (!res.ok) throw new Error("Failed to fetch comp matrix");
   return res.json();
 }
@@ -48,4 +51,24 @@ export async function deleteCompMatrix(id: number): Promise<void> {
     const error = await response.json();
     throw new Error(error.error || "Failed to delete comp matrix");
   }
+}
+
+export async function updateCompMatrix(
+  matrixId: number,
+  data: UpdateCompMatrixPayload,
+): Promise<CompMatrix> {
+  const response = await fetch(`/api/comp-matrices/${matrixId}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "Failed to update comp matrix");
+  }
+
+  return response.json();
 }

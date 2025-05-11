@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -22,6 +22,7 @@ import { Switch } from "~/components/ui/switch";
 import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
 import { Pencil, Save } from "lucide-react";
+import { toast } from "sonner";
 import {
   type CompetencyMatrix,
   type Rating,
@@ -30,6 +31,24 @@ import { LevelEditor } from "./_components/level-editor";
 import CompetencyAreaEditor from "./_components/competency-area-editor";
 import { RatingOptionsEditor } from "./_components/rating-options-editor";
 import { mockFunctions } from "~/data/mock-competency-data";
+import {
+  fetchCompMatrix,
+  updateCompMatrix,
+} from "~/lib/client-api/comp-matrix";
+import type { CompMatrix } from "~/server/queries/comp-matrix";
+import { fetchFunctions } from "~/lib/client-api/functions";
+import type { Function } from "~/server/queries/function";
+import type { CompMatrixWithFullRelations } from "~/server/queries/comp-matrix";
+
+// Temporary type that combines DB and mock data
+type HybridMatrix = CompMatrixWithFullRelations & {
+  competencies: CompetencyMatrix["competencies"];
+  ratingOptions: string[];
+  ratingDescriptions: Record<string, string>;
+  ratingColors: Record<string, string>;
+  ratingLabels: Record<string, string>;
+  ratingWeights: Record<string, number>;
+};
 
 interface LevelMetadata {
   title: string;
@@ -43,11 +62,10 @@ interface LevelData {
   metadata: LevelMetadata;
 }
 
-interface CompetencyMatrixMeta {
-  id: string;
-  name: string;
-  functionId: string;
-  published: boolean;
+interface MatrixMetadata {
+  title: string;
+  functionId: number;
+  isPublished: boolean;
 }
 
 const emptyMatrix: CompetencyMatrix = {
@@ -60,83 +78,111 @@ const emptyMatrix: CompetencyMatrix = {
   competencies: [],
 };
 
-const mockMatrices = [
-  {
-    id: "1",
-    name: "Software Engineering Matrix",
-    functionId: "func1",
-    published: true,
-  },
-  {
-    id: "2",
-    name: "Product Management Matrix",
-    functionId: "func2",
-    published: false,
-  },
-  {
-    id: "3",
-    name: "Design Matrix",
-    functionId: "func3",
-    published: true,
-  },
-];
-
 const CompetencyMatrixEditor = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const id = searchParams.get("matrixId");
-
-  const [matrix, setMatrix] = useState<CompetencyMatrix>(emptyMatrix);
-  const [matrixMeta, setMatrixMeta] = useState<CompetencyMatrixMeta>({
-    id: id || "",
-    name: "",
-    functionId: "",
-    published: false,
+  const params = useParams();
+  const matrixId = params.matrixId as string;
+  const [matrix, setMatrix] = useState<HybridMatrix | null>(null);
+  const [functions, setFunctions] = useState<Function[]>([]);
+  const [metadata, setMetadata] = useState<MatrixMetadata>({
+    title: "",
+    functionId: 0,
+    isPublished: false,
   });
+  const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("levels");
   const [isEditingMeta, setIsEditingMeta] = useState(false);
   const [tempName, setTempName] = useState("");
   const [tempFunctionId, setTempFunctionId] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (id) {
-      const found = mockMatrices.find((m) => m.id === id);
-      if (found) {
-        setMatrixMeta({
-          id: found.id,
-          name: found.name,
-          functionId: found.functionId,
-          published: found.published,
-        });
-        setTempName(found.name);
-        setTempFunctionId(found.functionId);
-      }
-    }
-  }, [id]);
+    const loadData = async () => {
+      try {
+        const [matrixData, functionsData] = await Promise.all([
+          fetchCompMatrix(parseInt(matrixId)),
+          fetchFunctions(),
+        ]);
 
-  const handleMetadataChange = (field: string, value: any) => {
-    setMatrixMeta((prev) => ({
+        // Combine DB data with mock data
+        const hybridMatrix: HybridMatrix = {
+          ...matrixData,
+          competencies: emptyMatrix.competencies,
+          ratingOptions: emptyMatrix.ratingOptions,
+          ratingDescriptions: emptyMatrix.ratingDescriptions,
+          ratingColors: emptyMatrix.ratingColors,
+          ratingLabels: emptyMatrix.ratingLabels,
+          ratingWeights: emptyMatrix.ratingWeights,
+        };
+
+        setMatrix(hybridMatrix);
+        setFunctions(functionsData);
+        setMetadata({
+          title: matrixData.title,
+          functionId: matrixData.functionId,
+          isPublished: matrixData.isPublished,
+        });
+        setTempName(matrixData.title);
+        setTempFunctionId(matrixData.functionId.toString());
+      } catch (error) {
+        console.error("Error loading data:", error);
+        toast.error("Failed to load matrix data");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, [matrixId]);
+
+  const handleMetadataChange = (
+    field: keyof MatrixMetadata,
+    value: string | number | boolean,
+  ) => {
+    console.log("Changing metadata:", field, value, typeof value); // Debug log
+    setMetadata((prev) => ({
       ...prev,
-      [field]: value,
+      [field]: field === "functionId" ? Number(value) : value,
     }));
   };
 
-  const handleSaveMeta = () => {
-    handleMetadataChange("name", tempName);
-    handleMetadataChange("functionId", tempFunctionId);
-    setIsEditingMeta(false);
+  const handleSaveMetadata = async () => {
+    if (!matrix) return;
+
+    setIsSaving(true);
+    try {
+      const dataToSave = {
+        ...metadata,
+        functionId: Number(metadata.functionId),
+      };
+      const updatedMatrix = await updateCompMatrix(matrix.id, dataToSave);
+      setMatrix({
+        ...matrix,
+        ...updatedMatrix,
+      });
+      toast.success("Matrix metadata updated successfully");
+      setIsEditingMeta(false); // Switch back to static view
+    } catch (error) {
+      console.error("Error saving metadata:", error);
+      toast.error("Failed to save matrix metadata");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const getLevelNames = () => {
+    if (!matrix) return [];
     if (matrix.levels.length === 0) return [];
-    if (typeof matrix.levels[0] === "string") {
-      return matrix.levels as string[];
-    } else {
-      return (matrix.levels as unknown as LevelData[]).map(
-        (level) => level.name,
-      );
-    }
+    return matrix.levels.map((level) => level.jobTitle);
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!matrix) {
+    return <div>Matrix not found</div>;
+  }
 
   return (
     <div className="container mx-auto space-y-6 py-6">
@@ -160,7 +206,7 @@ const CompetencyMatrixEditor = () => {
           </div>
           <div className="flex gap-2">
             {isEditingMeta ? (
-              <Button onClick={handleSaveMeta}>
+              <Button onClick={handleSaveMetadata}>
                 <Save className="mr-2 h-4 w-4" /> Save
               </Button>
             ) : (
@@ -185,22 +231,24 @@ const CompetencyMatrixEditor = () => {
                   onChange={(e) => setTempName(e.target.value)}
                 />
               ) : (
-                <p className="text-lg font-medium">{matrixMeta.name}</p>
+                <p className="text-lg font-medium">{matrix.title}</p>
               )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="function">Function</Label>
               {isEditingMeta ? (
                 <Select
-                  value={tempFunctionId}
-                  onValueChange={setTempFunctionId}
+                  value={String(metadata.functionId)}
+                  onValueChange={(val) =>
+                    handleMetadataChange("functionId", Number(val))
+                  }
                 >
                   <SelectTrigger id="function" className="w-full">
                     <SelectValue placeholder="Select a function" />
                   </SelectTrigger>
                   <SelectContent>
-                    {mockFunctions.map((func) => (
-                      <SelectItem key={func.id} value={func.id}>
+                    {functions.map((func) => (
+                      <SelectItem key={func.id} value={String(func.id)}>
                         {func.name}
                       </SelectItem>
                     ))}
@@ -208,8 +256,8 @@ const CompetencyMatrixEditor = () => {
                 </Select>
               ) : (
                 <p className="text-lg font-medium">
-                  {mockFunctions.find((f) => f.id === matrixMeta.functionId)
-                    ?.name || "N/A"}
+                  {functions.find((f) => f.id === metadata.functionId)?.name ||
+                    "N/A"}
                 </p>
               )}
             </div>
@@ -217,14 +265,14 @@ const CompetencyMatrixEditor = () => {
           <div className="flex items-center gap-2">
             <Switch
               id="published"
-              checked={matrixMeta.published}
+              checked={matrix.isPublished}
               onCheckedChange={(checked) =>
-                handleMetadataChange("published", checked)
+                handleMetadataChange("isPublished", checked)
               }
             />
             <Label htmlFor="published">Published</Label>
             <span className="text-muted-foreground ml-2 text-sm">
-              {matrixMeta.published
+              {matrix.isPublished
                 ? "Matrix is visible to users"
                 : "Matrix is in draft mode and not visible to users"}
             </span>
@@ -253,10 +301,19 @@ const CompetencyMatrixEditor = () => {
 
             <TabsContent value="levels" className="space-y-4">
               <LevelEditor
-                levels={matrix.levels}
-                onChange={(levels) =>
-                  setMatrix({ ...matrix, levels: levels as string[] })
-                }
+                levels={matrix.levels.map((level) => ({
+                  name: level.jobTitle,
+                  metadata: {
+                    title: level.jobTitle,
+                    description: level.roleSummary,
+                    persona: level.persona || "",
+                    areaOfImpact: level.areaOfImpact || "",
+                  },
+                }))}
+                onChange={(levels) => {
+                  // TODO: Implement level update when DB is ready
+                  console.log("Levels changed:", levels);
+                }}
               />
             </TabsContent>
 
@@ -264,29 +321,35 @@ const CompetencyMatrixEditor = () => {
               <CompetencyAreaEditor
                 competencies={matrix.competencies}
                 levels={getLevelNames()}
-                onChange={(competencies) =>
-                  setMatrix({ ...matrix, competencies })
-                }
+                onChange={(competencies) => {
+                  setMatrix((prev) =>
+                    prev ? { ...prev, competencies } : null,
+                  );
+                }}
               />
             </TabsContent>
 
             <TabsContent value="ratings" className="space-y-4">
               <RatingOptionsEditor
-                ratingOptions={matrix.ratingOptions as string[]}
+                ratingOptions={matrix.ratingOptions}
                 ratingDescriptions={matrix.ratingDescriptions}
                 ratingColors={matrix.ratingColors}
                 ratingLabels={matrix.ratingLabels}
                 ratingWeights={matrix.ratingWeights}
-                onChange={(ratingData) =>
-                  setMatrix({
-                    ...matrix,
-                    ratingOptions: ratingData.ratingOptions as Rating[],
-                    ratingDescriptions: ratingData.ratingDescriptions,
-                    ratingColors: ratingData.ratingColors,
-                    ratingLabels: ratingData.ratingLabels,
-                    ratingWeights: ratingData.ratingWeights,
-                  })
-                }
+                onChange={(ratingData) => {
+                  setMatrix((prev) =>
+                    prev
+                      ? {
+                          ...prev,
+                          ratingOptions: ratingData.ratingOptions,
+                          ratingDescriptions: ratingData.ratingDescriptions,
+                          ratingColors: ratingData.ratingColors,
+                          ratingLabels: ratingData.ratingLabels,
+                          ratingWeights: ratingData.ratingWeights,
+                        }
+                      : null,
+                  );
+                }}
               />
             </TabsContent>
           </Tabs>
