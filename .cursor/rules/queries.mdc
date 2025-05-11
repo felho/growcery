@@ -10,6 +10,8 @@ alwaysApply: false
 - Location: All queries must be in `server/queries/`
 - Structure: Modular — one folder per entity
 - Files: One file per operation (e.g. `get-by-id.ts`, `create.ts`)
+- Don't use nested folder, for example, comp-matrix-levels related queries should go into the comp-matrix-levels folder and not into the comp-matrix/levels
+
 
 ## Index Files
 - Each entity folder has an index.ts that re-exports types and query functions

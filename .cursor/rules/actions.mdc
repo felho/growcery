@@ -19,6 +19,7 @@ alwaysApply: false
 ## Organization
 - Location: All server actions must be in `server/actions/`
 - Structure: One file per entity (e.g., `users.ts`, `products.ts`)
+- Don't use nested folder, for example, comp-matrix-levels related actions should go into the comp-matrix-levels folder and not into the comp-matrix/levels
 
 ## Implementation
 - Purpose: Wrap server-side mutations using `next-safe-action`
