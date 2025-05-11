@@ -46,6 +46,7 @@ import { useForm } from "react-hook-form";
 import type { DragEndEvent as DragEndEventCore } from "@dnd-kit/core";
 import { reorderLevelsAction } from "~/server/actions/comp-matrix-levels/reorder";
 import { toast } from "sonner";
+import type { CompMatrixLevel } from "~/server/queries/comp-matrix-levels";
 
 interface LevelMetadata {
   title: string;
@@ -127,10 +128,21 @@ export const LevelEditor = ({
             levels: levelsWithNewOrder,
           });
 
-          console.log("result", result);
-
           if (result?.data) {
-            onChange(updatedLevels);
+            // Map the server response to our LevelData format
+            const serverUpdatedLevels = Array.isArray(result.data)
+              ? result.data.map((level) => ({
+                  id: level.id,
+                  name: level.jobTitle,
+                  metadata: {
+                    title: level.jobTitle,
+                    description: level.roleSummary,
+                    persona: level.persona || "",
+                    areaOfImpact: level.areaOfImpact || "",
+                  },
+                }))
+              : updatedLevels; // Fallback to local state if server response is not as expected
+            onChange(serverUpdatedLevels);
             toast.success("Levels reordered successfully");
           }
         } catch (error) {
@@ -169,7 +181,20 @@ export const LevelEditor = ({
       });
 
       if (result?.data) {
-        onChange(updatedLevels);
+        // Map the server response to our LevelData format
+        const serverUpdatedLevels = Array.isArray(result.data)
+          ? result.data.map((level) => ({
+              id: level.id,
+              name: level.jobTitle,
+              metadata: {
+                title: level.jobTitle,
+                description: level.roleSummary,
+                persona: level.persona || "",
+                areaOfImpact: level.areaOfImpact || "",
+              },
+            }))
+          : updatedLevels; // Fallback to local state if server response is not as expected
+        onChange(serverUpdatedLevels);
         toast.success("Levels reordered successfully");
       }
     } catch (error) {
