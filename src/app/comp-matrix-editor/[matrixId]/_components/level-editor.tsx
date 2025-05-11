@@ -45,6 +45,7 @@ import {
 import { useForm } from "react-hook-form";
 import type { DragEndEvent as DragEndEventCore } from "@dnd-kit/core";
 import { reorderLevelsAction } from "~/server/actions/comp-matrix-levels/reorder";
+import { toast } from "sonner";
 
 interface LevelMetadata {
   title: string;
@@ -54,13 +55,15 @@ interface LevelMetadata {
 }
 
 interface LevelData {
+  id: number;
   name: string;
   metadata: LevelMetadata;
 }
 
 interface LevelEditorProps {
-  levels: string[] | LevelData[];
-  onChange: (levels: string[] | LevelData[]) => void;
+  matrixId: number;
+  levels: LevelData[];
+  onChange: (levels: LevelData[]) => void;
 }
 
 interface NewLevelFormValues {
@@ -71,7 +74,11 @@ interface NewLevelFormValues {
   areaOfImpact: string;
 }
 
-export const LevelEditor = ({ levels, onChange }: LevelEditorProps) => {
+export const LevelEditor = ({
+  matrixId,
+  levels,
+  onChange,
+}: LevelEditorProps) => {
   const [showNewLevelForm, setShowNewLevelForm] = useState(false);
   const [insertPosition, setInsertPosition] = useState(-1);
   const [expandedLevels, setExpandedLevels] = useState<Record<number, boolean>>(
@@ -88,15 +95,6 @@ export const LevelEditor = ({ levels, onChange }: LevelEditorProps) => {
     },
   });
 
-  const isUsingMetadata = levels.length > 0 && typeof levels[0] !== "string";
-
-  const levelsWithMetadata: LevelData[] = isUsingMetadata
-    ? (levels as LevelData[])
-    : (levels as string[]).map((level) => ({
-        name: level,
-        metadata: { title: "", description: "", persona: "", areaOfImpact: "" },
-      }));
-
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -104,20 +102,79 @@ export const LevelEditor = ({ levels, onChange }: LevelEditorProps) => {
     }),
   );
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-    const oldIndex = levelsWithMetadata.findIndex((l) => l.name === active.id);
-    const newIndex = levelsWithMetadata.findIndex((l) => l.name === over.id);
+    const oldIndex = levels.findIndex((l) => l.id === Number(active.id));
+    const newIndex = levels.findIndex((l) => l.id === Number(over.id));
 
     if (oldIndex !== -1 && newIndex !== -1) {
-      const updatedLevels = [...levelsWithMetadata];
+      const updatedLevels = [...levels];
       const [moved] = updatedLevels.splice(oldIndex, 1);
       if (moved) {
         updatedLevels.splice(newIndex, 0, moved);
-        onChange(updatedLevels);
+
+        // Update numericLevel for all levels
+        const levelsWithNewOrder = updatedLevels.map((level, index) => ({
+          id: level.id,
+          numericLevel: index + 1,
+        }));
+
+        try {
+          const result = await reorderLevelsAction({
+            matrixId,
+            levels: levelsWithNewOrder,
+          });
+
+          console.log("result", result);
+
+          if (result?.data) {
+            onChange(updatedLevels);
+            toast.success("Levels reordered successfully");
+          }
+        } catch (error) {
+          console.error("Error reordering levels:", error);
+          toast.error("Failed to reorder levels");
+        }
       }
+    }
+  };
+
+  const handleMoveLevel = async (index: number, direction: "up" | "down") => {
+    if (
+      (direction === "up" && index === 0) ||
+      (direction === "down" && index === levels.length - 1)
+    )
+      return;
+
+    const updatedLevels = [...levels];
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    if (!updatedLevels[index] || !updatedLevels[targetIndex]) return;
+    [updatedLevels[index], updatedLevels[targetIndex]] = [
+      updatedLevels[targetIndex],
+      updatedLevels[index],
+    ];
+
+    // Update numericLevel for all levels
+    const levelsWithNewOrder = updatedLevels.map((level, index) => ({
+      id: level.id,
+      numericLevel: index + 1,
+    }));
+
+    try {
+      const result = await reorderLevelsAction({
+        matrixId,
+        levels: levelsWithNewOrder,
+      });
+
+      if (result?.data) {
+        onChange(updatedLevels);
+        toast.success("Levels reordered successfully");
+      }
+    } catch (error) {
+      console.error("Error reordering levels:", error);
+      toast.error("Failed to reorder levels");
     }
   };
 
@@ -125,6 +182,7 @@ export const LevelEditor = ({ levels, onChange }: LevelEditorProps) => {
     if (!data.name.trim()) return;
 
     const newLevelData: LevelData = {
+      id: Date.now(), // Temporary ID until saved to DB
       name: data.name,
       metadata: {
         title: data.title,
@@ -134,7 +192,7 @@ export const LevelEditor = ({ levels, onChange }: LevelEditorProps) => {
       },
     };
 
-    const updatedLevels = [...levelsWithMetadata];
+    const updatedLevels = [...levels];
     if (insertPosition >= 0) {
       updatedLevels.splice(insertPosition, 0, newLevelData);
       setInsertPosition(-1);
@@ -148,26 +206,8 @@ export const LevelEditor = ({ levels, onChange }: LevelEditorProps) => {
   };
 
   const handleRemoveLevel = (index: number) => {
-    const updatedLevels = [...levelsWithMetadata];
+    const updatedLevels = [...levels];
     updatedLevels.splice(index, 1);
-    onChange(updatedLevels);
-  };
-
-  const handleMoveLevel = (index: number, direction: "up" | "down") => {
-    if (
-      (direction === "up" && index === 0) ||
-      (direction === "down" && index === levelsWithMetadata.length - 1)
-    )
-      return;
-
-    const updatedLevels = [...levelsWithMetadata];
-    const targetIndex = direction === "up" ? index - 1 : index + 1;
-    if (!updatedLevels[index] || !updatedLevels[targetIndex]) return;
-    [updatedLevels[index], updatedLevels[targetIndex]] = [
-      updatedLevels[targetIndex],
-      updatedLevels[index],
-    ];
-
     onChange(updatedLevels);
   };
 
@@ -180,7 +220,7 @@ export const LevelEditor = ({ levels, onChange }: LevelEditorProps) => {
     field: keyof LevelMetadata,
     value: string,
   ) => {
-    const updatedLevels = [...levelsWithMetadata];
+    const updatedLevels = [...levels];
     if (!updatedLevels[index]) return;
     updatedLevels[index] = {
       ...updatedLevels[index],
@@ -338,18 +378,18 @@ export const LevelEditor = ({ levels, onChange }: LevelEditorProps) => {
         onDragEnd={handleDragEnd}
       >
         <SortableContext
-          items={levelsWithMetadata.map((l) => l.name)}
+          items={levels.map((l) => String(l.id))}
           strategy={verticalListSortingStrategy}
         >
           <div className="space-y-2">
-            {levelsWithMetadata.length === 0 ? (
+            {levels.length === 0 ? (
               <p className="text-muted-foreground py-4 text-center">
                 No levels defined yet. Add your first level above.
               </p>
             ) : (
-              levelsWithMetadata.map((level, index) => (
+              levels.map((level, index) => (
                 <SortableLevelCard
-                  key={level.name}
+                  key={level.id}
                   level={level}
                   index={index}
                   onRemove={handleRemoveLevel}
@@ -362,7 +402,7 @@ export const LevelEditor = ({ levels, onChange }: LevelEditorProps) => {
                     setShowNewLevelForm(true);
                     form.reset();
                   }}
-                  levelsLength={levelsWithMetadata.length}
+                  levelsLength={levels.length}
                 />
               ))
             )}
@@ -397,7 +437,7 @@ const SortableLevelCard: React.FC<SortableLevelCardProps> = (props) => {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: props.level.name });
+  } = useSortable({ id: String(props.level.id) });
 
   const style = {
     transform: CSS.Transform.toString(transform),

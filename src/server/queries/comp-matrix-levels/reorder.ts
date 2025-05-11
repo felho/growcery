@@ -1,24 +1,20 @@
 import { db } from "~/server/db";
 import { compMatrixLevels } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
-import type { Level, ReorderLevelsInput, ReorderLevelsOutput } from "./index";
+import type { CompMatrixLevel, ReorderCompMatrixLevelsInput } from "./index";
 
 export async function reorderLevels(
-  input: ReorderLevelsInput,
-): Promise<ReorderLevelsOutput> {
+  input: ReorderCompMatrixLevelsInput,
+): Promise<CompMatrixLevel[]> {
   const { matrixId, levels } = input;
 
-  // Update each level's numericLevel in a transaction
-  await db.transaction(async (tx) => {
-    for (const level of levels) {
-      await tx
-        .update(compMatrixLevels)
-        .set({ numericLevel: level.numericLevel })
-        .where(eq(compMatrixLevels.id, level.id));
-    }
-  });
+  for (const level of levels) {
+    await db
+      .update(compMatrixLevels)
+      .set({ numericLevel: level.numericLevel })
+      .where(eq(compMatrixLevels.id, level.id));
+  }
 
-  // Return the updated levels
   return db
     .select()
     .from(compMatrixLevels)

@@ -315,7 +315,9 @@ const CompetencyMatrixEditor = () => {
 
             <TabsContent value="levels" className="space-y-4">
               <LevelEditor
+                matrixId={matrix.id}
                 levels={matrix.levels.map((level) => ({
+                  id: level.id,
                   name: level.jobTitle,
                   metadata: {
                     title: level.jobTitle,
