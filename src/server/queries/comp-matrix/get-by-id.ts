@@ -18,7 +18,7 @@ export async function getCompMatrixById(
         },
       },
       levels: {
-        orderBy: (levels, { asc }) => [asc(levels.levelCode)],
+        orderBy: (levels, { asc }) => [asc(levels.numericLevel)],
       },
     },
   });
