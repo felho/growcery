@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
@@ -83,6 +83,11 @@ export const LevelEditor = ({
     {},
   );
 
+  const [localLevels, setLocalLevels] = useState<LevelData[]>(levels);
+  useEffect(() => {
+    setLocalLevels(levels);
+  }, [levels]);
+
   const form = useForm<NewLevelFormValues>({
     defaultValues: {
       name: "",
@@ -100,23 +105,24 @@ export const LevelEditor = ({
     }),
   );
 
-  const updateOrder = (newLevels: LevelData[]) => {
-    onChange(newLevels);
+  const optimisticReorder = (updated: LevelData[]) => {
+    setLocalLevels(updated);
+    onChange(updated);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-    const oldIndex = levels.findIndex((l) => l.id === Number(active.id));
-    const newIndex = levels.findIndex((l) => l.id === Number(over.id));
+    const oldIndex = localLevels.findIndex((l) => l.id === Number(active.id));
+    const newIndex = localLevels.findIndex((l) => l.id === Number(over.id));
 
     if (oldIndex !== -1 && newIndex !== -1) {
-      const updatedLevels = [...levels];
+      const updatedLevels = [...localLevels];
       const [moved] = updatedLevels.splice(oldIndex, 1);
       if (moved) {
         updatedLevels.splice(newIndex, 0, moved);
-        updateOrder(updatedLevels);
+        optimisticReorder(updatedLevels);
       }
     }
   };
@@ -124,11 +130,11 @@ export const LevelEditor = ({
   const handleMoveLevel = (index: number, direction: "up" | "down") => {
     if (
       (direction === "up" && index === 0) ||
-      (direction === "down" && index === levels.length - 1)
+      (direction === "down" && index === localLevels.length - 1)
     )
       return;
 
-    const updatedLevels = [...levels];
+    const updatedLevels = [...localLevels];
     const targetIndex = direction === "up" ? index - 1 : index + 1;
     const sourceLevel = updatedLevels[index];
     const targetLevel = updatedLevels[targetIndex];
@@ -139,7 +145,7 @@ export const LevelEditor = ({
       ];
     }
 
-    updateOrder(updatedLevels);
+    optimisticReorder(updatedLevels);
   };
 
   const handleAddLevel = (data: NewLevelFormValues) => {
@@ -344,16 +350,16 @@ export const LevelEditor = ({
         onDragEnd={handleDragEnd}
       >
         <SortableContext
-          items={levels.map((l) => String(l.id))}
+          items={localLevels.map((l) => String(l.id))}
           strategy={verticalListSortingStrategy}
         >
           <div className="space-y-2">
-            {levels.length === 0 ? (
+            {localLevels.length === 0 ? (
               <p className="text-muted-foreground py-4 text-center">
                 No levels defined yet. Add your first level above.
               </p>
             ) : (
-              levels.map((level, index) => (
+              localLevels.map((level, index) => (
                 <SortableLevelCard
                   key={level.id}
                   level={level}
@@ -368,7 +374,7 @@ export const LevelEditor = ({
                     setShowNewLevelForm(true);
                     form.reset();
                   }}
-                  levelsLength={levels.length}
+                  levelsLength={localLevels.length}
                 />
               ))
             )}
