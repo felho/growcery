@@ -44,9 +44,6 @@ import {
 } from "~/components/ui/form";
 import { useForm } from "react-hook-form";
 import type { DragEndEvent as DragEndEventCore } from "@dnd-kit/core";
-import { reorderLevelsAction } from "~/server/actions/comp-matrix-levels/reorder";
-import { toast } from "sonner";
-import type { CompMatrixLevel } from "~/server/queries/comp-matrix-levels";
 
 interface LevelMetadata {
   title: string;
@@ -103,7 +100,11 @@ export const LevelEditor = ({
     }),
   );
 
-  const handleDragEnd = async (event: DragEndEvent) => {
+  const updateOrder = (newLevels: LevelData[]) => {
+    onChange(newLevels);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
@@ -115,45 +116,12 @@ export const LevelEditor = ({
       const [moved] = updatedLevels.splice(oldIndex, 1);
       if (moved) {
         updatedLevels.splice(newIndex, 0, moved);
-
-        // Update numericLevel for all levels
-        const levelsWithNewOrder = updatedLevels.map((level, index) => ({
-          id: level.id,
-          numericLevel: index + 1,
-        }));
-
-        try {
-          const result = await reorderLevelsAction({
-            matrixId,
-            levels: levelsWithNewOrder,
-          });
-
-          if (result?.data) {
-            // Map the server response to our LevelData format
-            const serverUpdatedLevels = Array.isArray(result.data)
-              ? result.data.map((level) => ({
-                  id: level.id,
-                  name: level.jobTitle,
-                  metadata: {
-                    title: level.jobTitle,
-                    description: level.roleSummary,
-                    persona: level.persona || "",
-                    areaOfImpact: level.areaOfImpact || "",
-                  },
-                }))
-              : updatedLevels; // Fallback to local state if server response is not as expected
-            onChange(serverUpdatedLevels);
-            toast.success("Levels reordered successfully");
-          }
-        } catch (error) {
-          console.error("Error reordering levels:", error);
-          toast.error("Failed to reorder levels");
-        }
+        updateOrder(updatedLevels);
       }
     }
   };
 
-  const handleMoveLevel = async (index: number, direction: "up" | "down") => {
+  const handleMoveLevel = (index: number, direction: "up" | "down") => {
     if (
       (direction === "up" && index === 0) ||
       (direction === "down" && index === levels.length - 1)
@@ -162,52 +130,23 @@ export const LevelEditor = ({
 
     const updatedLevels = [...levels];
     const targetIndex = direction === "up" ? index - 1 : index + 1;
-    if (!updatedLevels[index] || !updatedLevels[targetIndex]) return;
-    [updatedLevels[index], updatedLevels[targetIndex]] = [
-      updatedLevels[targetIndex],
-      updatedLevels[index],
-    ];
-
-    // Update numericLevel for all levels
-    const levelsWithNewOrder = updatedLevels.map((level, index) => ({
-      id: level.id,
-      numericLevel: index + 1,
-    }));
-
-    try {
-      const result = await reorderLevelsAction({
-        matrixId,
-        levels: levelsWithNewOrder,
-      });
-
-      if (result?.data) {
-        // Map the server response to our LevelData format
-        const serverUpdatedLevels = Array.isArray(result.data)
-          ? result.data.map((level) => ({
-              id: level.id,
-              name: level.jobTitle,
-              metadata: {
-                title: level.jobTitle,
-                description: level.roleSummary,
-                persona: level.persona || "",
-                areaOfImpact: level.areaOfImpact || "",
-              },
-            }))
-          : updatedLevels; // Fallback to local state if server response is not as expected
-        onChange(serverUpdatedLevels);
-        toast.success("Levels reordered successfully");
-      }
-    } catch (error) {
-      console.error("Error reordering levels:", error);
-      toast.error("Failed to reorder levels");
+    const sourceLevel = updatedLevels[index];
+    const targetLevel = updatedLevels[targetIndex];
+    if (sourceLevel && targetLevel) {
+      [updatedLevels[index], updatedLevels[targetIndex]] = [
+        targetLevel,
+        sourceLevel,
+      ];
     }
+
+    updateOrder(updatedLevels);
   };
 
   const handleAddLevel = (data: NewLevelFormValues) => {
     if (!data.name.trim()) return;
 
     const newLevelData: LevelData = {
-      id: Date.now(), // Temporary ID until saved to DB
+      id: Date.now(),
       name: data.name,
       metadata: {
         title: data.title,
@@ -246,12 +185,14 @@ export const LevelEditor = ({
     value: string,
   ) => {
     const updatedLevels = [...levels];
-    if (!updatedLevels[index]) return;
-    updatedLevels[index] = {
-      ...updatedLevels[index],
-      metadata: { ...updatedLevels[index].metadata, [field]: value },
-    };
-    onChange(updatedLevels);
+    const level = updatedLevels[index];
+    if (level) {
+      updatedLevels[index] = {
+        ...level,
+        metadata: { ...level.metadata, [field]: value },
+      };
+      onChange(updatedLevels);
+    }
   };
 
   return (
