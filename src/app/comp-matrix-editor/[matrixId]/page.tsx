@@ -20,6 +20,8 @@ import {
 } from "~/components/ui/select";
 import { Switch } from "~/components/ui/switch";
 import { Label } from "~/components/ui/label";
+import { Input } from "~/components/ui/input";
+import { Pencil, Save } from "lucide-react";
 import {
   type CompetencyMatrix,
   type Rating,
@@ -92,6 +94,9 @@ const CompetencyMatrixEditor = () => {
     published: false,
   });
   const [activeTab, setActiveTab] = useState("levels");
+  const [isEditingMeta, setIsEditingMeta] = useState(false);
+  const [tempName, setTempName] = useState("");
+  const [tempFunctionId, setTempFunctionId] = useState("");
 
   useEffect(() => {
     if (id) {
@@ -103,6 +108,8 @@ const CompetencyMatrixEditor = () => {
           functionId: found.functionId,
           published: found.published,
         });
+        setTempName(found.name);
+        setTempFunctionId(found.functionId);
       }
     }
   }, [id]);
@@ -112,7 +119,12 @@ const CompetencyMatrixEditor = () => {
       ...prev,
       [field]: value,
     }));
-    console.log(`Updated ${field} to ${value}`);
+  };
+
+  const handleSaveMeta = () => {
+    handleMetadataChange("name", tempName);
+    handleMetadataChange("functionId", tempFunctionId);
+    setIsEditingMeta(false);
   };
 
   const getLevelNames = () => {
@@ -139,37 +151,67 @@ const CompetencyMatrixEditor = () => {
       </div>
 
       <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="text-2xl">Matrix Information</CardTitle>
-          <CardDescription>
-            Basic information about this competency matrix
-          </CardDescription>
+        <CardHeader className="flex items-start justify-between gap-4">
+          <div>
+            <CardTitle className="text-2xl">Matrix Information</CardTitle>
+            <CardDescription>
+              Basic information about this competency matrix
+            </CardDescription>
+          </div>
+          <div className="flex gap-2">
+            {isEditingMeta ? (
+              <Button onClick={handleSaveMeta}>
+                <Save className="mr-2 h-4 w-4" /> Save
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setIsEditingMeta(true)}
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="name">Matrix Name</Label>
-              <p className="text-lg font-medium">{matrixMeta.name}</p>
+              {isEditingMeta ? (
+                <Input
+                  id="name"
+                  value={tempName}
+                  onChange={(e) => setTempName(e.target.value)}
+                />
+              ) : (
+                <p className="text-lg font-medium">{matrixMeta.name}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="function">Function</Label>
-              <Select
-                value={matrixMeta.functionId}
-                onValueChange={(value) =>
-                  handleMetadataChange("functionId", value)
-                }
-              >
-                <SelectTrigger id="function" className="w-full">
-                  <SelectValue placeholder="Select a function" />
-                </SelectTrigger>
-                <SelectContent>
-                  {mockFunctions.map((func) => (
-                    <SelectItem key={func.id} value={func.id}>
-                      {func.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {isEditingMeta ? (
+                <Select
+                  value={tempFunctionId}
+                  onValueChange={setTempFunctionId}
+                >
+                  <SelectTrigger id="function" className="w-full">
+                    <SelectValue placeholder="Select a function" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {mockFunctions.map((func) => (
+                      <SelectItem key={func.id} value={func.id}>
+                        {func.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <p className="text-lg font-medium">
+                  {mockFunctions.find((f) => f.id === matrixMeta.functionId)
+                    ?.name || "N/A"}
+                </p>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-2">
