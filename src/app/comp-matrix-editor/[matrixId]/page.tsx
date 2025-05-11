@@ -263,19 +263,33 @@ const CompetencyMatrixEditor = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Switch
-              id="published"
-              checked={matrix.isPublished}
-              onCheckedChange={(checked) =>
-                handleMetadataChange("isPublished", checked)
-              }
-            />
-            <Label htmlFor="published">Published</Label>
-            <span className="text-muted-foreground ml-2 text-sm">
-              {matrix.isPublished
-                ? "Matrix is visible to users"
-                : "Matrix is in draft mode and not visible to users"}
-            </span>
+            {isEditingMeta ? (
+              <>
+                <Switch
+                  id="published"
+                  checked={metadata.isPublished}
+                  onCheckedChange={(checked) =>
+                    handleMetadataChange("isPublished", checked)
+                  }
+                />
+                <Label htmlFor="published">Published</Label>
+                <span className="text-muted-foreground ml-2 text-sm">
+                  {metadata.isPublished
+                    ? "Matrix is visible to users"
+                    : "Matrix is in draft mode and not visible to users"}
+                </span>
+              </>
+            ) : (
+              <span
+                className={`mt-3 inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium ${
+                  matrix.isPublished
+                    ? "bg-green-100 text-green-800"
+                    : "bg-yellow-100 text-yellow-800"
+                }`}
+              >
+                {matrix.isPublished ? "Published" : "Draft"}
+              </span>
+            )}
           </div>
         </CardContent>
       </Card>
