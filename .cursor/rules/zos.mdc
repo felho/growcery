@@ -5,6 +5,14 @@ alwaysApply: false
 ---
 ## Zod Schema Consistency Rules
 
+## Types and Schemas
+- Location: Place all Zod schemas in `zod-schemas/` directory
+- Structure: One file per entity (e.g., `comp-matrix.ts`, `users.ts`)
+- Organization: Keep all schemas for an entity in a single file
+  - Include create, update, and other operation schemas in the same file
+  - Use descriptive names for different schemas (e.g., `createCompMatrixSchema`, `updateCompMatrixSchema`)
+  - Export all schemas and their types from the same file
+
 When creating or updating Zod schema files, always follow these standards:
 
 1. **Define a `baseFields` object for shared field validation**
