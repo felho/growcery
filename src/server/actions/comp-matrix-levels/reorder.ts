@@ -13,5 +13,5 @@ export const reorderLevelsAction = actionClient
   })
   .action(async ({ parsedInput }) => {
     const levels = await reorderLevels(parsedInput);
-    return { data: levels };
+    return { levels: levels };
   });
