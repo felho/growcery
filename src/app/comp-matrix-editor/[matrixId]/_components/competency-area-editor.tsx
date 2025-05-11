@@ -23,8 +23,8 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  type DragEndEvent,
 } from "@dnd-kit/core";
-import type { DragEndEvent } from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
@@ -74,10 +74,7 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-
-    if (!over || active.id === over.id) {
-      return;
-    }
+    if (!over || active.id === over.id) return;
 
     const oldIndex = competencies.findIndex((c) => c.id === active.id);
     const newIndex = competencies.findIndex((c) => c.id === over.id);
@@ -91,7 +88,12 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
     if (!newCategoryName.trim()) return;
     onChange([
       ...competencies,
-      { id: uuidv4(), category: newCategoryName, items: [] },
+      {
+        id: uuidv4(),
+        category: newCategoryName,
+        description: "",
+        items: [],
+      },
     ]);
     setNewCategoryName("");
   };
@@ -100,10 +102,11 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
     onChange(competencies.filter((c) => c.id !== id));
   };
 
-  const handleUpdateCategoryName = (id: string, name: string) => {
-    onChange(
-      competencies.map((c) => (c.id === id ? { ...c, category: name } : c)),
-    );
+  const handleUpdateCategory = (
+    id: string,
+    updates: Partial<CompetencyCategory>,
+  ) => {
+    onChange(competencies.map((c) => (c.id === id ? { ...c, ...updates } : c)));
   };
 
   const openCompetencyDialog = (
@@ -244,7 +247,7 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
                 <SortableCompetencyArea
                   key={category.id}
                   category={category}
-                  onUpdateName={handleUpdateCategoryName}
+                  onUpdateCategory={handleUpdateCategory}
                   onRemove={handleRemoveCategory}
                   onAddCompetency={openCompetencyDialog}
                   onEditCompetency={openCompetencyDialog}
@@ -388,7 +391,7 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
 
 interface SortableCompetencyAreaProps {
   category: CompetencyCategory;
-  onUpdateName: (id: string, name: string) => void;
+  onUpdateCategory: (id: string, updates: Partial<CompetencyCategory>) => void;
   onRemove: (id: string) => void;
   onAddCompetency: (areaId: string) => void;
   onEditCompetency: (areaId: string, competency: CompetencyItem) => void;

@@ -42,7 +42,7 @@ import { Textarea } from "~/components/ui/textarea";
 
 interface CompetencyAreaProps {
   category: CompetencyCategory;
-  onUpdateName: (id: string, name: string) => void;
+  onUpdateCategory: (id: string, updates: Partial<CompetencyCategory>) => void;
   onRemove: (id: string) => void;
   onAddCompetency: (areaId: string) => void;
   onEditCompetency: (areaId: string, competency: CompetencyItemType) => void;
@@ -55,7 +55,7 @@ interface CompetencyAreaProps {
 
 const CompetencyArea: React.FC<CompetencyAreaProps> = ({
   category,
-  onUpdateName,
+  onUpdateCategory,
   onRemove,
   onAddCompetency,
   onEditCompetency,
@@ -79,8 +79,10 @@ const CompetencyArea: React.FC<CompetencyAreaProps> = ({
   );
 
   const handleSave = () => {
-    onUpdateName(category.id, editingName.trim());
-    category.description = editingDescription.trim(); // optional: can lift this too
+    onUpdateCategory(category.id, {
+      category: editingName.trim(),
+      description: editingDescription.trim(),
+    });
     setIsEditing(false);
   };
 
