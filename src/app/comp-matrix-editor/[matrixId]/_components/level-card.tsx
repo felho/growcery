@@ -8,7 +8,7 @@ import {
   ArrowDown,
   GripVertical,
   Pencil,
-  CheckCircle,
+  Save,
 } from "lucide-react";
 import { Card, CardContent } from "~/components/ui/card";
 import { useSortable } from "@dnd-kit/sortable";
@@ -134,7 +134,7 @@ export const LevelCard: React.FC<LevelCardProps> = (props) => {
                 disabled={isSaving}
               >
                 {props.isExpanded ? (
-                  <CheckCircle className="h-4 w-4" />
+                  <Save className="h-4 w-4" />
                 ) : (
                   <Pencil className="h-4 w-4" />
                 )}
