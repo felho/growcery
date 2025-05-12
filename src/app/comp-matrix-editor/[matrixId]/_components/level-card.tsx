@@ -23,7 +23,7 @@ import {
 } from "~/components/ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { updateLevelSchema } from "~/zod-schemas/comp-matrix-levels";
 
 interface LevelMetadata {
   title: string;
@@ -37,13 +37,6 @@ interface LevelData {
   name: string;
   metadata: LevelMetadata;
 }
-
-const levelMetadataSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().min(1, "Description is required"),
-  persona: z.string().min(1, "Persona is required"),
-  areaOfImpact: z.string().min(1, "Area of Impact is required"),
-});
 
 interface LevelCardProps {
   level: LevelData;
@@ -75,7 +68,7 @@ export const LevelCard: React.FC<LevelCardProps> = (props) => {
   const [isSaving, setIsSaving] = useState(false);
 
   const form = useForm<LevelMetadata>({
-    resolver: zodResolver(levelMetadataSchema),
+    resolver: zodResolver(updateLevelSchema.omit({ levelId: true })),
     defaultValues: props.level.metadata,
   });
 
@@ -88,9 +81,10 @@ export const LevelCard: React.FC<LevelCardProps> = (props) => {
   const handleSave = async () => {
     try {
       setIsSaving(true);
-      const formData = form.getValues();
-      await props.onSave(props.index, formData);
-      props.onToggleExpand(props.index);
+      await form.handleSubmit(async (formData) => {
+        await props.onSave(props.index, formData);
+        props.onToggleExpand(props.index);
+      })();
     } catch (error) {
       console.error("Failed to save level:", error);
     } finally {
