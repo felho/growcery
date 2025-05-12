@@ -1,17 +1,6 @@
 import { z } from "zod";
 
-export const reorderLevelsSchema = z.object({
-  matrixId: z.number(),
-  levels: z.array(
-    z.object({
-      id: z.number(),
-      numericLevel: z.number(),
-    }),
-  ),
-});
-
-export const updateLevelSchema = z.object({
-  levelId: z.number(),
+const baseLevelFields = {
   title: z
     .string()
     .min(1, "Title is required")
@@ -28,7 +17,38 @@ export const updateLevelSchema = z.object({
     .string()
     .min(1, "Area of Impact is required")
     .max(200, "Area of Impact must be at most 200 characters"),
+};
+
+export const createLevelSchemaFromForm = z.object({
+  ...baseLevelFields,
+  insertPosition: z.number().optional(),
 });
 
+export const createLevelSchema = z.object({
+  ...baseLevelFields,
+  matrixId: z.number(),
+  insertPosition: z.number().optional(),
+});
+
+export const reorderLevelsSchema = z.object({
+  matrixId: z.number(),
+  levels: z.array(
+    z.object({
+      id: z.number(),
+      numericLevel: z.number(),
+    }),
+  ),
+});
+
+export const updateLevelSchema = z.object({
+  levelId: z.number(),
+  ...baseLevelFields,
+});
+
+export type CreateLevelInputFromForm = z.infer<
+  typeof createLevelSchemaFromForm
+>;
+export type CreateLevelInput = z.infer<typeof createLevelSchema>;
 export type ReorderLevelsInput = z.infer<typeof reorderLevelsSchema>;
 export type ReorderLevelsOutput = z.infer<typeof reorderLevelsSchema>;
+export type UpdateLevelInput = z.infer<typeof updateLevelSchema>;

@@ -14,27 +14,23 @@ import {
   FormItem,
   FormLabel,
   FormControl,
+  FormMessage,
 } from "~/components/ui/form";
 import { useForm } from "react-hook-form";
-
-interface LevelMetadata {
-  title: string;
-  description: string;
-  persona: string;
-  areaOfImpact: string;
-}
-
-interface NewLevelFormValues {
-  title: string;
-  description: string;
-  persona: string;
-  areaOfImpact: string;
-}
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  createLevelSchemaFromForm,
+  type CreateLevelInputFromForm,
+} from "~/zod-schemas/comp-matrix-levels";
+import { createLevelAction } from "~/server/actions/comp-matrix-levels/create";
+import { useParams } from "next/navigation";
+import { toast } from "sonner";
+import { useAction } from "next-safe-action/hooks";
 
 interface NewLevelFormProps {
   showForm: boolean;
   onShowFormChange: (show: boolean) => void;
-  onSubmit: (data: NewLevelFormValues) => void;
+  onSubmit: (data: CreateLevelInputFromForm) => void;
   insertPosition?: number;
 }
 
@@ -44,7 +40,32 @@ export const NewLevelForm: React.FC<NewLevelFormProps> = ({
   onSubmit,
   insertPosition,
 }) => {
-  const form = useForm<NewLevelFormValues>({
+  const params = useParams();
+  const matrixId = Number(params.matrixId);
+
+  const { execute, status, result } = useAction(createLevelAction, {
+    onSuccess: (result) => {
+      if (result.data?.level) {
+        toast.success("Level created successfully");
+        form.reset();
+        onShowFormChange(false);
+        onSubmit({
+          title: result.data.level.jobTitle,
+          description: result.data.level.roleSummary,
+          persona: result.data.level.persona ?? "",
+          areaOfImpact: result.data.level.areaOfImpact ?? "",
+          insertPosition,
+        });
+      }
+    },
+    onError: (error) => {
+      console.error("Failed to create level:", error);
+      toast.error("Failed to create level");
+    },
+  });
+
+  const form = useForm<CreateLevelInputFromForm>({
+    resolver: zodResolver(createLevelSchemaFromForm),
     defaultValues: {
       title: "",
       description: "",
@@ -53,10 +74,23 @@ export const NewLevelForm: React.FC<NewLevelFormProps> = ({
     },
   });
 
-  const handleSubmit = (data: NewLevelFormValues) => {
-    onSubmit(data);
-    form.reset();
-    onShowFormChange(false);
+  const handleSubmit = async (data: CreateLevelInputFromForm) => {
+    await execute({
+      ...data,
+      matrixId,
+      insertPosition,
+    });
+
+    if (result?.validationErrors) {
+      Object.entries(result.validationErrors).forEach(([field, errors]) => {
+        if (Array.isArray(errors)) {
+          form.setError(field as keyof CreateLevelInputFromForm, {
+            message: errors[0],
+          });
+        }
+      });
+      return;
+    }
   };
 
   return (
@@ -102,6 +136,7 @@ export const NewLevelForm: React.FC<NewLevelFormProps> = ({
                         placeholder="Short descriptive title"
                       />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -119,6 +154,7 @@ export const NewLevelForm: React.FC<NewLevelFormProps> = ({
                         placeholder="Detailed description"
                       />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -136,6 +172,7 @@ export const NewLevelForm: React.FC<NewLevelFormProps> = ({
                           placeholder="Target persona"
                         />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -152,6 +189,7 @@ export const NewLevelForm: React.FC<NewLevelFormProps> = ({
                           placeholder="Scope of influence"
                         />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -168,7 +206,7 @@ export const NewLevelForm: React.FC<NewLevelFormProps> = ({
               >
                 Cancel
               </Button>
-              <Button type="submit">
+              <Button type="submit" disabled={status === "executing"}>
                 <Plus className="mr-2 h-4 w-4" />
                 {insertPosition !== undefined ? "Insert Level" : "Add Level"}
               </Button>
