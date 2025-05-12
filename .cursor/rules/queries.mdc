@@ -14,7 +14,7 @@ alwaysApply: false
 
 
 ## Index Files
-- Each entity folder has an index.ts that re-exports types and query functions
+- Each entity folder has an index.ts that re-exports types and query functions. When you add a new query file to an enrtity, export it through the index file. Example: if you add the create.ts query, then add `export * from "./create";`
 - Index file defines types for the entity
 
 ## Data Fetching

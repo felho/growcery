@@ -1,6 +1,7 @@
 ---
-description: Import guidelines and best practices
-alwaysApply: false
+description: 
+globs: 
+alwaysApply: true
 ---
 
 # Import Conventions

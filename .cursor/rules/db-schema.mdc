@@ -9,6 +9,7 @@ alwaysApply: false
 ## File Organization
 - Tables: Define tables under `server/db/schema/tables/`
 - Relations: Define relations under `server/db/schema/relations/`
+- If you add a new file under the tables or relations folders, add it to the src/server/db/schema.ts fájl as well. Example: `export * from "./schema/relations/user_comp_matrix_assignments";`
 
 ## Table Creation
 - Naming: Use `pgTableCreator` to prefix table names with `growcery_`

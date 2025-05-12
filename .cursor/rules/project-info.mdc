@@ -1,5 +1,6 @@
 ---
 description: GROWcery project basics
+globs: 
 alwaysApply: true
 ---
 
@@ -11,3 +12,7 @@ alwaysApply: true
 - ORM: Drizzle ORM
 - Auth: Clerk
 - Styling: Tailwind CSS + shadcn/ui
+
+# Used patterns
+- Client components load data using useSWR. This loads data through client API. The client API gets the data from API. The API loads the data from a query.
+- When a client component need to save data then uses the useAction hook. 
