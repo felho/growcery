@@ -36,6 +36,13 @@ interface LevelEditorProps {
   matrixId: number;
   levels: LevelData[];
   onChange: (levels: LevelData[]) => void;
+  onUpdateLevel: (params: {
+    levelId: number;
+    title: string;
+    description: string;
+    persona: string;
+    areaOfImpact: string;
+  }) => void;
 }
 
 interface NewLevelFormValues {
@@ -50,6 +57,7 @@ export const LevelEditor = ({
   matrixId,
   levels,
   onChange,
+  onUpdateLevel,
 }: LevelEditorProps) => {
   const [showNewLevelForm, setShowNewLevelForm] = useState(false);
   const [insertPosition, setInsertPosition] = useState<number | undefined>();
@@ -164,15 +172,16 @@ export const LevelEditor = ({
   };
 
   const handleSaveLevel = async (index: number, metadata: LevelMetadata) => {
-    const updatedLevels = [...levels];
-    const level = updatedLevels[index];
-    if (level) {
-      updatedLevels[index] = {
-        ...level,
-        metadata,
-      };
-      onChange(updatedLevels);
-    }
+    const level = levels[index];
+    if (!level) return;
+
+    await onUpdateLevel({
+      levelId: level.id,
+      title: metadata.title,
+      description: metadata.description,
+      persona: metadata.persona,
+      areaOfImpact: metadata.areaOfImpact,
+    });
   };
 
   return (

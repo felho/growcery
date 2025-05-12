@@ -1,5 +1,6 @@
 import { compMatrixLevels } from "~/server/db/schema";
 import { reorderLevels } from "./reorder";
+import { updateLevel } from "./update";
 
 export type CompMatrixLevel = typeof compMatrixLevels.$inferSelect;
 export type NewCompMatrixLevel = typeof compMatrixLevels.$inferInsert;
@@ -12,4 +13,13 @@ export type ReorderCompMatrixLevelsInput = {
   }>;
 };
 
+export type UpdateLevelInput = {
+  levelId: number;
+  title: string;
+  description: string;
+  persona: string;
+  areaOfImpact: string;
+};
+
 export { reorderLevels };
+export { updateLevel };

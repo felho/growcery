@@ -40,6 +40,7 @@ import { fetchFunctions } from "~/lib/client-api/functions";
 import type { Function } from "~/server/queries/function";
 import type { CompMatrixWithFullRelations } from "~/server/queries/comp-matrix";
 import { reorderLevelsAction } from "~/server/actions/comp-matrix-levels/reorder";
+import { updateLevelAction } from "~/server/actions/comp-matrix-levels/update";
 import { useAction } from "next-safe-action/hooks";
 
 // Temporary type that combines DB and mock data
@@ -62,7 +63,12 @@ interface LevelMetadata {
 interface LevelData {
   id: number;
   name: string;
-  metadata: LevelMetadata;
+  metadata: {
+    title: string;
+    description: string;
+    persona: string;
+    areaOfImpact: string;
+  };
 }
 
 interface MatrixMetadata {
@@ -162,6 +168,29 @@ const CompetencyMatrixEditor = () => {
     },
     onError: (e) => {
       toast.error("Failed to reorder levels");
+      console.error(e);
+    },
+  });
+
+  const updateLevel = useAction(updateLevelAction, {
+    onSuccess: (result) => {
+      if (!result.data?.level) {
+        toast.error("Invalid response from server");
+        return;
+      }
+
+      setMatrix((prev) => {
+        if (!prev) return prev;
+        const updatedLevels = prev.levels.map((level) =>
+          level.id === result.data?.level.id ? result.data?.level : level,
+        );
+        return { ...prev, levels: updatedLevels };
+      });
+
+      toast.success("Level updated successfully");
+    },
+    onError: (e) => {
+      toast.error("Failed to update level");
       console.error(e);
     },
   });
@@ -368,6 +397,7 @@ const CompetencyMatrixEditor = () => {
                   },
                 }))}
                 onChange={handleReorderLevels}
+                onUpdateLevel={updateLevel.execute}
               />
             </TabsContent>
 
