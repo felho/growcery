@@ -21,6 +21,7 @@
 - [ ] The API strucutre of the client APIs has to be revisited (for example comp-matrix.ts is probably not the best choice)
 - [ ] comp-matrix-editor/page.tsx --> newMatrix state has no type
 - [ ] Authentication is now sometimes in the database, sometimes in the action. This have to be revisited.
+- [ ] There is a bug in the level editor: if I use Insert Before and then Cancel then the the main green button doesn't go back to the original Add New Level state
 
 ### Comp matrix
 

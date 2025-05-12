@@ -2,18 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import { Textarea } from "~/components/ui/textarea";
-import {
-  Plus,
-  X,
-  ArrowUp,
-  ArrowDown,
-  GripVertical,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
-import { Card, CardContent } from "~/components/ui/card";
 import {
   DndContext,
   closestCenter,
@@ -26,25 +14,10 @@ import {
 import {
   SortableContext,
   sortableKeyboardCoordinates,
-  useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "~/components/ui/collapsible";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-} from "~/components/ui/form";
-import { useForm } from "react-hook-form";
-import type { DragEndEvent as DragEndEventCore } from "@dnd-kit/core";
 import { LevelCard } from "./level-card";
+import { NewLevelForm } from "./new-level-form";
 
 interface LevelMetadata {
   title: string;
@@ -79,7 +52,7 @@ export const LevelEditor = ({
   onChange,
 }: LevelEditorProps) => {
   const [showNewLevelForm, setShowNewLevelForm] = useState(false);
-  const [insertPosition, setInsertPosition] = useState(-1);
+  const [insertPosition, setInsertPosition] = useState<number | undefined>();
   const [expandedLevels, setExpandedLevels] = useState<Record<number, boolean>>(
     {},
   );
@@ -88,16 +61,6 @@ export const LevelEditor = ({
   useEffect(() => {
     setLocalLevels(levels);
   }, [levels]);
-
-  const form = useForm<NewLevelFormValues>({
-    defaultValues: {
-      name: "",
-      title: "",
-      description: "",
-      persona: "",
-      areaOfImpact: "",
-    },
-  });
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -164,16 +127,14 @@ export const LevelEditor = ({
     };
 
     const updatedLevels = [...levels];
-    if (insertPosition >= 0) {
+    if (insertPosition !== undefined) {
       updatedLevels.splice(insertPosition, 0, newLevelData);
-      setInsertPosition(-1);
+      setInsertPosition(undefined);
     } else {
       updatedLevels.push(newLevelData);
     }
 
     onChange(updatedLevels);
-    form.reset();
-    setShowNewLevelForm(false);
   };
 
   const handleRemoveLevel = (index: number) => {
@@ -211,139 +172,12 @@ export const LevelEditor = ({
         </p>
       </div>
 
-      <Collapsible
-        open={showNewLevelForm}
-        onOpenChange={setShowNewLevelForm}
-        className="mb-4 rounded-md border"
-      >
-        <CollapsibleTrigger asChild>
-          <Button
-            variant={showNewLevelForm ? "outline" : "default"}
-            className="flex w-full justify-between"
-          >
-            <span>
-              {insertPosition >= 0
-                ? `Insert New Level at Position ${insertPosition + 1}`
-                : "Add New Level"}
-            </span>
-            {showNewLevelForm ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
-          </Button>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="p-4 pt-2">
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(handleAddLevel)}
-              className="space-y-4"
-            >
-              <div className="grid grid-cols-1 gap-4">
-                <FormField
-                  name="name"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Level Name*</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          required
-                          placeholder="e.g. Junior, Engineer (E1)"
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  name="title"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Title*</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          required
-                          placeholder="Short descriptive title"
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  name="description"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description*</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          {...field}
-                          required
-                          rows={3}
-                          placeholder="Detailed description"
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <FormField
-                    name="persona"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Persona*</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            required
-                            placeholder="Target persona"
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    name="areaOfImpact"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Area of Impact*</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            required
-                            placeholder="Scope of influence"
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="flex justify-end space-x-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    form.reset();
-                    setShowNewLevelForm(false);
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit">
-                  <Plus className="mr-2 h-4 w-4" />
-                  {insertPosition >= 0 ? "Insert Level" : "Add Level"}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </CollapsibleContent>
-      </Collapsible>
+      <NewLevelForm
+        showForm={showNewLevelForm}
+        onShowFormChange={setShowNewLevelForm}
+        onSubmit={handleAddLevel}
+        insertPosition={insertPosition}
+      />
 
       <DndContext
         sensors={sensors}
@@ -373,7 +207,6 @@ export const LevelEditor = ({
                   onInsertBefore={() => {
                     setInsertPosition(index);
                     setShowNewLevelForm(true);
-                    form.reset();
                   }}
                   levelsLength={localLevels.length}
                 />
