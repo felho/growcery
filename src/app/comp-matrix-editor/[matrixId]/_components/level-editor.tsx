@@ -163,6 +163,18 @@ export const LevelEditor = ({
     }
   };
 
+  const handleSaveLevel = async (index: number, metadata: LevelMetadata) => {
+    const updatedLevels = [...levels];
+    const level = updatedLevels[index];
+    if (level) {
+      updatedLevels[index] = {
+        ...level,
+        metadata,
+      };
+      onChange(updatedLevels);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col space-y-2">
@@ -203,6 +215,7 @@ export const LevelEditor = ({
                   onMove={handleMoveLevel}
                   onToggleExpand={toggleExpand}
                   onUpdateMetadata={updateMetadata}
+                  onSave={handleSaveLevel}
                   isExpanded={expandedLevels[index] ?? false}
                   onInsertBefore={() => {
                     setInsertPosition(index);
