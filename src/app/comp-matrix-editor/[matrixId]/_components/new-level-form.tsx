@@ -25,7 +25,6 @@ interface LevelMetadata {
 }
 
 interface NewLevelFormValues {
-  name: string;
   title: string;
   description: string;
   persona: string;
@@ -47,7 +46,6 @@ export const NewLevelForm: React.FC<NewLevelFormProps> = ({
 }) => {
   const form = useForm<NewLevelFormValues>({
     defaultValues: {
-      name: "",
       title: "",
       description: "",
       persona: "",
@@ -91,22 +89,6 @@ export const NewLevelForm: React.FC<NewLevelFormProps> = ({
             className="space-y-4"
           >
             <div className="grid grid-cols-1 gap-4">
-              <FormField
-                name="name"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Level Name*</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        required
-                        placeholder="e.g. Junior, Engineer (E1)"
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
               <FormField
                 name="title"
                 control={form.control}
