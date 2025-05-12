@@ -22,6 +22,8 @@
 - [ ] comp-matrix-editor/page.tsx --> newMatrix state has no type
 - [ ] Authentication is now sometimes in the database, sometimes in the action. This have to be revisited.
 - [ ] There is a bug in the level editor: if I use Insert Before and then Cancel then the the main green button doesn't go back to the original Add New Level state
+- [ ] Figure out why this doesn't work `import { reorderLevels } from "~/server/queries/comp-matrix-levels/reorder";`
+- [ ] In the comp-matrix-levels/update.ts axtion if "/update" is removed from here: `import { updateLevel } from "~/server/queries/comp-matrix-levels/update";` then parsedInput indicates an error. Somehow this should be related to the previous issue.
 
 ### Comp matrix
 
