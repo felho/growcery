@@ -24,6 +24,17 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { updateLevelSchema } from "~/zod-schemas/comp-matrix-levels";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "~/components/ui/alert-dialog";
 
 interface LevelMetadata {
   title: string;
@@ -41,7 +52,6 @@ interface LevelData {
 interface LevelCardProps {
   level: LevelData;
   index: number;
-  onRemove: (index: number) => void;
   onMove: (index: number, direction: "up" | "down") => void;
   onToggleExpand: (index: number) => void;
   onUpdateMetadata: (
@@ -53,6 +63,7 @@ interface LevelCardProps {
   isExpanded: boolean;
   onInsertBefore: () => void;
   levelsLength: number;
+  onRemove: (levelId: number) => void;
 }
 
 export const LevelCard: React.FC<LevelCardProps> = (props) => {
@@ -139,13 +150,31 @@ export const LevelCard: React.FC<LevelCardProps> = (props) => {
                   <Pencil className="h-4 w-4" />
                 )}
               </Button>
-              <Button
-                size="sm"
-                variant="destructive"
-                onClick={() => props.onRemove(props.index)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button size="sm" variant="destructive">
+                    <X className="h-4 w-4" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      the level.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => props.onRemove(props.level.id)}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
           {props.isExpanded && (

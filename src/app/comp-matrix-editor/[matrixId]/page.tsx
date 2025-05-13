@@ -44,6 +44,7 @@ import { updateLevelAction } from "~/server/actions/comp-matrix-levels/update";
 import { createLevelAction } from "~/server/actions/comp-matrix-levels/create";
 import { useAction } from "next-safe-action/hooks";
 import type { CreateLevelInputFromForm } from "~/zod-schemas/comp-matrix-levels";
+import { deleteLevelAction } from "~/server/actions/comp-matrix-levels/delete";
 
 // Temporary type that combines DB and mock data
 type HybridMatrix = CompMatrixWithFullRelations & {
@@ -212,6 +213,21 @@ const CompetencyMatrixEditor = () => {
     },
     onError: () => toast.error("Failed to create level"),
   });
+
+  const deleteLevel = useAction(deleteLevelAction, {
+    onSuccess: async (result) => {
+      toast.success("Level deleted");
+      const updatedMatrix = await fetchCompMatrix(parseInt(matrixId));
+      setMatrix((prev) =>
+        prev ? { ...prev, levels: updatedMatrix.levels } : prev,
+      );
+    },
+    onError: () => toast.error("Failed to delete level"),
+  });
+
+  const handleDeleteLevel = (params: { matrixId: number; levelId: number }) => {
+    deleteLevel.execute(params);
+  };
 
   const handleAddLevel = (input: CreateLevelInputFromForm) => {
     addLevel.execute({
@@ -424,6 +440,7 @@ const CompetencyMatrixEditor = () => {
                 onChange={handleReorderLevels}
                 onUpdateLevel={updateLevel.execute}
                 onAddLevel={handleAddLevel}
+                onDeleteLevel={handleDeleteLevel}
               />
             </TabsContent>
 

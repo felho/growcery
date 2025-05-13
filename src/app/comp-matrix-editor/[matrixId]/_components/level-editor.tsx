@@ -47,6 +47,7 @@ interface LevelEditorProps {
     areaOfImpact: string;
   }) => void;
   onAddLevel: (input: CreateLevelInputFromForm) => void;
+  onDeleteLevel: (params: { matrixId: number; levelId: number }) => void;
 }
 
 interface NewLevelFormValues {
@@ -63,6 +64,7 @@ export const LevelEditor = ({
   onChange,
   onUpdateLevel,
   onAddLevel,
+  onDeleteLevel,
 }: LevelEditorProps) => {
   const params = useParams();
   const matrixId = Number(params.matrixId);
@@ -212,11 +214,13 @@ export const LevelEditor = ({
                   key={level.id}
                   level={level}
                   index={index}
-                  onRemove={handleRemoveLevel}
                   onMove={handleMoveLevel}
                   onToggleExpand={toggleExpand}
                   onUpdateMetadata={updateMetadata}
                   onSave={handleSaveLevel}
+                  onRemove={(i) =>
+                    onDeleteLevel({ matrixId, levelId: level.id })
+                  }
                   isExpanded={expandedLevels[index] ?? false}
                   onInsertBefore={() => {
                     setInsertPosition(index);

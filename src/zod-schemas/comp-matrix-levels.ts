@@ -45,6 +45,11 @@ export const updateLevelSchema = z.object({
   ...baseLevelFields,
 });
 
+export const deleteLevelSchema = z.object({
+  matrixId: z.number(),
+  levelId: z.number(),
+});
+
 export type CreateLevelInputFromForm = z.infer<
   typeof createLevelSchemaFromForm
 >;
@@ -52,3 +57,4 @@ export type CreateLevelInput = z.infer<typeof createLevelSchema>;
 export type ReorderLevelsInput = z.infer<typeof reorderLevelsSchema>;
 export type ReorderLevelsOutput = z.infer<typeof reorderLevelsSchema>;
 export type UpdateLevelInput = z.infer<typeof updateLevelSchema>;
+export type DeleteLevelInput = z.infer<typeof deleteLevelSchema>;
