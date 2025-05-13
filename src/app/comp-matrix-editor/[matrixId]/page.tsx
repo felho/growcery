@@ -45,6 +45,7 @@ import { createLevelAction } from "~/server/actions/comp-matrix-levels/create";
 import { useAction } from "next-safe-action/hooks";
 import type { CreateLevelInputFromForm } from "~/zod-schemas/comp-matrix-levels";
 import { deleteLevelAction } from "~/server/actions/comp-matrix-levels/delete";
+import { createCompMatrixAreaAction } from "~/server/actions/comp-matrix-area/create";
 
 // Temporary type that combines DB and mock data
 type HybridMatrix = CompMatrixWithFullRelations & {
@@ -225,6 +226,19 @@ const CompetencyMatrixEditor = () => {
     onError: () => toast.error("Failed to delete level"),
   });
 
+  // Create Area Action
+  const createArea = useAction(createCompMatrixAreaAction, {
+    onSuccess: async (result) => {
+      // After successful creation, fetch updated matrix and update areas
+      const updatedMatrix = await fetchCompMatrix(parseInt(matrixId));
+      setMatrix((prev) =>
+        prev ? { ...prev, areas: updatedMatrix.areas } : prev,
+      );
+      toast.success("Area added");
+    },
+    onError: () => toast.error("Failed to add area"),
+  });
+
   const handleDeleteLevel = (params: { matrixId: number; levelId: number }) => {
     deleteLevel.execute(params);
   };
@@ -234,6 +248,12 @@ const CompetencyMatrixEditor = () => {
       ...input,
       matrixId: parseInt(matrixId),
     });
+  };
+
+  // Handler for adding a new area
+  const handleAddArea = (title: string) => {
+    if (!matrix) return;
+    createArea.execute({ compMatrixId: matrix.id, title });
   };
 
   const handleMetadataChange = (
@@ -446,6 +466,7 @@ const CompetencyMatrixEditor = () => {
                   // TODO: implement persistence
                   setMatrix((prev) => (prev ? { ...prev, areas } : null));
                 }}
+                onAddArea={handleAddArea}
               />
             </TabsContent>
 

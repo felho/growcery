@@ -46,12 +46,14 @@ interface CompetencyAreaEditorProps {
   areas: CompMatrixAreaWithFullRelations[];
   levels: CompMatrixLevel[];
   onChange: (areas: CompMatrixAreaWithFullRelations[]) => void;
+  onAddArea: (title: string) => void;
 }
 
 const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
   areas,
   levels,
   onChange,
+  onAddArea,
 }) => {
   const [newAreaName, setNewAreaName] = useState("");
   const [openAreaId, setOpenAreaId] = useState<string | null>(null);
@@ -87,17 +89,7 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
 
   const handleAddArea = () => {
     if (!newAreaName.trim()) return;
-    onChange([
-      ...areas,
-      {
-        id: uuidv4() as unknown as number,
-        title: newAreaName,
-        shortDescription: "",
-        competencies: [],
-        compMatrixId: 0,
-        sortOrder: 0,
-      } as CompMatrixAreaWithFullRelations,
-    ]);
+    onAddArea(newAreaName.trim());
     setNewAreaName("");
   };
 
