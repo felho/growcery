@@ -1,13 +1,12 @@
 import { db } from "~/server/db";
 import { compMatrixLevels } from "~/server/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, gt, sql } from "drizzle-orm";
 import type { CompMatrixLevel } from "./index";
 
 export async function deleteLevel(
   matrixId: number,
   levelId: number,
 ): Promise<CompMatrixLevel> {
-  // Ellenőrizzük, hogy a level létezik és a megadott matrix-hoz tartozik
   const [level] = await db
     .select()
     .from(compMatrixLevels)
@@ -22,7 +21,6 @@ export async function deleteLevel(
     throw new Error(`Level with id ${levelId} not found in matrix ${matrixId}`);
   }
 
-  // Töröljük a levelet
   const [deletedLevel] = await db
     .delete(compMatrixLevels)
     .where(
@@ -36,6 +34,18 @@ export async function deleteLevel(
   if (!deletedLevel) {
     throw new Error(`Failed to delete level ${levelId}`);
   }
+
+  await db
+    .update(compMatrixLevels)
+    .set({
+      numericLevel: sql`${compMatrixLevels.numericLevel} - 1`,
+    })
+    .where(
+      and(
+        eq(compMatrixLevels.compMatrixId, matrixId),
+        gt(compMatrixLevels.numericLevel, level.numericLevel),
+      ),
+    );
 
   return deletedLevel;
 }
