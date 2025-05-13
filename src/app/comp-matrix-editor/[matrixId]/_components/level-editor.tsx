@@ -18,8 +18,6 @@ import {
 } from "@dnd-kit/sortable";
 import { LevelCard } from "./level-card";
 import { NewLevelForm } from "./new-level-form";
-import { useAction } from "next-safe-action/hooks";
-import { createLevelAction } from "~/server/actions/comp-matrix-levels/create";
 import { toast } from "sonner";
 import { useParams } from "next/navigation";
 import { type CreateLevelInputFromForm } from "~/zod-schemas/comp-matrix-levels";
@@ -48,6 +46,7 @@ interface LevelEditorProps {
     persona: string;
     areaOfImpact: string;
   }) => void;
+  onAddLevel: (input: CreateLevelInputFromForm) => void;
 }
 
 interface NewLevelFormValues {
@@ -63,41 +62,10 @@ export const LevelEditor = ({
   levels,
   onChange,
   onUpdateLevel,
+  onAddLevel,
 }: LevelEditorProps) => {
   const params = useParams();
   const matrixId = Number(params.matrixId);
-
-  const { execute: createLevel } = useAction(createLevelAction, {
-    onSuccess: (result) => {
-      if (result.data?.level) {
-        toast.success("Level created successfully");
-        const newLevelData: LevelData = {
-          id: result.data.level.id,
-          name: result.data.level.jobTitle,
-          metadata: {
-            title: result.data.level.jobTitle,
-            description: result.data.level.roleSummary,
-            persona: result.data.level.persona ?? "",
-            areaOfImpact: result.data.level.areaOfImpact ?? "",
-          },
-        };
-
-        const updatedLevels = [...levels];
-        if (insertPosition !== undefined) {
-          updatedLevels.splice(insertPosition, 0, newLevelData);
-          setInsertPosition(undefined);
-        } else {
-          updatedLevels.push(newLevelData);
-        }
-
-        onChange(updatedLevels);
-      }
-    },
-    onError: (error) => {
-      console.error("Failed to create level:", error);
-      toast.error("Failed to create level");
-    },
-  });
 
   const [showNewLevelForm, setShowNewLevelForm] = useState(false);
   const [insertPosition, setInsertPosition] = useState<number | undefined>();
@@ -160,12 +128,13 @@ export const LevelEditor = ({
     optimisticReorder(updatedLevels);
   };
 
-  const handleAddLevel = async (data: CreateLevelInputFromForm) => {
-    await createLevel({
+  const handleAddLevel = (data: CreateLevelInputFromForm) => {
+    onAddLevel({
       ...data,
-      matrixId,
       insertPosition,
     });
+    setInsertPosition(undefined);
+    setShowNewLevelForm(false);
   };
 
   const handleRemoveLevel = (index: number) => {

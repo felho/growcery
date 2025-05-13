@@ -41,7 +41,9 @@ import type { Function } from "~/server/queries/function";
 import type { CompMatrixWithFullRelations } from "~/server/queries/comp-matrix";
 import { reorderLevelsAction } from "~/server/actions/comp-matrix-levels/reorder";
 import { updateLevelAction } from "~/server/actions/comp-matrix-levels/update";
+import { createLevelAction } from "~/server/actions/comp-matrix-levels/create";
 import { useAction } from "next-safe-action/hooks";
+import type { CreateLevelInputFromForm } from "~/zod-schemas/comp-matrix-levels";
 
 // Temporary type that combines DB and mock data
 type HybridMatrix = CompMatrixWithFullRelations & {
@@ -194,6 +196,29 @@ const CompetencyMatrixEditor = () => {
       console.error(e);
     },
   });
+
+  const addLevel = useAction(createLevelAction, {
+    onSuccess: async (result) => {
+      const level = result.data?.level;
+      if (!level) return;
+
+      toast.success("Level created");
+
+      const updatedMatrix = await fetchCompMatrix(parseInt(matrixId));
+      setMatrix((prev) => ({
+        ...prev!,
+        levels: updatedMatrix.levels,
+      }));
+    },
+    onError: () => toast.error("Failed to create level"),
+  });
+
+  const handleAddLevel = (input: CreateLevelInputFromForm) => {
+    addLevel.execute({
+      ...input,
+      matrixId: parseInt(matrixId),
+    });
+  };
 
   const handleMetadataChange = (
     field: keyof MatrixMetadata,
@@ -398,6 +423,7 @@ const CompetencyMatrixEditor = () => {
                 }))}
                 onChange={handleReorderLevels}
                 onUpdateLevel={updateLevel.execute}
+                onAddLevel={handleAddLevel}
               />
             </TabsContent>
 
