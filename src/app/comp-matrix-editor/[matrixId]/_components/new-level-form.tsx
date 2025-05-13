@@ -49,7 +49,6 @@ export const NewLevelForm: React.FC<NewLevelFormProps> = ({
   const handleSubmit = async (data: CreateLevelInputFromForm) => {
     onSubmit({
       ...data,
-      insertPosition,
     });
     form.reset();
     onShowFormChange(false);
