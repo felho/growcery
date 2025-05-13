@@ -271,12 +271,6 @@ const CompetencyMatrixEditor = () => {
     }
   };
 
-  const getLevelNames = () => {
-    if (!matrix) return [];
-    if (matrix.levels.length === 0) return [];
-    return matrix.levels.map((level) => level.jobTitle);
-  };
-
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -446,12 +440,11 @@ const CompetencyMatrixEditor = () => {
 
             <TabsContent value="competencies" className="space-y-4">
               <CompetencyAreaEditor
-                competencies={matrix.competencies}
-                levels={getLevelNames()}
-                onChange={(competencies) => {
-                  setMatrix((prev) =>
-                    prev ? { ...prev, competencies } : null,
-                  );
+                areas={matrix.areas}
+                levels={matrix.levels}
+                onChange={(areas) => {
+                  // TODO: implement persistence
+                  setMatrix((prev) => (prev ? { ...prev, areas } : null));
                 }}
               />
             </TabsContent>

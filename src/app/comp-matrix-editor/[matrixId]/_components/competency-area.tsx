@@ -34,23 +34,34 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import CompetencyItem from "./competency-item";
-import type {
-  CompetencyCategory,
-  CompetencyItem as CompetencyItemType,
-} from "~/data/mock-competency-data";
+// import type {
+//   CompetencyCategory,
+//   CompetencyItem as CompetencyItemType,
+// } from "~/data/mock-competency-data";
+import type { CompMatrixAreaWithFullRelations } from "~/server/queries/comp-matrix-area";
 import { Textarea } from "~/components/ui/textarea";
+import type { CompMatrixCompetencyWithDefinitions } from "~/server/queries/comp-matrix-competency";
 
 interface CompetencyAreaProps {
-  category: CompetencyCategory;
-  onUpdateCategory: (id: string, updates: Partial<CompetencyCategory>) => void;
+  category: CompMatrixAreaWithFullRelations;
+  onUpdateCategory: (
+    id: string,
+    updates: Partial<CompMatrixAreaWithFullRelations>,
+  ) => void;
   onRemove: (id: string) => void;
   onAddCompetency: (areaId: string) => void;
-  onEditCompetency: (areaId: string, competency: CompetencyItemType) => void;
+  onEditCompetency: (
+    areaId: string,
+    competency: CompMatrixCompetencyWithDefinitions,
+  ) => void;
   onRemoveCompetency: (areaId: string, competencyId: string) => void;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   dragHandleProps: any;
-  onReorderItems: (categoryId: string, items: CompetencyItemType[]) => void;
+  onReorderItems: (
+    categoryId: string,
+    items: CompMatrixCompetencyWithDefinitions[],
+  ) => void;
 }
 
 const CompetencyArea: React.FC<CompetencyAreaProps> = ({
@@ -73,15 +84,15 @@ const CompetencyArea: React.FC<CompetencyAreaProps> = ({
   );
 
   const [isEditing, setIsEditing] = React.useState(false);
-  const [editingName, setEditingName] = React.useState(category.category);
+  const [editingName, setEditingName] = React.useState(category.title);
   const [editingDescription, setEditingDescription] = React.useState(
-    category.description || "",
+    category.shortDescription || "",
   );
 
   const handleSave = () => {
-    onUpdateCategory(category.id, {
-      category: editingName.trim(),
-      description: editingDescription.trim(),
+    onUpdateCategory(category.id.toString(), {
+      title: editingName.trim(),
+      shortDescription: editingDescription.trim(),
     });
     setIsEditing(false);
   };
@@ -89,16 +100,18 @@ const CompetencyArea: React.FC<CompetencyAreaProps> = ({
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
-
-    const oldIndex = category.items.findIndex((item) => item.id === active.id);
-    const newIndex = category.items.findIndex((item) => item.id === over.id);
-
+    const oldIndex = category.competencies.findIndex(
+      (item: CompMatrixCompetencyWithDefinitions) => item.id === active.id,
+    );
+    const newIndex = category.competencies.findIndex(
+      (item: CompMatrixCompetencyWithDefinitions) => item.id === over.id,
+    );
     if (oldIndex !== -1 && newIndex !== -1) {
-      const updatedItems = [...category.items];
+      const updatedItems = [...category.competencies];
       const [moved] = updatedItems.splice(oldIndex, 1);
       if (moved) {
         updatedItems.splice(newIndex, 0, moved);
-        onReorderItems(category.id, updatedItems);
+        onReorderItems(category.id.toString(), updatedItems);
       }
     }
   };
@@ -153,7 +166,7 @@ const CompetencyArea: React.FC<CompetencyAreaProps> = ({
           ) : (
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <span className="font-medium">{category.category}</span>
+                <span className="font-medium">{category.title}</span>
                 <Button
                   size="sm"
                   variant="outline"
@@ -163,9 +176,9 @@ const CompetencyArea: React.FC<CompetencyAreaProps> = ({
                   <Pencil className="h-3 w-3" />
                 </Button>
               </div>
-              {category.description && (
+              {category.shortDescription && (
                 <p className="text-muted-foreground mt-1 text-sm">
-                  {category.description}
+                  {category.shortDescription}
                 </p>
               )}
             </div>
@@ -184,7 +197,7 @@ const CompetencyArea: React.FC<CompetencyAreaProps> = ({
           <Button
             size="sm"
             variant="destructive"
-            onClick={() => onRemove(category.id)}
+            onClick={() => onRemove(category.id.toString())}
           >
             <X className="h-4 w-4" />
           </Button>
@@ -195,14 +208,14 @@ const CompetencyArea: React.FC<CompetencyAreaProps> = ({
         <div className="space-y-2">
           <Button
             variant="outline"
-            onClick={() => onAddCompetency(category.id)}
+            onClick={() => onAddCompetency(category.id.toString())}
             className="w-full"
           >
             <Plus className="mr-2 h-4 w-4" /> Add Competency
           </Button>
         </div>
 
-        {category.items.length === 0 ? (
+        {category.competencies.length === 0 ? (
           <p className="text-muted-foreground py-2 text-center">
             No competencies in this area yet.
           </p>
@@ -213,15 +226,15 @@ const CompetencyArea: React.FC<CompetencyAreaProps> = ({
             onDragEnd={handleDragEnd}
           >
             <SortableContext
-              items={category.items.map((item) => item.id)}
+              items={category.competencies.map((item) => item.id)}
               strategy={verticalListSortingStrategy}
             >
               <div className="space-y-2">
-                {category.items.map((item) => (
+                {category.competencies.map((item) => (
                   <SortableCompetencyItem
                     key={item.id}
                     item={item}
-                    categoryId={category.id}
+                    categoryId={category.id.toString()}
                     onEdit={onEditCompetency}
                     onRemove={onRemoveCompetency}
                   />
@@ -236,9 +249,12 @@ const CompetencyArea: React.FC<CompetencyAreaProps> = ({
 };
 
 interface SortableCompetencyItemProps {
-  item: CompetencyItemType;
+  item: CompMatrixCompetencyWithDefinitions;
   categoryId: string;
-  onEdit: (areaId: string, competency: CompetencyItemType) => void;
+  onEdit: (
+    areaId: string,
+    competency: CompMatrixCompetencyWithDefinitions,
+  ) => void;
   onRemove: (areaId: string, competencyId: string) => void;
 }
 

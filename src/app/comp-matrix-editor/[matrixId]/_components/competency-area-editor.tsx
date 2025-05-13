@@ -33,36 +33,39 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import type {
-  CompetencyCategory,
-  CompetencyItem,
-} from "~/data/mock-competency-data";
+// import type {
+//   CompetencyCategory,
+//   CompetencyItem,
+// } from "~/data/mock-competency-data";
+import type { CompMatrixAreaWithFullRelations } from "~/server/queries/comp-matrix-area";
+import type { CompMatrixCompetencyWithDefinitions } from "~/server/queries/comp-matrix-competency";
 import CompetencyArea from "./competency-area";
+import type { CompMatrixLevel } from "~/server/queries/comp-matrix-level";
 
 interface CompetencyAreaEditorProps {
-  competencies: CompetencyCategory[];
-  levels: string[];
-  onChange: (competencies: CompetencyCategory[]) => void;
+  areas: CompMatrixAreaWithFullRelations[];
+  levels: CompMatrixLevel[];
+  onChange: (areas: CompMatrixAreaWithFullRelations[]) => void;
 }
 
 const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
-  competencies,
+  areas,
   levels,
   onChange,
 }) => {
-  const [newCategoryName, setNewCategoryName] = useState("");
+  const [newAreaName, setNewAreaName] = useState("");
   const [openAreaId, setOpenAreaId] = useState<string | null>(null);
   const [isAddingCompetency, setIsAddingCompetency] = useState(false);
   const [editingCompetency, setEditingCompetency] = useState<{
     areaId: string;
-    competency: CompetencyItem | null;
+    competency: CompMatrixCompetencyWithDefinitions | null;
   } | null>(null);
 
   const [competencyForm, setCompetencyForm] = useState({
     name: "",
     definition: "",
-    levelDefinitions: {} as Record<string, string>,
-    skipLevels: [] as string[],
+    levelDefinitions: {} as Record<number, string>,
+    skipLevels: [] as number[],
   });
 
   const sensors = useSensors(
@@ -75,52 +78,59 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
-
-    const oldIndex = competencies.findIndex((c) => c.id === active.id);
-    const newIndex = competencies.findIndex((c) => c.id === over.id);
-
+    const oldIndex = areas.findIndex((a) => a.id === active.id);
+    const newIndex = areas.findIndex((a) => a.id === over.id);
     if (oldIndex !== -1 && newIndex !== -1) {
-      onChange(arrayMove(competencies, oldIndex, newIndex));
+      onChange(arrayMove(areas, oldIndex, newIndex));
     }
   };
 
-  const handleAddCategory = () => {
-    if (!newCategoryName.trim()) return;
+  const handleAddArea = () => {
+    if (!newAreaName.trim()) return;
     onChange([
-      ...competencies,
+      ...areas,
       {
-        id: uuidv4(),
-        category: newCategoryName,
-        description: "",
-        items: [],
-      },
+        id: uuidv4() as unknown as number,
+        title: newAreaName,
+        shortDescription: "",
+        competencies: [],
+        compMatrixId: 0,
+        sortOrder: 0,
+      } as CompMatrixAreaWithFullRelations,
     ]);
-    setNewCategoryName("");
+    setNewAreaName("");
   };
 
-  const handleRemoveCategory = (id: string) => {
-    onChange(competencies.filter((c) => c.id !== id));
+  const handleRemoveArea = (id: string) => {
+    onChange(areas.filter((a) => a.id !== parseInt(id)));
   };
 
-  const handleUpdateCategory = (
+  const handleUpdateArea = (
     id: string,
-    updates: Partial<CompetencyCategory>,
+    updates: Partial<CompMatrixAreaWithFullRelations>,
   ) => {
-    onChange(competencies.map((c) => (c.id === id ? { ...c, ...updates } : c)));
+    onChange(
+      areas.map((a) => (a.id === parseInt(id) ? { ...a, ...updates } : a)),
+    );
   };
 
   const openCompetencyDialog = (
     areaId: string,
-    competency: CompetencyItem | null = null,
+    competency: CompMatrixCompetencyWithDefinitions | null = null,
   ) => {
     if (competency) {
       setCompetencyForm({
-        name: competency.name,
-        definition: competency.definition || "",
-        levelDefinitions: competency.levelDefinitions || {},
-        skipLevels: Object.keys(competency.levelDefinitions || {}).filter(
-          (level) => competency.levelDefinitions?.[level] === "N/A",
+        name: competency.title,
+        definition: competency.definitions[0]?.definition || "",
+        levelDefinitions: Object.fromEntries(
+          (competency.definitions || []).map((d) => [
+            d.compMatrixLevelId,
+            d.definition,
+          ]),
         ),
+        skipLevels: (competency.definitions || [])
+          .filter((d) => !d.definition?.trim())
+          .map((d) => d.compMatrixLevelId),
       });
       setEditingCompetency({ areaId, competency });
     } else {
@@ -138,71 +148,60 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
   const handleSaveCompetency = () => {
     if (!editingCompetency || !competencyForm.name.trim()) return;
     const { areaId, competency } = editingCompetency;
-
-    const categoryIndex = competencies.findIndex((c) => c.id === areaId);
-    if (categoryIndex === -1) return;
-
-    const levelDefinitions: Record<string, string> = {};
-    levels.forEach((level) => {
-      levelDefinitions[level] = competencyForm.skipLevels.includes(level)
-        ? "N/A"
-        : competencyForm.levelDefinitions[level] || "";
-    });
-
-    const updatedCompetency: CompetencyItem = {
-      id: competency?.id || uuidv4(),
-      name: competencyForm.name,
-      definition: competencyForm.definition,
-      levelDefinitions,
-      employeeRating: "Novice",
-      managerRating: "Novice",
-      employeeNote: "",
-      managerNote: "",
-    };
-
-    const updatedCategories = [...competencies];
-    const category = updatedCategories[categoryIndex]!;
-
-    const updatedItems = competency
-      ? category.items.map((item) =>
-          item.id === competency.id ? updatedCompetency : item,
-        )
-      : [...category.items, updatedCompetency];
-
-    updatedCategories[categoryIndex] = {
-      ...category,
-      items: updatedItems,
-    };
-
-    onChange(updatedCategories);
-    setIsAddingCompetency(false);
+    const areaIndex = areas.findIndex((a) => a.id === parseInt(areaId));
+    if (areaIndex === -1) return;
+    // const updatedCompetency: CompMatrixCompetencyWithDefinitions = {
+    //   id: competency?.id || (uuidv4() as unknown as number),
+    //   title: competencyForm.name,
+    //   definitions: [
+    //     {
+    //       id: uuidv4() as unknown as number,
+    //       definition: competencyForm.definition,
+    //       compMatrixCompetencyId: competency?.id || 0,
+    //     },
+    //   ],
+    // };
+    // const updatedAreas = [...areas];
+    // const area = updatedAreas[areaIndex]!;
+    // const updatedCompetencies = competency
+    //   ? area.competencies.map((item) =>
+    //       item.id === competency.id ? updatedCompetency : item,
+    //     )
+    //   : [...area.competencies, updatedCompetency];
+    // updatedAreas[areaIndex] = {
+    //   ...area,
+    //   competencies: updatedCompetencies,
+    // };
+    // onChange(updatedAreas);
+    // setIsAddingCompetency(false);
     setEditingCompetency(null);
   };
 
   const handleRemoveCompetency = (areaId: string, competencyId: string) => {
     onChange(
-      competencies.map((category) =>
-        category.id === areaId
+      areas.map((area) =>
+        area.id === parseInt(areaId)
           ? {
-              ...category,
-              items: category.items.filter((item) => item.id !== competencyId),
+              ...area,
+              competencies: area.competencies.filter(
+                (item) => item.id !== parseInt(competencyId),
+              ),
             }
-          : category,
+          : area,
       ),
     );
   };
 
-  const toggleLevelSkip = (level: string) => {
-    const skipLevels = competencyForm.skipLevels.includes(level)
-      ? competencyForm.skipLevels.filter((l) => l !== level)
-      : [...competencyForm.skipLevels, level];
-    setCompetencyForm({ ...competencyForm, skipLevels });
-  };
+  // Level skip/definitions logic omitted for DB type (could be added if needed)
+  // const toggleLevelSkip = (level: string) => { ... };
 
-  const handleReorderItems = (categoryId: string, items: CompetencyItem[]) => {
+  const handleReorderItems = (
+    areaId: string,
+    items: CompMatrixCompetencyWithDefinitions[],
+  ) => {
     onChange(
-      competencies.map((category) =>
-        category.id === categoryId ? { ...category, items } : category,
+      areas.map((area) =>
+        area.id === parseInt(areaId) ? { ...area, competencies: items } : area,
       ),
     );
   };
@@ -219,11 +218,11 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
       <div className="flex gap-4">
         <Input
           placeholder="Add new competency area (e.g. Technical Skills)"
-          value={newCategoryName}
-          onChange={(e) => setNewCategoryName(e.target.value)}
+          value={newAreaName}
+          onChange={(e) => setNewAreaName(e.target.value)}
           className="flex-1"
         />
-        <Button onClick={handleAddCategory} className="whitespace-nowrap">
+        <Button onClick={handleAddArea} className="whitespace-nowrap">
           <Plus className="mr-2 h-4 w-4" /> Add Area
         </Button>
       </div>
@@ -234,27 +233,27 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
         onDragEnd={handleDragEnd}
       >
         <SortableContext
-          items={competencies.map((c) => c.id)}
+          items={areas.map((a) => a.id)}
           strategy={verticalListSortingStrategy}
         >
           <div className="space-y-4">
-            {competencies.length === 0 ? (
+            {areas.length === 0 ? (
               <p className="text-muted-foreground py-4 text-center">
                 No competency areas defined yet. Add your first area above.
               </p>
             ) : (
-              competencies.map((category) => (
+              areas.map((area) => (
                 <SortableCompetencyArea
-                  key={category.id}
-                  category={category}
-                  onUpdateCategory={handleUpdateCategory}
-                  onRemove={handleRemoveCategory}
+                  key={area.id}
+                  category={area}
+                  onUpdateCategory={handleUpdateArea}
+                  onRemove={handleRemoveArea}
                   onAddCompetency={openCompetencyDialog}
                   onEditCompetency={openCompetencyDialog}
                   onRemoveCompetency={handleRemoveCompetency}
-                  isOpen={openAreaId === category.id}
+                  isOpen={openAreaId === area.id.toString()}
                   onOpenChange={(open) =>
-                    setOpenAreaId(open ? category.id : null)
+                    setOpenAreaId(open ? area.id.toString() : null)
                   }
                   onReorderItems={handleReorderItems}
                 />
@@ -321,19 +320,33 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
                 </p>
               ) : (
                 levels.map((level, i) => (
-                  <div key={level} className="space-y-2 rounded-md border p-4">
+                  <div
+                    key={level.id}
+                    className="space-y-2 rounded-md border p-4"
+                  >
                     <div className="flex items-start justify-between">
                       <Label
                         htmlFor={`level-def-${i}`}
                         className="text-base font-medium"
                       >
-                        {level}
+                        {level.jobTitle}
                       </Label>
                       <div className="flex items-center space-x-2">
                         <Checkbox
                           id={`skip-level-${i}`}
-                          checked={competencyForm.skipLevels.includes(level)}
-                          onCheckedChange={() => toggleLevelSkip(level)}
+                          checked={competencyForm.skipLevels.includes(level.id)}
+                          onCheckedChange={() => {
+                            const isSkipping =
+                              competencyForm.skipLevels.includes(level.id);
+                            setCompetencyForm((prev) => ({
+                              ...prev,
+                              skipLevels: isSkipping
+                                ? prev.skipLevels.filter(
+                                    (id) => id !== level.id,
+                                  )
+                                : [...prev.skipLevels, level.id],
+                            }));
+                          }}
                         />
                         <Label htmlFor={`skip-level-${i}`} className="text-sm">
                           No specific requirements
@@ -341,26 +354,25 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
                       </div>
                     </div>
 
-                    {!competencyForm.skipLevels.includes(level) && (
+                    {!competencyForm.skipLevels.includes(level.id) && (
                       <Textarea
                         id={`level-def-${i}`}
-                        placeholder={`Define requirements for ${level}`}
-                        disabled={competencyForm.skipLevels.includes(level)}
-                        value={competencyForm.levelDefinitions[level] || ""}
+                        placeholder={`Define requirements for ${level.jobTitle}`}
+                        value={competencyForm.levelDefinitions[level.id] || ""}
                         onChange={(e) => {
                           const updatedDefinitions = {
                             ...competencyForm.levelDefinitions,
-                            [level]: e.target.value,
+                            [level.id]: e.target.value,
                           };
-                          setCompetencyForm({
-                            ...competencyForm,
+                          setCompetencyForm((prev) => ({
+                            ...prev,
                             levelDefinitions: updatedDefinitions,
-                          });
+                          }));
                         }}
                       />
                     )}
 
-                    {competencyForm.skipLevels.includes(level) && (
+                    {competencyForm.skipLevels.includes(level.id) && (
                       <p className="text-muted-foreground text-sm italic">
                         No new requirements for this level
                       </p>
@@ -390,15 +402,24 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
 };
 
 interface SortableCompetencyAreaProps {
-  category: CompetencyCategory;
-  onUpdateCategory: (id: string, updates: Partial<CompetencyCategory>) => void;
+  category: CompMatrixAreaWithFullRelations;
+  onUpdateCategory: (
+    id: string,
+    updates: Partial<CompMatrixAreaWithFullRelations>,
+  ) => void;
   onRemove: (id: string) => void;
   onAddCompetency: (areaId: string) => void;
-  onEditCompetency: (areaId: string, competency: CompetencyItem) => void;
+  onEditCompetency: (
+    areaId: string,
+    competency: CompMatrixCompetencyWithDefinitions,
+  ) => void;
   onRemoveCompetency: (areaId: string, competencyId: string) => void;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onReorderItems: (categoryId: string, items: CompetencyItem[]) => void;
+  onReorderItems: (
+    categoryId: string,
+    items: CompMatrixCompetencyWithDefinitions[],
+  ) => void;
 }
 
 const SortableCompetencyArea: React.FC<SortableCompetencyAreaProps> = (
