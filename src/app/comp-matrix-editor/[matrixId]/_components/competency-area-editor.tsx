@@ -62,6 +62,7 @@ interface CompetencyAreaEditorProps {
     },
   ) => void;
   onDeleteCompetency: (areaId: string, competencyId: string) => void;
+  onDeleteArea: (areaId: string) => void;
 }
 
 const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
@@ -72,6 +73,7 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
   onUpdateArea,
   onSaveCompetency,
   onDeleteCompetency,
+  onDeleteArea,
 }) => {
   const [newAreaName, setNewAreaName] = useState("");
   const [openAreaId, setOpenAreaId] = useState<string | null>(null);
@@ -112,7 +114,7 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
   };
 
   const handleRemoveArea = (id: string) => {
-    onChange(areas.filter((a) => a.id !== parseInt(id)));
+    onDeleteArea(id);
   };
 
   const handleUpdateArea = (updatedArea: CompMatrixAreaEditUI) => {

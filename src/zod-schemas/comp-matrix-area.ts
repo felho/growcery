@@ -11,3 +11,7 @@ export const updateCompMatrixAreaSchema = z.object({
   title: z.string().min(1).max(100),
   shortDescription: z.string().max(200).optional(),
 });
+
+export const deleteCompMatrixAreaSchema = z.object({
+  id: z.number(),
+});

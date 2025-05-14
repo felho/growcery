@@ -21,3 +21,4 @@ export interface CompMatrixAreaWithFullRelations extends CompMatrixArea {
 
 export { createCompMatrixArea } from "./create";
 export { updateCompMatrixArea } from "./update";
+export { deleteCompMatrixArea } from "./delete";
