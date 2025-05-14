@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
-import { Plus, X, CircleCheck, GripVertical } from "lucide-react";
+import { Plus, X, CircleCheck, GripVertical, Circle } from "lucide-react";
 import { Card, CardContent } from "~/components/ui/card";
 import { Label } from "~/components/ui/label";
 import {
@@ -39,6 +39,16 @@ export const RatingOptionsEditor: React.FC<RatingOptionsEditorProps> = ({
   const [newColor, setNewColor] = useState("#9b87f5");
   const [newLabel, setNewLabel] = useState("");
   const [newWeight, setNewWeight] = useState<number>(1);
+
+  // New editing state hooks
+  const [editingRatingTitle, setEditingRatingTitle] = useState<string | null>(
+    null,
+  );
+  const [editedTitle, setEditedTitle] = useState("");
+  const [editedDescription, setEditedDescription] = useState("");
+  const [editedLabel, setEditedLabel] = useState("");
+  const [editedWeight, setEditedWeight] = useState(1);
+  const [editedColor, setEditedColor] = useState("");
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -107,6 +117,35 @@ export const RatingOptionsEditor: React.FC<RatingOptionsEditorProps> = ({
         onChange(updatedOptions);
       }
     }
+  };
+
+  // Editing functions
+  const startEditing = (option: CompMatrixRatingOption) => {
+    setEditingRatingTitle(option.title);
+    setEditedTitle(option.title);
+    setEditedDescription(option.definition);
+    setEditedLabel(option.radioButtonLabel);
+    setEditedWeight(option.calculationWeight);
+    setEditedColor(option.color);
+  };
+
+  const saveEditing = () => {
+    if (!editingRatingTitle || !editedTitle.trim()) return;
+
+    const updatedOptions = ratingOptions.map((opt) =>
+      opt.title === editingRatingTitle
+        ? {
+            ...opt,
+            title: editedTitle,
+            definition: editedDescription,
+            radioButtonLabel: editedLabel,
+            calculationWeight: editedWeight,
+            color: editedColor,
+          }
+        : opt,
+    );
+    onChange(updatedOptions);
+    setEditingRatingTitle(null);
   };
 
   return (
@@ -179,7 +218,10 @@ export const RatingOptionsEditor: React.FC<RatingOptionsEditorProps> = ({
               onChange={(e) => setNewColor(e.target.value)}
               className="flex-1"
             />
-            <Button onClick={handleAddRating} className="whitespace-nowrap">
+            <Button
+              onClick={handleAddRating}
+              className="cursor-pointer whitespace-nowrap"
+            >
               <Plus className="mr-2 h-4 w-4" /> Add
             </Button>
           </div>
@@ -201,34 +243,82 @@ export const RatingOptionsEditor: React.FC<RatingOptionsEditorProps> = ({
                 No rating options defined yet. Add your first rating above.
               </p>
             ) : (
-              ratingOptions.map((opt) => (
-                <SortableRatingOption
-                  key={opt.title}
-                  rating={opt.title}
-                  description={opt.definition || ""}
-                  color={opt.color || "#e2e8f0"}
-                  label={opt.radioButtonLabel || ""}
-                  weight={opt.calculationWeight ?? 1}
-                  onUpdateDescription={(rating, description) =>
-                    handleUpdateRating(rating, { definition: description })
-                  }
-                  onUpdateColor={(rating, color) =>
-                    handleUpdateRating(rating, { color })
-                  }
-                  onUpdateLabel={(rating, label) =>
-                    handleUpdateRating(rating, {
-                      radioButtonLabel: label.toUpperCase(),
-                    })
-                  }
-                  onUpdateWeight={(rating, weight) =>
-                    handleUpdateRating(rating, { calculationWeight: weight })
-                  }
-                  onRemove={handleRemoveRating}
-                  onUpdateName={(newRatingName) =>
-                    handleUpdateRatingName(opt.title, newRatingName)
-                  }
-                />
-              ))
+              ratingOptions.map((opt) =>
+                editingRatingTitle === opt.title ? (
+                  <Card key={opt.title} className="border">
+                    <CardContent className="space-y-2 p-4">
+                      <Input
+                        value={editedTitle}
+                        onChange={(e) => setEditedTitle(e.target.value)}
+                      />
+                      <Textarea
+                        value={editedDescription}
+                        onChange={(e) => setEditedDescription(e.target.value)}
+                      />
+                      <Input
+                        value={editedLabel}
+                        onChange={(e) =>
+                          setEditedLabel(e.target.value.toUpperCase())
+                        }
+                      />
+                      <Input
+                        type="number"
+                        value={editedWeight}
+                        onChange={(e) =>
+                          setEditedWeight(Number(e.target.value) || 1)
+                        }
+                      />
+                      <div className="flex gap-2">
+                        <Input
+                          type="color"
+                          value={editedColor}
+                          onChange={(e) => setEditedColor(e.target.value)}
+                          className="w-16"
+                        />
+                        <Input
+                          value={editedColor}
+                          onChange={(e) => setEditedColor(e.target.value)}
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={saveEditing}
+                          className="cursor-pointer"
+                        >
+                          Save
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <SortableRatingOption
+                    key={opt.title}
+                    rating={opt.title}
+                    description={opt.definition}
+                    color={opt.color}
+                    label={opt.radioButtonLabel}
+                    weight={opt.calculationWeight}
+                    onUpdateDescription={(rating, desc) =>
+                      handleUpdateRating(rating, { definition: desc })
+                    }
+                    onUpdateColor={(rating, color) =>
+                      handleUpdateRating(rating, { color })
+                    }
+                    onUpdateLabel={(rating, label) =>
+                      handleUpdateRating(rating, { radioButtonLabel: label })
+                    }
+                    onUpdateWeight={(rating, weight) =>
+                      handleUpdateRating(rating, { calculationWeight: weight })
+                    }
+                    onRemove={handleRemoveRating}
+                    onUpdateName={(newRatingName) =>
+                      handleUpdateRatingName(opt.title, newRatingName)
+                    }
+                    // Add edit button:
+                    onEdit={() => startEditing(opt)}
+                  />
+                ),
+              )
             )}
           </div>
         </SortableContext>
@@ -249,6 +339,7 @@ interface SortableRatingOptionProps {
   onUpdateWeight: (rating: string, weight: number) => void;
   onRemove: (rating: string) => void;
   onUpdateName: (newRatingName: string) => void;
+  onEdit?: () => void;
 }
 
 const SortableRatingOption: React.FC<SortableRatingOptionProps> = (props) => {
@@ -259,7 +350,11 @@ const SortableRatingOption: React.FC<SortableRatingOptionProps> = (props) => {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: props.rating });
+    onEdit,
+  } = {
+    ...useSortable({ id: props.rating }),
+    onEdit: props.onEdit,
+  };
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -267,6 +362,7 @@ const SortableRatingOption: React.FC<SortableRatingOptionProps> = (props) => {
     opacity: isDragging ? 0.5 : 1,
   };
 
+  // Remove inline editing UI; only show view with Edit button
   return (
     <div ref={setNodeRef} style={style}>
       <Card className="border-border border">
@@ -276,81 +372,68 @@ const SortableRatingOption: React.FC<SortableRatingOptionProps> = (props) => {
               <GripVertical className="text-muted-foreground h-5 w-5" />
             </div>
 
-            <div
-              className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full"
-              style={{ backgroundColor: props.color }}
-            >
-              <CircleCheck className="h-5 w-5 text-white" />
+            <div className="mr-10 ml-8 flex w-20 flex-col items-center justify-center">
+              <div
+                className="rounded-full"
+                style={{
+                  backgroundColor: props.color,
+                  width: "36px",
+                  height: "36px",
+                }}
+              />
+              <span className="mt-3 text-center text-sm font-medium">
+                {props.rating}
+              </span>
             </div>
-
-            <div className="grid flex-1 grid-cols-1 gap-4 md:grid-cols-5">
-              <Input
-                value={props.rating}
-                onChange={(e) => props.onUpdateName(e.target.value)}
-                className="w-full"
-              />
-
-              <Textarea
-                value={props.description}
-                onChange={(e) =>
-                  props.onUpdateDescription(props.rating, e.target.value)
-                }
-                placeholder="Description"
-                className="h-10 w-full resize-none py-2"
-              />
-
-              <Input
-                value={props.label}
-                onChange={(e) =>
-                  props.onUpdateLabel(
-                    props.rating,
-                    e.target.value.toUpperCase(),
-                  )
-                }
-                placeholder="LABEL"
-                className="w-full uppercase"
-                maxLength={6}
-              />
-
-              <Input
-                type="number"
-                min="1"
-                step="1"
-                value={props.weight}
-                onChange={(e) =>
-                  props.onUpdateWeight(
-                    props.rating,
-                    parseInt(e.target.value) || 1,
-                  )
-                }
-                placeholder="Weight"
-                className="w-full"
-              />
-
-              <div className="flex gap-2">
-                <Input
-                  type="color"
-                  value={props.color}
-                  onChange={(e) =>
-                    props.onUpdateColor(props.rating, e.target.value)
-                  }
-                  className="w-12 p-1"
-                />
-                <Input
-                  type="text"
-                  value={props.color}
-                  onChange={(e) =>
-                    props.onUpdateColor(props.rating, e.target.value)
-                  }
-                  className="flex-1"
-                />
-                <Button
-                  size="icon"
-                  variant="destructive"
-                  onClick={() => props.onRemove(props.rating)}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+            <div className="grid flex-1 grid-cols-1 items-center gap-4 md:grid-cols-4">
+              <div className="col-span-3 grid grid-cols-1 items-center gap-4 md:grid-cols-3">
+                <div>
+                  <span className="text-muted-foreground block">
+                    {props.description}
+                  </span>
+                </div>
+                <div className="ml-20">
+                  <span className="uppercase">{props.label}</span>
+                </div>
+                <div className="ml-5">
+                  <span>{props.weight}</span>
+                </div>
+              </div>
+              <div className="flex items-start justify-end">
+                <div className="flex items-center gap-2">
+                  {onEdit && (
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      onClick={onEdit}
+                      title="Edit"
+                      className="cursor-pointer"
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M15.232 5.232l3.536 3.536M4 20h4.586a1 1 0 0 0 .707-.293l9.414-9.414a2 2 0 0 0 0-2.828l-3.172-3.172a2 2 0 0 0-2.828 0l-9.414 9.414A1 1 0 0 0 4 20z"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </Button>
+                  )}
+                  <Button
+                    size="icon"
+                    variant="destructive"
+                    onClick={() => props.onRemove(props.rating)}
+                    className="cursor-pointer"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
