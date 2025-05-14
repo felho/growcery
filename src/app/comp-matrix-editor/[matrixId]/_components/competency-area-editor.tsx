@@ -37,7 +37,10 @@ import { CSS } from "@dnd-kit/utilities";
 //   CompetencyCategory,
 //   CompetencyItem,
 // } from "~/data/mock-competency-data";
-import type { CompMatrixAreaWithFullRelations } from "~/server/queries/comp-matrix-area";
+import type {
+  CompMatrixAreaEditUI,
+  CompMatrixAreaWithFullRelations,
+} from "~/server/queries/comp-matrix-area";
 import type { CompMatrixCompetencyWithDefinitions } from "~/server/queries/comp-matrix-competency";
 import CompetencyArea from "./competency-area";
 import type { CompMatrixLevel } from "~/server/queries/comp-matrix-level";
@@ -47,6 +50,7 @@ interface CompetencyAreaEditorProps {
   levels: CompMatrixLevel[];
   onChange: (areas: CompMatrixAreaWithFullRelations[]) => void;
   onAddArea: (title: string) => void;
+  onUpdateArea: (updatedArea: CompMatrixAreaEditUI) => void;
 }
 
 const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
@@ -54,6 +58,7 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
   levels,
   onChange,
   onAddArea,
+  onUpdateArea,
 }) => {
   const [newAreaName, setNewAreaName] = useState("");
   const [openAreaId, setOpenAreaId] = useState<string | null>(null);
@@ -97,13 +102,8 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
     onChange(areas.filter((a) => a.id !== parseInt(id)));
   };
 
-  const handleUpdateArea = (
-    id: string,
-    updates: Partial<CompMatrixAreaWithFullRelations>,
-  ) => {
-    onChange(
-      areas.map((a) => (a.id === parseInt(id) ? { ...a, ...updates } : a)),
-    );
+  const handleUpdateArea = (updatedArea: CompMatrixAreaEditUI) => {
+    onUpdateArea(updatedArea);
   };
 
   const openCompetencyDialog = (
@@ -238,7 +238,7 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
                 <SortableCompetencyArea
                   key={area.id}
                   category={area}
-                  onUpdateCategory={handleUpdateArea}
+                  onUpdateArea={handleUpdateArea}
                   onRemove={handleRemoveArea}
                   onAddCompetency={openCompetencyDialog}
                   onEditCompetency={openCompetencyDialog}
@@ -395,10 +395,7 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
 
 interface SortableCompetencyAreaProps {
   category: CompMatrixAreaWithFullRelations;
-  onUpdateCategory: (
-    id: string,
-    updates: Partial<CompMatrixAreaWithFullRelations>,
-  ) => void;
+  onUpdateArea: (updatedArea: CompMatrixAreaEditUI) => void;
   onRemove: (id: string) => void;
   onAddCompetency: (areaId: string) => void;
   onEditCompetency: (

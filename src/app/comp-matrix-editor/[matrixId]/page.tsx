@@ -46,7 +46,11 @@ import { useAction } from "next-safe-action/hooks";
 import type { CreateLevelInputFromForm } from "~/zod-schemas/comp-matrix-levels";
 import { deleteLevelAction } from "~/server/actions/comp-matrix-levels/delete";
 import { createCompMatrixAreaAction } from "~/server/actions/comp-matrix-area/create";
-
+import { updateCompMatrixAreaAction } from "~/server/actions/comp-matrix-area/update";
+import type {
+  CompMatrixAreaEditUI,
+  CompMatrixAreaWithFullRelations,
+} from "~/server/queries/comp-matrix-area";
 // Temporary type that combines DB and mock data
 type HybridMatrix = CompMatrixWithFullRelations & {
   competencies: CompetencyMatrix["competencies"];
@@ -226,10 +230,8 @@ const CompetencyMatrixEditor = () => {
     onError: () => toast.error("Failed to delete level"),
   });
 
-  // Create Area Action
   const createArea = useAction(createCompMatrixAreaAction, {
     onSuccess: async (result) => {
-      // After successful creation, fetch updated matrix and update areas
       const updatedMatrix = await fetchCompMatrix(parseInt(matrixId));
       setMatrix((prev) =>
         prev ? { ...prev, areas: updatedMatrix.areas } : prev,
@@ -238,6 +240,28 @@ const CompetencyMatrixEditor = () => {
     },
     onError: () => toast.error("Failed to add area"),
   });
+
+  const updateArea = useAction(updateCompMatrixAreaAction, {
+    onSuccess: async () => {
+      const updatedMatrix = await fetchCompMatrix(parseInt(matrixId));
+      setMatrix((prev) =>
+        prev ? { ...prev, areas: updatedMatrix.areas } : prev,
+      );
+      toast.success("Area updated");
+    },
+    onError: () => toast.error("Failed to update area"),
+  });
+
+  const handleUpdateArea = (updatedArea: CompMatrixAreaEditUI) => {
+    if (!updatedArea.title?.trim()) {
+      toast.error("Title is required");
+      return;
+    }
+    updateArea.execute({
+      ...updatedArea,
+      shortDescription: updatedArea.shortDescription ?? undefined,
+    });
+  };
 
   const handleDeleteLevel = (params: { matrixId: number; levelId: number }) => {
     deleteLevel.execute(params);
@@ -467,6 +491,7 @@ const CompetencyMatrixEditor = () => {
                   setMatrix((prev) => (prev ? { ...prev, areas } : null));
                 }}
                 onAddArea={handleAddArea}
+                onUpdateArea={handleUpdateArea}
               />
             </TabsContent>
 

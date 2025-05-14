@@ -6,6 +6,8 @@ export const createCompMatrixAreaSchema = z.object({
   shortDescription: z.string().max(200).optional(),
 });
 
-export type CreateCompMatrixAreaInput = z.infer<
-  typeof createCompMatrixAreaSchema
->;
+export const updateCompMatrixAreaSchema = z.object({
+  id: z.number(),
+  title: z.string().min(1).max(100),
+  shortDescription: z.string().max(200).optional(),
+});

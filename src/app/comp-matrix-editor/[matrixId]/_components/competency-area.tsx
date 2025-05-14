@@ -38,16 +38,16 @@ import CompetencyItem from "./competency-item";
 //   CompetencyCategory,
 //   CompetencyItem as CompetencyItemType,
 // } from "~/data/mock-competency-data";
-import type { CompMatrixAreaWithFullRelations } from "~/server/queries/comp-matrix-area";
+import type {
+  CompMatrixAreaEditUI,
+  CompMatrixAreaWithFullRelations,
+} from "~/server/queries/comp-matrix-area";
 import { Textarea } from "~/components/ui/textarea";
 import type { CompMatrixCompetencyWithDefinitions } from "~/server/queries/comp-matrix-competency";
 
 interface CompetencyAreaProps {
   category: CompMatrixAreaWithFullRelations;
-  onUpdateCategory: (
-    id: string,
-    updates: Partial<CompMatrixAreaWithFullRelations>,
-  ) => void;
+  onUpdateArea: (updatedArea: CompMatrixAreaEditUI) => void;
   onRemove: (id: string) => void;
   onAddCompetency: (areaId: string) => void;
   onEditCompetency: (
@@ -66,7 +66,7 @@ interface CompetencyAreaProps {
 
 const CompetencyArea: React.FC<CompetencyAreaProps> = ({
   category,
-  onUpdateCategory,
+  onUpdateArea,
   onRemove,
   onAddCompetency,
   onEditCompetency,
@@ -90,7 +90,8 @@ const CompetencyArea: React.FC<CompetencyAreaProps> = ({
   );
 
   const handleSave = () => {
-    onUpdateCategory(category.id.toString(), {
+    onUpdateArea({
+      id: category.id,
       title: editingName.trim(),
       shortDescription: editingDescription.trim(),
     });
