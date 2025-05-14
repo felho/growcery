@@ -285,23 +285,6 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
                   }
                 />
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="competency-definition">
-                  General Definition
-                </Label>
-                <Textarea
-                  id="competency-definition"
-                  placeholder="Describe what this competency means in general"
-                  value={competencyForm.definition}
-                  onChange={(e) =>
-                    setCompetencyForm({
-                      ...competencyForm,
-                      definition: e.target.value,
-                    })
-                  }
-                />
-              </div>
             </div>
 
             <div className="space-y-4">
@@ -323,8 +306,9 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
                       >
                         {level.jobTitle}
                       </Label>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2 rounded-md p-2">
                         <Checkbox
+                          className="!bg-muted"
                           id={`skip-level-${i}`}
                           checked={competencyForm.skipLevels.includes(level.id)}
                           onCheckedChange={() => {
