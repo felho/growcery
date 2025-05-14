@@ -62,6 +62,7 @@ interface CompetencyAreaProps {
     categoryId: string,
     items: CompMatrixCompetencyWithDefinitions[],
   ) => void;
+  //TODO: check whether this is really needed
   onSaveCompetency: (
     areaId: string,
     competency: {
