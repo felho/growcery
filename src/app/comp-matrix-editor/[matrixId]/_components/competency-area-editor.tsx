@@ -204,9 +204,18 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
           placeholder="Add new competency area (e.g. Technical Skills)"
           value={newAreaName}
           onChange={(e) => setNewAreaName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleAddArea();
+            }
+          }}
           className="flex-1"
         />
-        <Button onClick={handleAddArea} className="whitespace-nowrap">
+        <Button
+          onClick={handleAddArea}
+          className="cursor-pointer whitespace-nowrap"
+        >
           <Plus className="mr-2 h-4 w-4" /> Add Area
         </Button>
       </div>
