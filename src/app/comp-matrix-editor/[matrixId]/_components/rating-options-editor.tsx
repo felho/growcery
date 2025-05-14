@@ -3,6 +3,17 @@
 import React, { useState } from "react";
 import { createRatingOptionAction } from "~/server/actions/comp-matrix-rating-options/create";
 import { Button } from "~/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "~/components/ui/alert-dialog";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 import { Plus, X, GripVertical, Save } from "lucide-react";
@@ -33,12 +44,14 @@ interface RatingOptionsEditorProps {
   ratingOptions: CompMatrixRatingOption[];
   onChange: (updatedRatingOptions: CompMatrixRatingOption[]) => void;
   onAdd: (input: NewCompMatrixRatingOptionUI) => Promise<void>;
+  onDelete: (id: number) => void;
 }
 
 export const RatingOptionsEditor: React.FC<RatingOptionsEditorProps> = ({
   ratingOptions,
   onChange,
   onAdd,
+  onDelete,
 }) => {
   const [newRating, setNewRating] = useState("");
   const [newDescription, setNewDescription] = useState("");
@@ -81,11 +94,11 @@ export const RatingOptionsEditor: React.FC<RatingOptionsEditorProps> = ({
     setNewWeight(1);
   };
 
-  const handleRemoveRating = (ratingTitle: string) => {
-    const updatedOptions = ratingOptions.filter(
-      (opt) => opt.title !== ratingTitle,
-    );
-    onChange(updatedOptions);
+  const handleRemoveRating = async (ratingTitle: string) => {
+    const match = ratingOptions.find((opt) => opt.title === ratingTitle);
+    if (match?.id) {
+      await onDelete(match.id);
+    }
   };
 
   const handleUpdateRating = (
@@ -452,14 +465,37 @@ const SortableRatingOption: React.FC<SortableRatingOptionProps> = (props) => {
                       </svg>
                     </Button>
                   )}
-                  <Button
-                    size="icon"
-                    variant="destructive"
-                    onClick={() => props.onRemove(props.rating)}
-                    className="cursor-pointer"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        size="icon"
+                        variant="destructive"
+                        className="cursor-pointer"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently
+                          delete the rating option.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel className="cursor-pointer">
+                          Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => props.onRemove(props.rating)}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90 cursor-pointer"
+                        >
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               </div>
             </div>

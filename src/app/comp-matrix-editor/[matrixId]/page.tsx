@@ -64,6 +64,7 @@ import type {
   NewCompMatrixRatingOptionUI,
 } from "~/server/queries/comp-matrix-rating-option";
 import { createRatingOptionAction } from "~/server/actions/comp-matrix-rating-options/create";
+import { deleteRatingOptionAction } from "~/server/actions/comp-matrix-rating-options/delete";
 
 // Temporary type that combines DB and mock data
 type HybridMatrix = CompMatrixWithFullRelations & {
@@ -304,6 +305,18 @@ const CompetencyMatrixEditor = () => {
     onError: () => toast.error("Failed to add rating option"),
   });
 
+  // Add near other action hooks
+  const deleteRatingOption = useAction(deleteRatingOptionAction, {
+    onSuccess: async () => {
+      const updatedMatrix = await fetchCompMatrix(parseInt(matrixId));
+      setMatrix((prev) =>
+        prev ? { ...prev, ratingOptions: updatedMatrix.ratingOptions } : prev,
+      );
+      toast.success("Rating option deleted");
+    },
+    onError: () => toast.error("Failed to delete rating option"),
+  });
+
   const handleAddRatingOption = async (input: NewCompMatrixRatingOptionUI) => {
     if (!matrix) return;
 
@@ -311,6 +324,11 @@ const CompetencyMatrixEditor = () => {
       ...input,
       competencyMatrixId: matrix.id,
     });
+  };
+
+  // Add this handler
+  const handleDeleteRatingOption = async (id: number) => {
+    await deleteRatingOption.execute({ id });
   };
 
   const handleSaveCompetency = async (
@@ -659,6 +677,7 @@ const CompetencyMatrixEditor = () => {
                   );
                 }}
                 onAdd={handleAddRatingOption}
+                onDelete={handleDeleteRatingOption}
               />
             </TabsContent>
           </Tabs>
