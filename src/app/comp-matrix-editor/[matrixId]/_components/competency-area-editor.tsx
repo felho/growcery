@@ -51,6 +51,15 @@ interface CompetencyAreaEditorProps {
   onChange: (areas: CompMatrixAreaWithFullRelations[]) => void;
   onAddArea: (title: string) => void;
   onUpdateArea: (updatedArea: CompMatrixAreaEditUI) => void;
+  onSaveCompetency: (
+    areaId: string,
+    competency: {
+      id?: number;
+      name: string;
+      levelDefinitions: Record<number, string>;
+      skipLevels: number[];
+    },
+  ) => void;
 }
 
 const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
@@ -59,6 +68,7 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
   onChange,
   onAddArea,
   onUpdateArea,
+  onSaveCompetency,
 }) => {
   const [newAreaName, setNewAreaName] = useState("");
   const [openAreaId, setOpenAreaId] = useState<string | null>(null);
@@ -140,32 +150,20 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
   const handleSaveCompetency = () => {
     if (!editingCompetency || !competencyForm.name.trim()) return;
     const { areaId, competency } = editingCompetency;
-    const areaIndex = areas.findIndex((a) => a.id === parseInt(areaId));
-    if (areaIndex === -1) return;
-    // const updatedCompetency: CompMatrixCompetencyWithDefinitions = {
-    //   id: competency?.id || (uuidv4() as unknown as number),
-    //   title: competencyForm.name,
-    //   definitions: [
-    //     {
-    //       id: uuidv4() as unknown as number,
-    //       definition: competencyForm.definition,
-    //       compMatrixCompetencyId: competency?.id || 0,
-    //     },
-    //   ],
-    // };
-    // const updatedAreas = [...areas];
-    // const area = updatedAreas[areaIndex]!;
-    // const updatedCompetencies = competency
-    //   ? area.competencies.map((item) =>
-    //       item.id === competency.id ? updatedCompetency : item,
-    //     )
-    //   : [...area.competencies, updatedCompetency];
-    // updatedAreas[areaIndex] = {
-    //   ...area,
-    //   competencies: updatedCompetencies,
-    // };
-    // onChange(updatedAreas);
-    // setIsAddingCompetency(false);
+    onSaveCompetency(areaId, {
+      id: competency?.id,
+      name: competencyForm.name,
+      levelDefinitions: competencyForm.levelDefinitions,
+      skipLevels: competencyForm.skipLevels,
+    });
+    // Clear the competency form state after saving
+    setCompetencyForm({
+      name: "",
+      definition: "",
+      levelDefinitions: {},
+      skipLevels: [],
+    });
+    setIsAddingCompetency(false);
     setEditingCompetency(null);
   };
 
@@ -248,6 +246,7 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
                     setOpenAreaId(open ? area.id.toString() : null)
                   }
                   onReorderItems={handleReorderItems}
+                  onSaveCompetency={handleSaveCompetency}
                 />
               ))
             )}
@@ -392,6 +391,15 @@ interface SortableCompetencyAreaProps {
   onReorderItems: (
     categoryId: string,
     items: CompMatrixCompetencyWithDefinitions[],
+  ) => void;
+  onSaveCompetency: (
+    areaId: string,
+    competency: {
+      id?: number;
+      name: string;
+      levelDefinitions: Record<number, string>;
+      skipLevels: number[];
+    },
   ) => void;
 }
 

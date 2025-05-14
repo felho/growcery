@@ -8,3 +8,10 @@ export type CompMatrixDefinition = InferSelectModel<
 export type NewCompMatrixDefinition = InferInsertModel<
   typeof compMatrixDefinitions
 >;
+
+export type UpsertCompMatrixDefinition = Omit<
+  InferInsertModel<typeof compMatrixDefinitions>,
+  "id"
+>;
+
+export { upsertCompMatrixDefinition } from "./upsert";

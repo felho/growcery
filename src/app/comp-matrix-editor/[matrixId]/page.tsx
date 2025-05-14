@@ -29,6 +29,8 @@ import {
 } from "~/data/mock-competency-data";
 import { LevelEditor } from "./_components/level-editor";
 import CompetencyAreaEditor from "./_components/competency-area-editor";
+import { useAction } from "next-safe-action/hooks";
+import { updateCompMatrixCompetencyAction } from "~/server/actions/comp-matrix-competency/update";
 import { RatingOptionsEditor } from "./_components/rating-options-editor";
 import { mockFunctions } from "~/data/mock-competency-data";
 import {
@@ -42,7 +44,6 @@ import type { CompMatrixWithFullRelations } from "~/server/queries/comp-matrix";
 import { reorderLevelsAction } from "~/server/actions/comp-matrix-levels/reorder";
 import { updateLevelAction } from "~/server/actions/comp-matrix-levels/update";
 import { createLevelAction } from "~/server/actions/comp-matrix-levels/create";
-import { useAction } from "next-safe-action/hooks";
 import type { CreateLevelInputFromForm } from "~/zod-schemas/comp-matrix-levels";
 import { deleteLevelAction } from "~/server/actions/comp-matrix-levels/delete";
 import { createCompMatrixAreaAction } from "~/server/actions/comp-matrix-area/create";
@@ -51,6 +52,9 @@ import type {
   CompMatrixAreaEditUI,
   CompMatrixAreaWithFullRelations,
 } from "~/server/queries/comp-matrix-area";
+import { createCompMatrixCompetencyAction } from "~/server/actions/comp-matrix-competency/create";
+import { upsertCompMatrixDefinitionAction } from "~/server/actions/comp-matrix-definition/upsert";
+
 // Temporary type that combines DB and mock data
 type HybridMatrix = CompMatrixWithFullRelations & {
   competencies: CompetencyMatrix["competencies"];
@@ -263,6 +267,91 @@ const CompetencyMatrixEditor = () => {
     });
   };
 
+  const createCompetency = useAction(createCompMatrixCompetencyAction, {
+    onSuccess: async () => {
+      const updatedMatrix = await fetchCompMatrix(parseInt(matrixId));
+      setMatrix((prev) =>
+        prev ? { ...prev, areas: updatedMatrix.areas } : prev,
+      );
+      toast.success("Competency added");
+    },
+    onError: () => toast.error("Failed to add competency"),
+  });
+
+  const upsertDefinition = useAction(upsertCompMatrixDefinitionAction, {
+    onSuccess: async () => {
+      const updatedMatrix = await fetchCompMatrix(parseInt(matrixId));
+      setMatrix((prev) =>
+        prev ? { ...prev, areas: updatedMatrix.areas } : prev,
+      );
+      toast.success("Definitions saved");
+    },
+    onError: () => toast.error("Failed to save definitions"),
+  });
+
+  const updateCompetency = useAction(updateCompMatrixCompetencyAction);
+
+  const handleSaveCompetency = async (
+    areaId: string,
+    data: {
+      id?: number;
+      name: string;
+      levelDefinitions: Record<number, string>;
+      skipLevels: number[];
+    },
+  ) => {
+    const { id, name, levelDefinitions, skipLevels } = data;
+
+    let competencyId = id;
+    if (!competencyId) {
+      const result = await createCompetency.executeAsync({
+        compMatrixAreaId: parseInt(areaId),
+        title: name,
+      });
+
+      competencyId = result?.data?.competency?.id;
+      if (!competencyId) {
+        toast.error("Failed to create competency");
+        return;
+      }
+    } else {
+      await updateCompetency.execute({
+        id: competencyId,
+        title: name,
+      });
+    }
+
+    const defs = Object.entries(levelDefinitions).map(
+      ([levelIdStr, definition]) => ({
+        compMatrixCompetencyId: competencyId!,
+        compMatrixLevelId: parseInt(levelIdStr),
+        definition,
+        inheritsPreviousLevel: skipLevels.includes(parseInt(levelIdStr)),
+      }),
+    );
+
+    for (const def of defs) {
+      try {
+        const defResult = await upsertDefinition.executeAsync(def);
+        if (!defResult) {
+          toast.error("No response from definition save");
+          return;
+        }
+      } catch (err) {
+        console.error("Definition save error:", err);
+        toast.error("Failed to save one or more definitions");
+        return;
+      }
+    }
+
+    const updatedMatrix = await fetchCompMatrix(parseInt(matrixId));
+    setMatrix((prev) =>
+      prev ? { ...prev, areas: updatedMatrix.areas } : prev,
+    );
+    toast.success("Competency saved");
+  };
+
+  // TODO: Put the handlers after the useActions are defined
   const handleDeleteLevel = (params: { matrixId: number; levelId: number }) => {
     deleteLevel.execute(params);
   };
@@ -492,6 +581,7 @@ const CompetencyMatrixEditor = () => {
                 }}
                 onAddArea={handleAddArea}
                 onUpdateArea={handleUpdateArea}
+                onSaveCompetency={handleSaveCompetency}
               />
             </TabsContent>
 

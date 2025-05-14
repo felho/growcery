@@ -62,6 +62,15 @@ interface CompetencyAreaProps {
     categoryId: string,
     items: CompMatrixCompetencyWithDefinitions[],
   ) => void;
+  onSaveCompetency: (
+    areaId: string,
+    competency: {
+      id?: number;
+      name: string;
+      levelDefinitions: Record<number, string>;
+      skipLevels: number[];
+    },
+  ) => void;
 }
 
 const CompetencyArea: React.FC<CompetencyAreaProps> = ({
@@ -75,6 +84,7 @@ const CompetencyArea: React.FC<CompetencyAreaProps> = ({
   onOpenChange,
   dragHandleProps,
   onReorderItems,
+  onSaveCompetency,
 }) => {
   const sensors = useSensors(
     useSensor(PointerSensor),

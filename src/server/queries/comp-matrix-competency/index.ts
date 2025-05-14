@@ -14,3 +14,6 @@ export interface CompMatrixCompetencyWithDefinitions
   extends CompMatrixCompetency {
   definitions: CompMatrixDefinition[];
 }
+
+export { createCompMatrixCompetency } from "./create";
+export { updateCompMatrixCompetency } from "./update";
