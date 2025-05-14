@@ -59,15 +59,12 @@ import {
   deleteCompMatrixCompetencyAction,
 } from "~/server/actions/comp-matrix-competency/delete";
 import { deleteCompMatrixAreaAction } from "~/server/actions/comp-matrix-area/delete";
+import type { CompMatrixRatingOption } from "~/server/queries/comp-matrix-rating-option";
 
 // Temporary type that combines DB and mock data
 type HybridMatrix = CompMatrixWithFullRelations & {
   competencies: CompetencyMatrix["competencies"];
-  ratingOptions: string[];
-  ratingDescriptions: Record<string, string>;
-  ratingColors: Record<string, string>;
-  ratingLabels: Record<string, string>;
-  ratingWeights: Record<string, number>;
+  ratingOptions: CompMatrixRatingOption[];
 };
 
 interface LevelMetadata {
@@ -130,15 +127,11 @@ const CompetencyMatrixEditor = () => {
           fetchFunctions(),
         ]);
 
-        // Combine DB data with mock data
+        // Combine DB data with actual ratingOptions from DB
         const hybridMatrix: HybridMatrix = {
           ...matrixData,
           competencies: emptyMatrix.competencies,
-          ratingOptions: emptyMatrix.ratingOptions,
-          ratingDescriptions: emptyMatrix.ratingDescriptions,
-          ratingColors: emptyMatrix.ratingColors,
-          ratingLabels: emptyMatrix.ratingLabels,
-          ratingWeights: emptyMatrix.ratingWeights,
+          ratingOptions: matrixData.ratingOptions,
         };
 
         setMatrix(hybridMatrix);
@@ -631,20 +624,12 @@ const CompetencyMatrixEditor = () => {
             <TabsContent value="ratings" className="space-y-4">
               <RatingOptionsEditor
                 ratingOptions={matrix.ratingOptions}
-                ratingDescriptions={matrix.ratingDescriptions}
-                ratingColors={matrix.ratingColors}
-                ratingLabels={matrix.ratingLabels}
-                ratingWeights={matrix.ratingWeights}
                 onChange={(ratingData) => {
                   setMatrix((prev) =>
                     prev
                       ? {
                           ...prev,
-                          ratingOptions: ratingData.ratingOptions,
-                          ratingDescriptions: ratingData.ratingDescriptions,
-                          ratingColors: ratingData.ratingColors,
-                          ratingLabels: ratingData.ratingLabels,
-                          ratingWeights: ratingData.ratingWeights,
+                          ratingOptions: ratingData,
                         }
                       : null,
                   );

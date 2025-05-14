@@ -4,6 +4,7 @@ import type { CompMatrixArea } from "../comp-matrix-area";
 import type { CompMatrixLevel } from "../comp-matrix-level";
 import type { CompMatrixCompetency } from "../comp-matrix-competency";
 import type { CompMatrixDefinition } from "../comp-matrix-definition";
+import type { CompMatrixRatingOption } from "../comp-matrix-rating-option";
 
 export type CompMatrix = InferSelectModel<typeof compMatrices>;
 
@@ -25,4 +26,5 @@ export interface CompMatrixWithFullRelations extends CompMatrix {
     }
   >;
   levels: CompMatrixLevel[];
+  ratingOptions: CompMatrixRatingOption[];
 }

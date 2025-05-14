@@ -23,35 +23,15 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormControl,
-  FormLabel,
-} from "~/components/ui/form";
+import type { CompMatrixRatingOption } from "~/server/queries/comp-matrix-rating-option";
 
 interface RatingOptionsEditorProps {
-  ratingOptions: string[];
-  ratingDescriptions: Record<string, string>;
-  ratingColors: Record<string, string>;
-  ratingLabels?: Record<string, string>;
-  ratingWeights?: Record<string, number>;
-  onChange: (data: {
-    ratingOptions: string[];
-    ratingDescriptions: Record<string, string>;
-    ratingColors: Record<string, string>;
-    ratingLabels: Record<string, string>;
-    ratingWeights: Record<string, number>;
-  }) => void;
+  ratingOptions: CompMatrixRatingOption[];
+  onChange: (updatedRatingOptions: CompMatrixRatingOption[]) => void;
 }
 
 export const RatingOptionsEditor: React.FC<RatingOptionsEditorProps> = ({
   ratingOptions,
-  ratingDescriptions,
-  ratingColors,
-  ratingLabels = {},
-  ratingWeights = {},
   onChange,
 }) => {
   const [newRating, setNewRating] = useState("");
@@ -69,33 +49,17 @@ export const RatingOptionsEditor: React.FC<RatingOptionsEditorProps> = ({
 
   const handleAddRating = () => {
     if (!newRating.trim()) return;
-
-    const updatedOptions = [...ratingOptions, newRating];
-    const updatedDescriptions = {
-      ...ratingDescriptions,
-      [newRating]: newDescription,
+    const newOption: CompMatrixRatingOption = {
+      id: 0,
+      competencyMatrixId: 0,
+      sortOrder: 0,
+      title: newRating,
+      definition: newDescription,
+      color: newColor,
+      radioButtonLabel: newLabel,
+      calculationWeight: newWeight,
     };
-    const updatedColors = {
-      ...ratingColors,
-      [newRating]: newColor,
-    };
-    const updatedLabels = {
-      ...ratingLabels,
-      [newRating]: newLabel,
-    };
-    const updatedWeights = {
-      ...ratingWeights,
-      [newRating]: newWeight,
-    };
-
-    onChange({
-      ratingOptions: updatedOptions,
-      ratingDescriptions: updatedDescriptions,
-      ratingColors: updatedColors,
-      ratingLabels: updatedLabels,
-      ratingWeights: updatedWeights,
-    });
-
+    onChange([...ratingOptions, newOption]);
     setNewRating("");
     setNewDescription("");
     setNewColor("#9b87f5");
@@ -103,84 +67,44 @@ export const RatingOptionsEditor: React.FC<RatingOptionsEditorProps> = ({
     setNewWeight(1);
   };
 
-  const handleRemoveRating = (rating: string) => {
-    const updatedOptions = ratingOptions.filter((r) => r !== rating);
-    const { [rating]: _, ...updatedDescriptions } = ratingDescriptions;
-    const { [rating]: __, ...updatedColors } = ratingColors;
-    const { [rating]: ___, ...updatedLabels } = ratingLabels;
-    const { [rating]: ____, ...updatedWeights } = ratingWeights;
-
-    onChange({
-      ratingOptions: updatedOptions,
-      ratingDescriptions: updatedDescriptions,
-      ratingColors: updatedColors,
-      ratingLabels: updatedLabels,
-      ratingWeights: updatedWeights,
-    });
+  const handleRemoveRating = (ratingTitle: string) => {
+    const updatedOptions = ratingOptions.filter(
+      (opt) => opt.title !== ratingTitle,
+    );
+    onChange(updatedOptions);
   };
 
-  const handleUpdateRatingDescription = (
-    rating: string,
-    description: string,
+  const handleUpdateRating = (
+    ratingTitle: string,
+    updates: Partial<CompMatrixRatingOption>,
   ) => {
-    onChange({
-      ratingOptions,
-      ratingDescriptions: { ...ratingDescriptions, [rating]: description },
-      ratingColors,
-      ratingLabels,
-      ratingWeights,
-    });
+    const updatedOptions = ratingOptions.map((opt) =>
+      opt.title === ratingTitle ? { ...opt, ...updates } : opt,
+    );
+    onChange(updatedOptions);
   };
 
-  const handleUpdateRatingColor = (rating: string, color: string) => {
-    onChange({
-      ratingOptions,
-      ratingDescriptions,
-      ratingColors: { ...ratingColors, [rating]: color },
-      ratingLabels,
-      ratingWeights,
-    });
-  };
-
-  const handleUpdateRatingLabel = (rating: string, label: string) => {
-    onChange({
-      ratingOptions,
-      ratingDescriptions,
-      ratingColors,
-      ratingLabels: { ...ratingLabels, [rating]: label },
-      ratingWeights,
-    });
-  };
-
-  const handleUpdateRatingWeight = (rating: string, weight: number) => {
-    onChange({
-      ratingOptions,
-      ratingDescriptions,
-      ratingColors,
-      ratingLabels,
-      ratingWeights: { ...ratingWeights, [rating]: weight },
-    });
+  const handleUpdateRatingName = (oldTitle: string, newTitle: string) => {
+    if (!newTitle.trim()) return;
+    const updatedOptions = ratingOptions.map((opt) =>
+      opt.title === oldTitle ? { ...opt, title: newTitle } : opt,
+    );
+    onChange(updatedOptions);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-    const oldIndex = ratingOptions.findIndex((r) => r === active.id);
-    const newIndex = ratingOptions.findIndex((r) => r === over.id);
+    const oldIndex = ratingOptions.findIndex((r) => r.title === active.id);
+    const newIndex = ratingOptions.findIndex((r) => r.title === over.id);
 
     if (oldIndex !== -1 && newIndex !== -1) {
       const updatedOptions = [...ratingOptions];
       const [moved] = updatedOptions.splice(oldIndex, 1);
       if (moved) {
         updatedOptions.splice(newIndex, 0, moved);
-        onChange({
-          ratingOptions: updatedOptions,
-          ratingDescriptions,
-          ratingColors,
-          ratingLabels,
-          ratingWeights,
-        });
+        onChange(updatedOptions);
       }
     }
   };
@@ -268,7 +192,7 @@ export const RatingOptionsEditor: React.FC<RatingOptionsEditorProps> = ({
         onDragEnd={handleDragEnd}
       >
         <SortableContext
-          items={ratingOptions}
+          items={ratingOptions.map((opt) => opt.title)}
           strategy={verticalListSortingStrategy}
         >
           <div className="mt-4 space-y-2">
@@ -277,51 +201,32 @@ export const RatingOptionsEditor: React.FC<RatingOptionsEditorProps> = ({
                 No rating options defined yet. Add your first rating above.
               </p>
             ) : (
-              ratingOptions.map((rating) => (
+              ratingOptions.map((opt) => (
                 <SortableRatingOption
-                  key={rating}
-                  rating={rating}
-                  description={ratingDescriptions[rating] || ""}
-                  color={ratingColors[rating] || "#e2e8f0"}
-                  label={ratingLabels[rating] || ""}
-                  weight={ratingWeights[rating] || 1}
-                  onUpdateDescription={handleUpdateRatingDescription}
-                  onUpdateColor={handleUpdateRatingColor}
-                  onUpdateLabel={handleUpdateRatingLabel}
-                  onUpdateWeight={handleUpdateRatingWeight}
+                  key={opt.title}
+                  rating={opt.title}
+                  description={opt.definition || ""}
+                  color={opt.color || "#e2e8f0"}
+                  label={opt.radioButtonLabel || ""}
+                  weight={opt.calculationWeight ?? 1}
+                  onUpdateDescription={(rating, description) =>
+                    handleUpdateRating(rating, { definition: description })
+                  }
+                  onUpdateColor={(rating, color) =>
+                    handleUpdateRating(rating, { color })
+                  }
+                  onUpdateLabel={(rating, label) =>
+                    handleUpdateRating(rating, {
+                      radioButtonLabel: label.toUpperCase(),
+                    })
+                  }
+                  onUpdateWeight={(rating, weight) =>
+                    handleUpdateRating(rating, { calculationWeight: weight })
+                  }
                   onRemove={handleRemoveRating}
-                  onUpdateName={(newRatingName) => {
-                    if (!newRatingName.trim()) return;
-
-                    const updatedOptions = ratingOptions.map((r) =>
-                      r === rating ? newRatingName : r,
-                    );
-
-                    const updatedDescriptions = { ...ratingDescriptions };
-                    updatedDescriptions[newRatingName] =
-                      updatedDescriptions[rating] || "";
-                    delete updatedDescriptions[rating];
-
-                    const updatedColors = { ...ratingColors };
-                    updatedColors[newRatingName] = updatedColors[rating] || "";
-                    delete updatedColors[rating];
-
-                    const updatedLabels = { ...ratingLabels };
-                    updatedLabels[newRatingName] = updatedLabels[rating] || "";
-                    delete updatedLabels[rating];
-
-                    const updatedWeights = { ...ratingWeights };
-                    updatedWeights[newRatingName] = updatedWeights[rating] || 1;
-                    delete updatedWeights[rating];
-
-                    onChange({
-                      ratingOptions: updatedOptions,
-                      ratingDescriptions: updatedDescriptions,
-                      ratingColors: updatedColors,
-                      ratingLabels: updatedLabels,
-                      ratingWeights: updatedWeights,
-                    });
-                  }}
+                  onUpdateName={(newRatingName) =>
+                    handleUpdateRatingName(opt.title, newRatingName)
+                  }
                 />
               ))
             )}
