@@ -11,3 +11,7 @@ export const updateCompMatrixCompetencySchema = z.object({
   title: z.string().min(1),
   calculationWeight: z.number().int().optional().nullable(),
 });
+
+export const deleteCompMatrixCompetencySchema = z.object({
+  id: z.number(),
+});

@@ -54,6 +54,10 @@ import type {
 } from "~/server/queries/comp-matrix-area";
 import { createCompMatrixCompetencyAction } from "~/server/actions/comp-matrix-competency/create";
 import { upsertCompMatrixDefinitionAction } from "~/server/actions/comp-matrix-definition/upsert";
+import {
+  deleteCompMatrixCompetencyAction as deleteCompetency,
+  deleteCompMatrixCompetencyAction,
+} from "~/server/actions/comp-matrix-competency/delete";
 
 // Temporary type that combines DB and mock data
 type HybridMatrix = CompMatrixWithFullRelations & {
@@ -369,6 +373,21 @@ const CompetencyMatrixEditor = () => {
     createArea.execute({ compMatrixId: matrix.id, title });
   };
 
+  // Delete competency action: destructure .execute as deleteCompetency
+  const { execute: deleteCompetency } = useAction(
+    deleteCompMatrixCompetencyAction,
+    {
+      onSuccess: async () => {
+        const updatedMatrix = await fetchCompMatrix(parseInt(matrixId));
+        setMatrix((prev) =>
+          prev ? { ...prev, areas: updatedMatrix.areas } : prev,
+        );
+        toast.success("Competency deleted");
+      },
+      onError: () => toast.error("Failed to delete competency"),
+    },
+  );
+
   const handleMetadataChange = (
     field: keyof MatrixMetadata,
     value: string | number | boolean,
@@ -582,6 +601,11 @@ const CompetencyMatrixEditor = () => {
                 onAddArea={handleAddArea}
                 onUpdateArea={handleUpdateArea}
                 onSaveCompetency={handleSaveCompetency}
+                onDeleteCompetency={(areaId, competencyId) => {
+                  deleteCompetency({
+                    id: parseInt(competencyId),
+                  });
+                }}
               />
             </TabsContent>
 

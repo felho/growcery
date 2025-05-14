@@ -17,3 +17,4 @@ export interface CompMatrixCompetencyWithDefinitions
 
 export { createCompMatrixCompetency } from "./create";
 export { updateCompMatrixCompetency } from "./update";
+export { deleteCompMatrixCompetency } from "./delete";

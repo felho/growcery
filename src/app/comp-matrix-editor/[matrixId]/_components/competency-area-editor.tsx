@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+// import { deleteCompMatrixCompetencyAction as deleteCompetency } from "~/server/actions/comp-matrix-competency/delete";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
@@ -60,6 +61,7 @@ interface CompetencyAreaEditorProps {
       skipLevels: number[];
     },
   ) => void;
+  onDeleteCompetency: (areaId: string, competencyId: string) => void;
 }
 
 const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
@@ -69,6 +71,7 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
   onAddArea,
   onUpdateArea,
   onSaveCompetency,
+  onDeleteCompetency,
 }) => {
   const [newAreaName, setNewAreaName] = useState("");
   const [openAreaId, setOpenAreaId] = useState<string | null>(null);
@@ -168,18 +171,7 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
   };
 
   const handleRemoveCompetency = (areaId: string, competencyId: string) => {
-    onChange(
-      areas.map((area) =>
-        area.id === parseInt(areaId)
-          ? {
-              ...area,
-              competencies: area.competencies.filter(
-                (item) => item.id !== parseInt(competencyId),
-              ),
-            }
-          : area,
-      ),
-    );
+    onDeleteCompetency(areaId, competencyId);
   };
 
   // Level skip/definitions logic omitted for DB type (could be added if needed)

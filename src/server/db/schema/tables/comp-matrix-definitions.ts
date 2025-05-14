@@ -15,3 +15,5 @@ export const compMatrixDefinitions = createTable("comp_matrix_definitions", {
   assessmentHint: varchar({ length: 5000 }),
   inheritsPreviousLevel: boolean().default(false).notNull(),
 });
+
+// TODO: compMatrixCompetencyId + compMatrixLevelId together should be unique
