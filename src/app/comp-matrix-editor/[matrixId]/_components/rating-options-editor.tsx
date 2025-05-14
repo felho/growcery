@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { createRatingOptionAction } from "~/server/actions/comp-matrix-rating-options/create";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
@@ -23,16 +24,21 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import type { CompMatrixRatingOption } from "~/server/queries/comp-matrix-rating-option";
+import type {
+  CompMatrixRatingOption,
+  NewCompMatrixRatingOptionUI,
+} from "~/server/queries/comp-matrix-rating-option";
 
 interface RatingOptionsEditorProps {
   ratingOptions: CompMatrixRatingOption[];
   onChange: (updatedRatingOptions: CompMatrixRatingOption[]) => void;
+  onAdd: (input: NewCompMatrixRatingOptionUI) => Promise<void>;
 }
 
 export const RatingOptionsEditor: React.FC<RatingOptionsEditorProps> = ({
   ratingOptions,
   onChange,
+  onAdd,
 }) => {
   const [newRating, setNewRating] = useState("");
   const [newDescription, setNewDescription] = useState("");
@@ -57,19 +63,17 @@ export const RatingOptionsEditor: React.FC<RatingOptionsEditorProps> = ({
     }),
   );
 
-  const handleAddRating = () => {
+  const handleAddRating = async () => {
     if (!newRating.trim()) return;
-    const newOption: CompMatrixRatingOption = {
-      id: 0,
-      competencyMatrixId: 0,
-      sortOrder: 0,
+
+    await onAdd({
       title: newRating,
       definition: newDescription,
       color: newColor,
       radioButtonLabel: newLabel,
       calculationWeight: newWeight,
-    };
-    onChange([...ratingOptions, newOption]);
+    });
+
     setNewRating("");
     setNewDescription("");
     setNewColor("#9b87f5");

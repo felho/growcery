@@ -6,7 +6,6 @@ export const createRatingOptionSchema = z.object({
   radioButtonLabel: z.string().min(1).max(50),
   definition: z.string().min(1).max(500),
   calculationWeight: z.number().min(0).max(100),
-  sortOrder: z.number().min(0),
   color: z.string().min(1).max(10),
 });
 

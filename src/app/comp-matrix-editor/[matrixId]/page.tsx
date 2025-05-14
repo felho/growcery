@@ -59,7 +59,11 @@ import {
   deleteCompMatrixCompetencyAction,
 } from "~/server/actions/comp-matrix-competency/delete";
 import { deleteCompMatrixAreaAction } from "~/server/actions/comp-matrix-area/delete";
-import type { CompMatrixRatingOption } from "~/server/queries/comp-matrix-rating-option";
+import type {
+  CompMatrixRatingOption,
+  NewCompMatrixRatingOptionUI,
+} from "~/server/queries/comp-matrix-rating-option";
+import { createRatingOptionAction } from "~/server/actions/comp-matrix-rating-options/create";
 
 // Temporary type that combines DB and mock data
 type HybridMatrix = CompMatrixWithFullRelations & {
@@ -288,6 +292,26 @@ const CompetencyMatrixEditor = () => {
   });
 
   const updateCompetency = useAction(updateCompMatrixCompetencyAction);
+
+  const createRatingOption = useAction(createRatingOptionAction, {
+    onSuccess: async () => {
+      const updatedMatrix = await fetchCompMatrix(parseInt(matrixId));
+      setMatrix((prev) =>
+        prev ? { ...prev, ratingOptions: updatedMatrix.ratingOptions } : prev,
+      );
+      toast.success("Rating option added");
+    },
+    onError: () => toast.error("Failed to add rating option"),
+  });
+
+  const handleAddRatingOption = async (input: NewCompMatrixRatingOptionUI) => {
+    if (!matrix) return;
+
+    createRatingOption.execute({
+      ...input,
+      competencyMatrixId: matrix.id,
+    });
+  };
 
   const handleSaveCompetency = async (
     areaId: string,
@@ -634,6 +658,7 @@ const CompetencyMatrixEditor = () => {
                       : null,
                   );
                 }}
+                onAdd={handleAddRatingOption}
               />
             </TabsContent>
           </Tabs>
