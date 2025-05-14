@@ -302,7 +302,6 @@ const CompetencyMatrixEditor = () => {
       );
       toast.success("Rating option added");
     },
-    onError: () => toast.error("Failed to add rating option"),
   });
 
   // Add near other action hooks
@@ -319,8 +318,8 @@ const CompetencyMatrixEditor = () => {
 
   const handleAddRatingOption = async (input: NewCompMatrixRatingOptionUI) => {
     if (!matrix) return;
-
-    createRatingOption.execute({
+    // Await and return the result so the editor can check for validation errors
+    return await createRatingOption.executeAsync({
       ...input,
       competencyMatrixId: matrix.id,
     });

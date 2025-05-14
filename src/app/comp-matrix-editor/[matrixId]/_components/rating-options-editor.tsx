@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { createRatingOptionAction } from "~/server/actions/comp-matrix-rating-options/create";
+import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import {
   AlertDialog,
@@ -43,7 +43,7 @@ import type {
 interface RatingOptionsEditorProps {
   ratingOptions: CompMatrixRatingOption[];
   onChange: (updatedRatingOptions: CompMatrixRatingOption[]) => void;
-  onAdd: (input: NewCompMatrixRatingOptionUI) => Promise<void>;
+  onAdd: (input: NewCompMatrixRatingOptionUI) => Promise<any>;
   onDelete: (id: number) => void;
 }
 
@@ -79,19 +79,47 @@ export const RatingOptionsEditor: React.FC<RatingOptionsEditorProps> = ({
   const handleAddRating = async () => {
     if (!newRating.trim()) return;
 
-    await onAdd({
-      title: newRating,
-      definition: newDescription,
-      color: newColor,
-      radioButtonLabel: newLabel,
-      calculationWeight: newWeight,
-    });
+    try {
+      const result = await onAdd({
+        title: newRating,
+        definition: newDescription,
+        color: newColor,
+        radioButtonLabel: newLabel,
+        calculationWeight: newWeight,
+      });
+      if (result?.validationErrors) {
+        console.log("result", result.validationErrors);
+        const errorMessages = Object.entries(result.validationErrors).map(
+          ([field, messages]) =>
+            `${field}: ${(messages as string[]).join(", ")}`,
+        );
 
-    setNewRating("");
-    setNewDescription("");
-    setNewColor("#9b87f5");
-    setNewLabel("");
-    setNewWeight(1);
+        toast.custom(
+          (id) => (
+            <div className="space-y-1" key={id}>
+              {errorMessages.map((msg, index) => (
+                <div key={index}>{msg}</div>
+              ))}
+            </div>
+          ),
+          {
+            duration: 6000,
+          },
+        );
+        return;
+      }
+      setNewRating("");
+      setNewDescription("");
+      setNewColor("#9b87f5");
+      setNewLabel("");
+      setNewWeight(1);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(
+        err?.message ||
+          (typeof err === "string" ? err : "Failed to add rating option22222"),
+      );
+    }
   };
 
   const handleRemoveRating = async (ratingTitle: string) => {
