@@ -50,12 +50,17 @@ const CompetencyItem: React.FC<CompetencyItemProps> = ({
             size="sm"
             variant="ghost"
             onClick={() => onEdit(categoryId, item)}
+            className="cursor-pointer"
           >
             <Edit className="h-4 w-4" />
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button size="sm" variant="destructive">
+              <Button
+                size="sm"
+                variant="destructive"
+                className="cursor-pointer"
+              >
                 <X className="h-4 w-4" />
               </Button>
             </AlertDialogTrigger>
@@ -68,10 +73,12 @@ const CompetencyItem: React.FC<CompetencyItemProps> = ({
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogCancel className="cursor-pointer">
+                  Cancel
+                </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => onRemove(categoryId, item.id.toString())}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90 cursor-pointer"
                 >
                   Delete
                 </AlertDialogAction>

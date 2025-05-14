@@ -63,7 +63,7 @@ export const NewLevelForm: React.FC<NewLevelFormProps> = ({
       <CollapsibleTrigger asChild>
         <Button
           variant={showForm ? "outline" : "default"}
-          className="flex w-full justify-between"
+          className="flex w-full cursor-pointer justify-between"
         >
           <span>
             {insertPosition !== undefined

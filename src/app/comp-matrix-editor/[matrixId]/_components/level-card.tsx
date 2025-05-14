@@ -115,7 +115,12 @@ export const LevelCard: React.FC<LevelCardProps> = (props) => {
               <span>{props.level.name}</span>
             </div>
             <div className="flex items-center gap-2">
-              <Button size="sm" variant="ghost" onClick={props.onInsertBefore}>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={props.onInsertBefore}
+                className="cursor-pointer"
+              >
                 Insert Before
               </Button>
               <Button
@@ -123,6 +128,7 @@ export const LevelCard: React.FC<LevelCardProps> = (props) => {
                 variant="ghost"
                 onClick={() => props.onMove(props.index, "up")}
                 disabled={props.index === 0}
+                className="cursor-pointer"
               >
                 <ArrowUp className="h-4 w-4" />
               </Button>
@@ -131,6 +137,7 @@ export const LevelCard: React.FC<LevelCardProps> = (props) => {
                 variant="ghost"
                 onClick={() => props.onMove(props.index, "down")}
                 disabled={props.index === props.levelsLength - 1}
+                className="cursor-pointer"
               >
                 <ArrowDown className="h-4 w-4" />
               </Button>
@@ -143,6 +150,7 @@ export const LevelCard: React.FC<LevelCardProps> = (props) => {
                     : () => props.onToggleExpand(props.index)
                 }
                 disabled={isSaving}
+                className="cursor-pointer"
               >
                 {props.isExpanded ? (
                   <Save className="h-4 w-4" />
@@ -152,7 +160,11 @@ export const LevelCard: React.FC<LevelCardProps> = (props) => {
               </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button size="sm" variant="destructive">
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    className="cursor-pointer"
+                  >
                     <X className="h-4 w-4" />
                   </Button>
                 </AlertDialogTrigger>
@@ -165,10 +177,12 @@ export const LevelCard: React.FC<LevelCardProps> = (props) => {
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel className="cursor-pointer">
+                      Cancel
+                    </AlertDialogCancel>
                     <AlertDialogAction
                       onClick={() => props.onRemove(props.level.id)}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90 cursor-pointer"
                     >
                       Delete
                     </AlertDialogAction>

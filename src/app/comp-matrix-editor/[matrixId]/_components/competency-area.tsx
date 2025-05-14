@@ -193,7 +193,7 @@ const CompetencyArea: React.FC<CompetencyAreaProps> = ({
                 <Button
                   size="sm"
                   variant="outline"
-                  className="border-primary/20 hover:bg-primary/10 h-7 rounded-full px-2"
+                  className="border-primary/20 hover:bg-primary/10 h-7 cursor-pointer rounded-full px-2"
                   onClick={() => setIsEditing(true)}
                 >
                   <Pencil className="h-3 w-3" />
@@ -209,7 +209,7 @@ const CompetencyArea: React.FC<CompetencyAreaProps> = ({
         </div>
         <div className="flex items-center gap-2">
           <CollapsibleTrigger asChild>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" className="cursor-pointer">
               {isOpen ? (
                 <ChevronUp className="h-4 w-4" />
               ) : (
@@ -219,7 +219,11 @@ const CompetencyArea: React.FC<CompetencyAreaProps> = ({
           </CollapsibleTrigger>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button size="sm" variant="destructive">
+              <Button
+                size="sm"
+                variant="destructive"
+                className="cursor-pointer"
+              >
                 <X className="h-4 w-4" />
               </Button>
             </AlertDialogTrigger>
@@ -232,10 +236,12 @@ const CompetencyArea: React.FC<CompetencyAreaProps> = ({
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogCancel className="cursor-pointer">
+                  Cancel
+                </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => onRemove(category.id.toString())}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90 cursor-pointer"
                 >
                   Delete
                 </AlertDialogAction>
@@ -250,7 +256,7 @@ const CompetencyArea: React.FC<CompetencyAreaProps> = ({
           <Button
             variant="outline"
             onClick={() => onAddCompetency(category.id.toString())}
-            className="w-full"
+            className="w-full cursor-pointer"
           >
             <Plus className="mr-2 h-4 w-4" /> Add Competency
           </Button>

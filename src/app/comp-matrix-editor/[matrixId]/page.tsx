@@ -461,6 +461,7 @@ const CompetencyMatrixEditor = () => {
         <Button
           variant="outline"
           onClick={() => router.push("/comp-matrix-editor")}
+          className="cursor-pointer"
         >
           Back to Matrices
         </Button>
@@ -476,7 +477,7 @@ const CompetencyMatrixEditor = () => {
           </div>
           <div className="flex gap-2">
             {isEditingMeta ? (
-              <Button onClick={handleSaveMetadata}>
+              <Button onClick={handleSaveMetadata} className="cursor-pointer">
                 <Save className="mr-2 h-4 w-4" /> Save
               </Button>
             ) : (
@@ -484,6 +485,7 @@ const CompetencyMatrixEditor = () => {
                 variant="outline"
                 size="icon"
                 onClick={() => setIsEditingMeta(true)}
+                className="cursor-pointer"
               >
                 <Pencil className="h-4 w-4" />
               </Button>
@@ -541,6 +543,7 @@ const CompetencyMatrixEditor = () => {
                   onCheckedChange={(checked) =>
                     handleMetadataChange("isPublished", checked)
                   }
+                  className="cursor-pointer"
                 />
                 <Label htmlFor="published">Published</Label>
                 <span className="text-muted-foreground ml-2 text-sm">
