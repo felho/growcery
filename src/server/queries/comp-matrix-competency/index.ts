@@ -6,8 +6,9 @@ export type CompMatrixCompetency = InferSelectModel<
   typeof compMatrixCompetencies
 >;
 
-export type NewCompMatrixCompetency = InferInsertModel<
-  typeof compMatrixCompetencies
+export type NewCompMatrixCompetency = Omit<
+  InferInsertModel<typeof compMatrixCompetencies>,
+  "sortOrder"
 >;
 
 export interface CompMatrixCompetencyWithDefinitions
