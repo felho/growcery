@@ -288,7 +288,7 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
 
       {/* Dialog for adding/editing competencies */}
       <Dialog open={isAddingCompetency} onOpenChange={setIsAddingCompetency}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingCompetency?.competency
@@ -318,7 +318,7 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="max-h-[60vh] space-y-4 overflow-y-auto pr-2">
               <h4 className="font-medium">Level-Specific Definitions</h4>
               {levels.length === 0 ? (
                 <p className="text-muted-foreground text-sm">
