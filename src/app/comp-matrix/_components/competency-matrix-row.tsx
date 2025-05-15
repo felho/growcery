@@ -77,6 +77,9 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
               isExpanded={isExpanded}
               viewMode={viewMode}
               ratingOptions={ratingOptions ?? []}
+              inheritsPreviousLevel={
+                competency?.definitions[index]?.inheritsPreviousLevel ?? false
+              }
               currentRating={
                 compMatrixCurrentRating?.[
                   competency?.definitions[index]?.id || 0

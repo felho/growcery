@@ -27,6 +27,7 @@ interface CompetencyMatrixCellProps {
   isExpanded: boolean;
   hasDifferentRatings?: boolean;
   viewMode?: ViewMode;
+  inheritsPreviousLevel?: boolean;
 }
 
 const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
@@ -39,6 +40,7 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
   currentRating,
   isExpanded = false,
   viewMode = "employee",
+  inheritsPreviousLevel = false,
 }) => {
   const emptyRating: CompMatrixRatingsForUI = {
     selfRatingId: undefined,
@@ -174,7 +176,11 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
       <div className="flex h-full flex-col">
         {/* Popover trigger cella */}
         <div className="h-12 w-full">
-          {hasDifferentRatings ? (
+          {inheritsPreviousLevel ? (
+            <div className="border-border bg-muted/30 flex h-12 flex-1 items-center justify-center border-r last:border-r-0">
+              <span className="text-muted-foreground text-sm">N/A</span>
+            </div>
+          ) : hasDifferentRatings ? (
             <JointDiscussionPopover
               competencyDefinition={competencyDefinition}
               currentRating={localRating}
@@ -198,7 +204,7 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
           )}
         </div>
 
-        {isExpanded && phase !== "calibration" && (
+        {isExpanded && phase !== "calibration" && !inheritsPreviousLevel && (
           <div className="flex flex-1 flex-col p-3">
             <div className="mb-3 flex-grow">
               <p className="text-sm">{competencyDefinition}</p>
