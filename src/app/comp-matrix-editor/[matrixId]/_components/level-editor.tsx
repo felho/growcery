@@ -133,7 +133,8 @@ export const LevelEditor = ({
   const handleAddLevel = (data: CreateLevelInputFromForm) => {
     onAddLevel({
       ...data,
-      insertPosition,
+      insertPosition:
+        insertPosition !== undefined ? insertPosition + 1 : undefined,
     });
     setInsertPosition(undefined);
     setShowNewLevelForm(false);
