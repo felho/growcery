@@ -24,3 +24,9 @@ export type CompMatrixRatingOptionReorderUI = Omit<
   InferSelectModel<typeof compMatrixRatingOptions>,
   "competencyMatrixId"
 >;
+
+export { reorderCompMatrixRatingOptions } from "./reorder";
+export { createCompMatrixRatingOption } from "./create";
+export { updateCompMatrixRatingOption } from "./update";
+export { deleteCompMatrixRatingOption } from "./delete";
+export { getRatingOptionsByMatrixId } from "./get-by-matrix-id";
