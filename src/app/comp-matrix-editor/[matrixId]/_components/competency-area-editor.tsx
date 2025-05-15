@@ -145,7 +145,9 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
           ]),
         ),
         skipLevels: (competency.definitions || [])
-          .filter((d) => !d.definition?.trim())
+          .filter(
+            (d) => !d.definition?.trim() || d.inheritsPreviousLevel === true,
+          )
           .map((d) => d.compMatrixLevelId),
       });
       setEditingCompetency({ areaId, competency });
@@ -164,10 +166,17 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
   const handleSaveCompetency = () => {
     if (!editingCompetency || !competencyForm.name.trim()) return;
     const { areaId, competency } = editingCompetency;
+
+    // Clear definitions for skipped levels
+    const cleanedLevelDefinitions = { ...competencyForm.levelDefinitions };
+    competencyForm.skipLevels.forEach((levelId) => {
+      cleanedLevelDefinitions[levelId] = "";
+    });
+
     onSaveCompetency(areaId, {
       id: competency?.id,
       name: competencyForm.name,
-      levelDefinitions: competencyForm.levelDefinitions,
+      levelDefinitions: cleanedLevelDefinitions,
       skipLevels: competencyForm.skipLevels,
     });
     // Clear the competency form state after saving
