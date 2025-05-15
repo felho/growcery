@@ -291,7 +291,7 @@ export const RatingOptionsEditor: React.FC<RatingOptionsEditorProps> = ({
               ratingOptions.map((opt) =>
                 editingRatingTitle === opt.title ? (
                   <Card key={opt.title} className="border">
-                    <CardContent className="p-4">
+                    <CardContent className="p-4 pt-2.5 pb-2.5">
                       <div className="flex flex-wrap items-center gap-4">
                         <Input
                           id="edit-rating-name"
@@ -305,7 +305,7 @@ export const RatingOptionsEditor: React.FC<RatingOptionsEditorProps> = ({
                           value={editedDescription}
                           onChange={(e) => setEditedDescription(e.target.value)}
                           placeholder="Description"
-                          className="h-24 w-[250px] resize-none"
+                          className="ml-2 h-20 w-[250px] resize-none"
                         />
                         <Input
                           id="edit-rating-label"
@@ -314,7 +314,7 @@ export const RatingOptionsEditor: React.FC<RatingOptionsEditorProps> = ({
                             setEditedLabel(e.target.value.toUpperCase())
                           }
                           placeholder="Button Label"
-                          className="w-[120px] uppercase"
+                          className="ml-2 w-[120px] uppercase"
                         />
                         <Input
                           id="edit-rating-weight"
@@ -324,14 +324,14 @@ export const RatingOptionsEditor: React.FC<RatingOptionsEditorProps> = ({
                             setEditedWeight(Number(e.target.value) || 1)
                           }
                           placeholder="Weight"
-                          className="w-[80px]"
+                          className="ml-2 w-[80px]"
                         />
                         <Input
                           id="edit-rating-color"
                           type="color"
                           value={editedColor}
                           onChange={(e) => setEditedColor(e.target.value)}
-                          className="h-10 w-12 p-1"
+                          className="ml-6 h-10 w-12 p-1"
                         />
                         <Input
                           type="text"
