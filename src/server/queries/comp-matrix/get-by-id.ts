@@ -11,6 +11,7 @@ export async function getCompMatrixById(
         orderBy: (areas, { asc }) => [asc(areas.sortOrder)],
         with: {
           competencies: {
+            orderBy: (competencies, { asc }) => [asc(competencies.sortOrder)],
             with: {
               definitions: true,
             },

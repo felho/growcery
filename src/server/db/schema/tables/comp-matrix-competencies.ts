@@ -9,4 +9,5 @@ export const compMatrixCompetencies = createTable("comp-matrix-competencies", {
     .references(() => compMatrixAreas.id),
   title: varchar({ length: 100 }).notNull(),
   calculationWeight: smallint(),
+  sortOrder: smallint().notNull(),
 });
