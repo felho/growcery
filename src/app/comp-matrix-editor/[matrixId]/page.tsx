@@ -48,10 +48,7 @@ import type { CreateLevelInputFromForm } from "~/zod-schemas/comp-matrix-levels"
 import { deleteLevelAction } from "~/server/actions/comp-matrix-levels/delete";
 import { createCompMatrixAreaAction } from "~/server/actions/comp-matrix-area/create";
 import { updateCompMatrixAreaAction } from "~/server/actions/comp-matrix-area/update";
-import type {
-  CompMatrixAreaEditUI,
-  CompMatrixAreaWithFullRelations,
-} from "~/server/queries/comp-matrix-area";
+import type { CompMatrixAreaEditUI } from "~/server/queries/comp-matrix-area";
 import { createCompMatrixCompetencyAction } from "~/server/actions/comp-matrix-competency/create";
 import { upsertCompMatrixDefinitionAction } from "~/server/actions/comp-matrix-definition/upsert";
 import {
@@ -74,13 +71,6 @@ type HybridMatrix = CompMatrixWithFullRelations & {
   competencies: CompetencyMatrix["competencies"];
   ratingOptions: CompMatrixRatingOption[];
 };
-
-interface LevelMetadata {
-  title: string;
-  description: string;
-  persona: string;
-  areaOfImpact: string;
-}
 
 interface LevelData {
   id: number;
