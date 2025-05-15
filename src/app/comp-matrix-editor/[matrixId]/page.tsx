@@ -233,6 +233,9 @@ const CompetencyMatrixEditor = () => {
     onError: () => toast.error("Failed to delete level"),
   });
 
+  // TODO: This has to be optimized, there is no need to fetch the entire matrix
+  // just to add an area. Also, the create area query has to be checked, as now
+  // it returns a lot of data that is not needed.
   const createArea = useAction(createCompMatrixAreaAction, {
     onSuccess: async (result) => {
       const updatedMatrix = await fetchCompMatrix(parseInt(matrixId));
@@ -511,7 +514,6 @@ const CompetencyMatrixEditor = () => {
     });
   };
 
-  // Handler for adding a new area
   const handleAddArea = (title: string) => {
     if (!matrix) return;
     createArea.execute({ compMatrixId: matrix.id, title });

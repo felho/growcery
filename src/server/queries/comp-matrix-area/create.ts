@@ -1,10 +1,9 @@
-// src/server/queries/comp-matrix-area/create.ts
 import { sql } from "drizzle-orm";
 import { eq } from "drizzle-orm";
 import { db } from "~/server/db";
 import { compMatrixAreas } from "~/server/db/schema";
 import type { CreateCompMatrixAreaInput } from "~/zod-schemas/comp-matrix-area";
-import type { CompMatrixAreaWithFullRelations } from "../comp-matrix-area"; // típus
+import type { CompMatrixAreaWithFullRelations } from "../comp-matrix-area";
 
 export async function createCompMatrixArea(
   input: CreateCompMatrixAreaInput,
