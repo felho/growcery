@@ -13,9 +13,9 @@ export async function createLevel(input: CreateLevelInput) {
     insertPosition,
   } = input;
 
-  // If insertPosition is provided, we need to shift existing levels
+  let nextNumericLevel: number;
+
   if (insertPosition !== undefined) {
-    // Update numericLevel for all levels that come after the insert position
     await db
       .update(compMatrixLevels)
       .set({
@@ -27,19 +27,17 @@ export async function createLevel(input: CreateLevelInput) {
           gte(compMatrixLevels.numericLevel, insertPosition),
         ),
       );
+
+    nextNumericLevel = insertPosition;
+  } else {
+    const [{ max } = { max: 0 }] = await db
+      .select({ max: sql<number>`max(${compMatrixLevels.numericLevel})` })
+      .from(compMatrixLevels)
+      .where(eq(compMatrixLevels.compMatrixId, matrixId));
+
+    nextNumericLevel = max + 1;
   }
 
-  // Get the next numericLevel value
-  const maxLevel = await db
-    .select({ max: compMatrixLevels.numericLevel })
-    .from(compMatrixLevels)
-    .where(eq(compMatrixLevels.compMatrixId, matrixId))
-    .orderBy(compMatrixLevels.numericLevel)
-    .limit(1);
-
-  const nextNumericLevel = insertPosition ?? (maxLevel[0]?.max ?? 0) + 1;
-
-  // Create the new level
   const [newLevel] = await db
     .insert(compMatrixLevels)
     .values({
@@ -49,7 +47,7 @@ export async function createLevel(input: CreateLevelInput) {
       roleSummary: description,
       persona,
       areaOfImpact,
-      levelCode: `L${nextNumericLevel}`, // Generate a simple level code
+      levelCode: `L${nextNumericLevel}`,
     })
     .returning();
 
