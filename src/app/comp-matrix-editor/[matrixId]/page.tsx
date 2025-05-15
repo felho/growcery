@@ -61,10 +61,12 @@ import {
 import { deleteCompMatrixAreaAction } from "~/server/actions/comp-matrix-area/delete";
 import type {
   CompMatrixRatingOption,
+  CompMatrixRatingOptionUI,
   NewCompMatrixRatingOptionUI,
 } from "~/server/queries/comp-matrix-rating-option";
 import { createRatingOptionAction } from "~/server/actions/comp-matrix-rating-options/create";
 import { deleteRatingOptionAction } from "~/server/actions/comp-matrix-rating-options/delete";
+import { updateRatingOptionAction } from "~/server/actions/comp-matrix-rating-options/update";
 
 // Temporary type that combines DB and mock data
 type HybridMatrix = CompMatrixWithFullRelations & {
@@ -304,7 +306,6 @@ const CompetencyMatrixEditor = () => {
     },
   });
 
-  // Add near other action hooks
   const deleteRatingOption = useAction(deleteRatingOptionAction, {
     onSuccess: async () => {
       const updatedMatrix = await fetchCompMatrix(parseInt(matrixId));
@@ -318,16 +319,34 @@ const CompetencyMatrixEditor = () => {
 
   const handleAddRatingOption = async (input: NewCompMatrixRatingOptionUI) => {
     if (!matrix) return;
-    // Await and return the result so the editor can check for validation errors
     return await createRatingOption.executeAsync({
       ...input,
       competencyMatrixId: matrix.id,
     });
   };
 
-  // Add this handler
   const handleDeleteRatingOption = async (id: number) => {
     await deleteRatingOption.execute({ id });
+  };
+
+  const updateRatingOption = useAction(updateRatingOptionAction, {
+    onSuccess: async () => {
+      const updatedMatrix = await fetchCompMatrix(parseInt(matrixId));
+      setMatrix((prev) =>
+        prev ? { ...prev, ratingOptions: updatedMatrix.ratingOptions } : prev,
+      );
+      toast.success("Rating option updated");
+    },
+    onError: () => toast.error("Failed to update rating option"),
+  });
+
+  const handleUpdateRatingOption = async (input: CompMatrixRatingOptionUI) => {
+    if (!matrix) return;
+
+    await updateRatingOption.execute({
+      ...input,
+      competencyMatrixId: matrix.id,
+    });
   };
 
   const handleSaveCompetency = async (
@@ -677,6 +696,7 @@ const CompetencyMatrixEditor = () => {
                 }}
                 onAdd={handleAddRatingOption}
                 onDelete={handleDeleteRatingOption}
+                onUpdate={handleUpdateRatingOption}
               />
             </TabsContent>
           </Tabs>

@@ -10,6 +10,11 @@ export type NewCompMatrixRatingOption = Omit<
   "sortOrder"
 >;
 
+export type CompMatrixRatingOptionUI = Omit<
+  CompMatrixRatingOption,
+  "competencyMatrixId" | "sortOrder"
+>;
+
 export type NewCompMatrixRatingOptionUI = Omit<
   NewCompMatrixRatingOption,
   "id" | "competencyMatrixId" | "sortOrder"

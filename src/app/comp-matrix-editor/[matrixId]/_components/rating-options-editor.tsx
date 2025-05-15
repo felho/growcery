@@ -38,6 +38,7 @@ import { CSS } from "@dnd-kit/utilities";
 import type {
   CompMatrixRatingOption,
   NewCompMatrixRatingOptionUI,
+  CompMatrixRatingOptionUI,
 } from "~/server/queries/comp-matrix-rating-option";
 
 interface RatingOptionsEditorProps {
@@ -45,6 +46,7 @@ interface RatingOptionsEditorProps {
   onChange: (updatedRatingOptions: CompMatrixRatingOption[]) => void;
   onAdd: (input: NewCompMatrixRatingOptionUI) => Promise<any>;
   onDelete: (id: number) => void;
+  onUpdate: (input: CompMatrixRatingOptionUI) => void;
 }
 
 export const RatingOptionsEditor: React.FC<RatingOptionsEditorProps> = ({
@@ -52,6 +54,7 @@ export const RatingOptionsEditor: React.FC<RatingOptionsEditorProps> = ({
   onChange,
   onAdd,
   onDelete,
+  onUpdate,
 }) => {
   const [newRating, setNewRating] = useState("");
   const [newDescription, setNewDescription] = useState("");
@@ -177,19 +180,19 @@ export const RatingOptionsEditor: React.FC<RatingOptionsEditorProps> = ({
   const saveEditing = () => {
     if (!editingRatingTitle || !editedTitle.trim()) return;
 
-    const updatedOptions = ratingOptions.map((opt) =>
-      opt.title === editingRatingTitle
-        ? {
-            ...opt,
-            title: editedTitle,
-            definition: editedDescription,
-            radioButtonLabel: editedLabel,
-            calculationWeight: editedWeight,
-            color: editedColor,
-          }
-        : opt,
-    );
-    onChange(updatedOptions);
+    const match = ratingOptions.find((opt) => opt.title === editingRatingTitle);
+    if (!match) return;
+
+    const updated = {
+      id: match.id,
+      title: editedTitle,
+      definition: editedDescription,
+      radioButtonLabel: editedLabel,
+      calculationWeight: editedWeight,
+      color: editedColor,
+    };
+
+    onUpdate(updated);
     setEditingRatingTitle(null);
   };
 
