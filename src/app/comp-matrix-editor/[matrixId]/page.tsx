@@ -66,6 +66,8 @@ import { createRatingOptionAction } from "~/server/actions/comp-matrix-rating-op
 import { deleteRatingOptionAction } from "~/server/actions/comp-matrix-rating-options/delete";
 import { updateRatingOptionAction } from "~/server/actions/comp-matrix-rating-options/update";
 import { reorderRatingOptionsAction } from "~/server/actions/comp-matrix-rating-options/reorder";
+import { reorderCompMatrixCompetenciesAction } from "~/server/actions/comp-matrix-competency/reorder";
+import type { CompMatrixCompetencyWithDefinitions } from "~/server/queries/comp-matrix-competency";
 
 // Temporary type that combines DB and mock data
 type HybridMatrix = CompMatrixWithFullRelations & {
@@ -392,6 +394,46 @@ const CompetencyMatrixEditor = () => {
       matrixId: matrix.id,
       areas: newAreas.map((area, index) => ({
         id: area.id,
+        sortOrder: index + 1,
+      })),
+    });
+  };
+
+  const reorderCompetencies = useAction(reorderCompMatrixCompetenciesAction, {
+    onSuccess: async (result) => {
+      if (!Array.isArray(result.data?.competencies)) {
+        toast.error("Invalid response from server");
+        return;
+      }
+      const updatedCompetencies = result.data.competencies;
+      const areaId = result.data.areaId;
+
+      setMatrix((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          areas: prev.areas.map((area) =>
+            area.id === areaId
+              ? { ...area, competencies: updatedCompetencies }
+              : area,
+          ),
+        };
+      });
+
+      toast.success("Competencies reordered");
+    },
+    onError: () => toast.error("Failed to reorder competencies"),
+  });
+
+  const handleReorderCompetencies = (
+    areaId: string,
+    items: CompMatrixCompetencyWithDefinitions[],
+  ) => {
+    if (!matrix) return;
+    reorderCompetencies.execute({
+      areaId: parseInt(areaId),
+      competencies: items.map((item, index) => ({
+        id: item.id,
         sortOrder: index + 1,
       })),
     });
@@ -727,6 +769,7 @@ const CompetencyMatrixEditor = () => {
                   deleteArea.execute({ id: parseInt(areaId) });
                 }}
                 onReorderAreas={handleReorderAreas}
+                onReorderCompetencies={handleReorderCompetencies}
               />
             </TabsContent>
 

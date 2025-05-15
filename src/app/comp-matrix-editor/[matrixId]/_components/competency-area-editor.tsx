@@ -64,6 +64,10 @@ interface CompetencyAreaEditorProps {
   onDeleteCompetency: (areaId: string, competencyId: string) => void;
   onDeleteArea: (areaId: string) => void;
   onReorderAreas: (areas: { id: number }[]) => void;
+  onReorderCompetencies: (
+    areaId: string,
+    items: CompMatrixCompetencyWithDefinitions[],
+  ) => void;
 }
 
 const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
@@ -76,6 +80,7 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
   onDeleteCompetency,
   onDeleteArea,
   onReorderAreas,
+  onReorderCompetencies,
 }) => {
   const [newAreaName, setNewAreaName] = useState("");
   const [openAreaId, setOpenAreaId] = useState<string | null>(null);
@@ -180,9 +185,6 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
     onDeleteCompetency(areaId, competencyId);
   };
 
-  // Level skip/definitions logic omitted for DB type (could be added if needed)
-  // const toggleLevelSkip = (level: string) => { ... };
-
   const handleReorderItems = (
     areaId: string,
     items: CompMatrixCompetencyWithDefinitions[],
@@ -192,6 +194,7 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
         area.id === parseInt(areaId) ? { ...area, competencies: items } : area,
       ),
     );
+    onReorderCompetencies(areaId, items);
   };
 
   return (

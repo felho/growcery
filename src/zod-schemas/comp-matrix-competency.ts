@@ -15,3 +15,15 @@ export const updateCompMatrixCompetencySchema = z.object({
 export const deleteCompMatrixCompetencySchema = z.object({
   id: z.number(),
 });
+
+export const reorderCompMatrixCompetenciesSchema = z.object({
+  areaId: z.number(),
+  competencies: z
+    .array(
+      z.object({
+        id: z.number(),
+        sortOrder: z.number(),
+      }),
+    )
+    .min(1),
+});
