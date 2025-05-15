@@ -87,11 +87,6 @@ const CompetencyItem: React.FC<CompetencyItemProps> = ({
           </AlertDialog>
         </div>
       </CardHeader>
-      <CardContent className="px-4 py-2">
-        <p className="text-muted-foreground text-sm">
-          {item.definitions[0]?.definition || "No definition provided"}
-        </p>
-      </CardContent>
     </Card>
   );
 };
