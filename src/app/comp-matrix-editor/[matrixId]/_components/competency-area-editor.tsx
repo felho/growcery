@@ -163,6 +163,19 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
     setIsAddingCompetency(true);
   };
 
+  const isCompetencyFormValid = () => {
+    if (!competencyForm.name.trim()) return false;
+
+    for (const level of levels) {
+      const isSkipped = competencyForm.skipLevels.includes(level.id);
+      const def = competencyForm.levelDefinitions[level.id];
+      if (!isSkipped && (!def || !def.trim())) {
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handleSaveCompetency = () => {
     if (!editingCompetency || !competencyForm.name.trim()) return;
     const { areaId, competency } = editingCompetency;
@@ -349,21 +362,30 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
                     </div>
 
                     {!competencyForm.skipLevels.includes(level.id) && (
-                      <Textarea
-                        id={`level-def-${i}`}
-                        placeholder={`Define requirements for ${level.jobTitle}`}
-                        value={competencyForm.levelDefinitions[level.id] || ""}
-                        onChange={(e) => {
-                          const updatedDefinitions = {
-                            ...competencyForm.levelDefinitions,
-                            [level.id]: e.target.value,
-                          };
-                          setCompetencyForm((prev) => ({
-                            ...prev,
-                            levelDefinitions: updatedDefinitions,
-                          }));
-                        }}
-                      />
+                      <div className="space-y-1">
+                        <Textarea
+                          id={`level-def-${i}`}
+                          placeholder={`Define requirements for ${level.jobTitle}`}
+                          value={
+                            competencyForm.levelDefinitions[level.id] || ""
+                          }
+                          onChange={(e) => {
+                            const updatedDefinitions = {
+                              ...competencyForm.levelDefinitions,
+                              [level.id]: e.target.value,
+                            };
+                            setCompetencyForm((prev) => ({
+                              ...prev,
+                              levelDefinitions: updatedDefinitions,
+                            }));
+                          }}
+                        />
+                        {!competencyForm.levelDefinitions[level.id]?.trim() && (
+                          <p className="text-destructive text-sm">
+                            Definition is required for this level
+                          </p>
+                        )}
+                      </div>
                     )}
 
                     {competencyForm.skipLevels.includes(level.id) && (
@@ -384,7 +406,10 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
             >
               Cancel
             </Button>
-            <Button onClick={handleSaveCompetency}>
+            <Button
+              onClick={handleSaveCompetency}
+              disabled={!isCompetencyFormValid()}
+            >
               <Check className="mr-2 h-4 w-4" />
               Save Competency
             </Button>
