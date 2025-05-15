@@ -19,6 +19,12 @@ export interface CompMatrixAreaWithFullRelations extends CompMatrixArea {
   >;
 }
 
+export type ReorderAreaInput = {
+  id: number;
+  sortOrder: number;
+};
+
 export { createCompMatrixArea } from "./create";
 export { updateCompMatrixArea } from "./update";
 export { deleteCompMatrixArea } from "./delete";
+export { reorderCompMatrixAreas } from "./reorder";

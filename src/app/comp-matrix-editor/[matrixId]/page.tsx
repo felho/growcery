@@ -29,6 +29,7 @@ import {
 } from "~/data/mock-competency-data";
 import { LevelEditor } from "./_components/level-editor";
 import CompetencyAreaEditor from "./_components/competency-area-editor";
+import { reorderCompMatrixAreasAction } from "~/server/actions/comp-matrix-area/reorder";
 import { useAction } from "next-safe-action/hooks";
 import { updateCompMatrixCompetencyAction } from "~/server/actions/comp-matrix-competency/update";
 import { RatingOptionsEditor } from "./_components/rating-options-editor";
@@ -362,6 +363,40 @@ const CompetencyMatrixEditor = () => {
     },
   });
 
+  const reorderAreas = useAction(reorderCompMatrixAreasAction, {
+    onSuccess: async (result) => {
+      if (!Array.isArray(result.data?.data)) {
+        toast.error("Invalid response from server");
+        return;
+      }
+      const updatedAreas = result.data?.data;
+      setMatrix((prev) => {
+        if (!prev) return prev;
+        const prevSerialized = JSON.stringify(prev.areas);
+        const nextSerialized = JSON.stringify(updatedAreas);
+        if (prevSerialized === nextSerialized) return prev;
+        return { ...prev, areas: updatedAreas };
+      });
+      toast.success("Competency areas reordered successfully");
+    },
+    onError: (e) => {
+      toast.error("Failed to reorder competency areas");
+      console.error(e);
+    },
+  });
+
+  const handleReorderAreas = (newAreas: { id: number }[]) => {
+    if (!matrix) return;
+
+    reorderAreas.execute({
+      matrixId: matrix.id,
+      areas: newAreas.map((area, index) => ({
+        id: area.id,
+        sortOrder: index + 1,
+      })),
+    });
+  };
+
   const handleSaveCompetency = async (
     areaId: string,
     data: {
@@ -691,6 +726,7 @@ const CompetencyMatrixEditor = () => {
                 onDeleteArea={(areaId) => {
                   deleteArea.execute({ id: parseInt(areaId) });
                 }}
+                onReorderAreas={handleReorderAreas}
               />
             </TabsContent>
 

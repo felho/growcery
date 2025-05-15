@@ -15,3 +15,13 @@ export const updateCompMatrixAreaSchema = z.object({
 export const deleteCompMatrixAreaSchema = z.object({
   id: z.number(),
 });
+
+export const reorderCompMatrixAreasSchema = z.object({
+  matrixId: z.number(),
+  areas: z.array(
+    z.object({
+      id: z.number(),
+      sortOrder: z.number(),
+    }),
+  ),
+});

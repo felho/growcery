@@ -63,6 +63,7 @@ interface CompetencyAreaEditorProps {
   ) => void;
   onDeleteCompetency: (areaId: string, competencyId: string) => void;
   onDeleteArea: (areaId: string) => void;
+  onReorderAreas: (areas: { id: number }[]) => void;
 }
 
 const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
@@ -74,6 +75,7 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
   onSaveCompetency,
   onDeleteCompetency,
   onDeleteArea,
+  onReorderAreas,
 }) => {
   const [newAreaName, setNewAreaName] = useState("");
   const [openAreaId, setOpenAreaId] = useState<string | null>(null);
@@ -103,7 +105,9 @@ const CompetencyAreaEditor: React.FC<CompetencyAreaEditorProps> = ({
     const oldIndex = areas.findIndex((a) => a.id === active.id);
     const newIndex = areas.findIndex((a) => a.id === over.id);
     if (oldIndex !== -1 && newIndex !== -1) {
-      onChange(arrayMove(areas, oldIndex, newIndex));
+      const reordered = arrayMove(areas, oldIndex, newIndex);
+      onChange(reordered);
+      onReorderAreas(reordered.map((a) => ({ id: a.id })));
     }
   };
 
