@@ -67,6 +67,7 @@ import type {
 import { createRatingOptionAction } from "~/server/actions/comp-matrix-rating-options/create";
 import { deleteRatingOptionAction } from "~/server/actions/comp-matrix-rating-options/delete";
 import { updateRatingOptionAction } from "~/server/actions/comp-matrix-rating-options/update";
+import { reorderRatingOptionsAction } from "~/server/actions/comp-matrix-rating-options/reorder";
 
 // Temporary type that combines DB and mock data
 type HybridMatrix = CompMatrixWithFullRelations & {
@@ -348,6 +349,28 @@ const CompetencyMatrixEditor = () => {
       competencyMatrixId: matrix.id,
     });
   };
+
+  const reorderRatingOptions = useAction(reorderRatingOptionsAction, {
+    onSuccess: async (result) => {
+      if (!Array.isArray(result.data?.ratingOptions)) {
+        toast.error("Invalid response from server");
+        return;
+      }
+      const updatedRatingOptions = result.data?.ratingOptions;
+      setMatrix((prev) => {
+        if (!prev) return prev;
+        const prevSerialized = JSON.stringify(prev.ratingOptions);
+        const nextSerialized = JSON.stringify(updatedRatingOptions);
+        if (prevSerialized === nextSerialized) return prev;
+        return { ...prev, ratingOptions: updatedRatingOptions };
+      });
+      toast.success("Rating options reordered successfully");
+    },
+    onError: (e) => {
+      toast.error("Failed to reorder rating options");
+      console.error(e);
+    },
+  });
 
   const handleSaveCompetency = async (
     areaId: string,
@@ -697,6 +720,40 @@ const CompetencyMatrixEditor = () => {
                 onAdd={handleAddRatingOption}
                 onDelete={handleDeleteRatingOption}
                 onUpdate={handleUpdateRatingOption}
+                onReorder={(reordered) => {
+                  reorderRatingOptions.execute({
+                    matrixId: matrix.id,
+                    ratingOptions: reordered.map(({ id, sortOrder }) => ({
+                      id,
+                      sortOrder,
+                    })),
+                  });
+                  setMatrix((prev) =>
+                    prev
+                      ? {
+                          ...prev,
+                          ratingOptions: reordered.map(
+                            ({
+                              id,
+                              title,
+                              radioButtonLabel,
+                              definition,
+                              calculationWeight,
+                              color,
+                            }) => ({
+                              id,
+                              title,
+                              competencyMatrixId: matrix.id,
+                              radioButtonLabel,
+                              definition,
+                              calculationWeight,
+                              color,
+                            }),
+                          ),
+                        }
+                      : null,
+                  );
+                }}
               />
             </TabsContent>
           </Tabs>

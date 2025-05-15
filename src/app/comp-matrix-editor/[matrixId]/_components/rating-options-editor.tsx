@@ -39,6 +39,7 @@ import type {
   CompMatrixRatingOption,
   NewCompMatrixRatingOptionUI,
   CompMatrixRatingOptionUI,
+  CompMatrixRatingOptionReorderUI,
 } from "~/server/queries/comp-matrix-rating-option";
 
 interface RatingOptionsEditorProps {
@@ -47,6 +48,7 @@ interface RatingOptionsEditorProps {
   onAdd: (input: NewCompMatrixRatingOptionUI) => Promise<any>;
   onDelete: (id: number) => void;
   onUpdate: (input: CompMatrixRatingOptionUI) => void;
+  onReorder: (reordered: CompMatrixRatingOptionReorderUI[]) => void;
 }
 
 export const RatingOptionsEditor: React.FC<RatingOptionsEditorProps> = ({
@@ -55,6 +57,7 @@ export const RatingOptionsEditor: React.FC<RatingOptionsEditorProps> = ({
   onAdd,
   onDelete,
   onUpdate,
+  onReorder,
 }) => {
   const [newRating, setNewRating] = useState("");
   const [newDescription, setNewDescription] = useState("");
@@ -162,7 +165,11 @@ export const RatingOptionsEditor: React.FC<RatingOptionsEditorProps> = ({
       const [moved] = updatedOptions.splice(oldIndex, 1);
       if (moved) {
         updatedOptions.splice(newIndex, 0, moved);
-        onChange(updatedOptions);
+        const reordered = updatedOptions.map((opt, index) => ({
+          ...opt,
+          sortOrder: index + 1,
+        }));
+        onReorder(reordered);
       }
     }
   };

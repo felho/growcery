@@ -16,3 +16,13 @@ export const updateRatingOptionSchema = createRatingOptionSchema.extend({
 export const deleteRatingOptionSchema = z.object({
   id: z.number(),
 });
+
+export const reorderRatingOptionsSchema = z.object({
+  matrixId: z.number(),
+  ratingOptions: z.array(
+    z.object({
+      id: z.number(),
+      sortOrder: z.number(),
+    }),
+  ),
+});

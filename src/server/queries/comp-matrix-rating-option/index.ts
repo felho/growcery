@@ -19,3 +19,8 @@ export type NewCompMatrixRatingOptionUI = Omit<
   NewCompMatrixRatingOption,
   "id" | "competencyMatrixId" | "sortOrder"
 >;
+
+export type CompMatrixRatingOptionReorderUI = Omit<
+  InferSelectModel<typeof compMatrixRatingOptions>,
+  "competencyMatrixId"
+>;
