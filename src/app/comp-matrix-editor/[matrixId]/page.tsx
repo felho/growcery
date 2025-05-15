@@ -280,6 +280,7 @@ const CompetencyMatrixEditor = () => {
     onError: () => toast.error("Failed to add competency"),
   });
 
+  // TODO: This has to be optimized, there is no need to fetch the entire matrix
   const upsertDefinition = useAction(upsertCompMatrixDefinitionAction, {
     onSuccess: async () => {
       const updatedMatrix = await fetchCompMatrix(parseInt(matrixId));
