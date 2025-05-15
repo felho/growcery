@@ -12,7 +12,7 @@ import { Textarea } from "~/components/ui/textarea";
 import { Badge } from "~/components/ui/badge";
 import type { CompMatrixRatingOption } from "~/server/queries/comp-matrix-rating-option";
 
-interface DefaultPopoverProps {
+interface RatingPopoverProps {
   rating?: string;
   note?: string;
   competencyDefinition?: string;
@@ -27,7 +27,7 @@ interface DefaultPopoverProps {
   onSave: () => void;
 }
 
-const DefaultPopover: React.FC<DefaultPopoverProps> = ({
+const RatingPopover: React.FC<RatingPopoverProps> = ({
   rating,
   note,
   competencyDefinition,
@@ -127,4 +127,4 @@ const DefaultPopover: React.FC<DefaultPopoverProps> = ({
   );
 };
 
-export default DefaultPopover;
+export default RatingPopover;
