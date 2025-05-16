@@ -10,6 +10,13 @@ import {
   type OrgUnit,
   type Function,
 } from "~/data/mock-competency-data";
+
+// Mock archetypes for demonstration
+const mockArchetypes = [
+  { id: "archetype-1", name: "Leader" },
+  { id: "archetype-2", name: "Innovator" },
+  { id: "archetype-3", name: "Collaborator" },
+];
 import {
   Select,
   SelectContent,
@@ -17,7 +24,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { Building2, Users, UserRound } from "lucide-react";
+import {
+  Building2,
+  Users,
+  UserRound,
+  Filter,
+  User,
+  ArrowRight,
+} from "lucide-react";
 import useSWR, { mutate } from "swr";
 import { fetchCompMatrix } from "~/lib/client-api/comp-matrix";
 import { fetchCompMatrixCurrentRating } from "~/lib/client-api/comp-matrix-current-rating";
@@ -37,6 +51,9 @@ const CompMatrixPage = () => {
   );
   const [selectedOrgUnit, setSelectedOrgUnit] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState("");
+  const [selectedArchetype, setSelectedArchetype] = useState(
+    mockArchetypes[0]?.id || "",
+  );
 
   // Initialize default selections when component mounts
   useEffect(() => {
@@ -192,65 +209,35 @@ const CompMatrixPage = () => {
 
   return (
     <div className="animate-fade-in space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Competency Matrix</h1>
-          <p className="text-muted-foreground mt-1">
-            Assessment and calibration of competencies across engineering levels
-          </p>
-        </div>
-
-        <div className="flex items-center gap-4">
-          {/* Function selector */}
-          <div className="flex items-center gap-2">
-            <Building2 className="text-muted-foreground h-4 w-4" />
-            <Select
-              value={selectedFunction}
-              onValueChange={handleFunctionChange}
+      <h1 className="mb-0.5 text-3xl font-bold">Competency Matrix</h1>
+      <p className="text-muted-foreground mt-1 mb-4">
+        View and manage competency assessments
+      </p>
+      <div className="flex flex-row items-start gap-8 p-6 pb-2">
+        {/* Left Column: Skills Assessment */}
+        <div className="min-w-[340px] flex-1">
+          <div className="mb-2">
+            <label
+              className="mb-1 block text-sm font-medium"
+              htmlFor="employee-select"
             >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select function" />
-              </SelectTrigger>
-              <SelectContent>
-                {mockFunctions.map((func) => (
-                  <SelectItem key={func.id} value={func.id}>
-                    {func.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Org Unit selector */}
-          <div className="flex items-center gap-2">
-            <Users className="text-muted-foreground h-4 w-4" />
-            <Select
-              value={selectedOrgUnit}
-              onValueChange={handleOrgUnitChange}
-              disabled={!selectedFunction}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select team" />
-              </SelectTrigger>
-              <SelectContent>
-                {getFilteredOrgUnits().map((orgUnit) => (
-                  <SelectItem key={orgUnit.id} value={orgUnit.id}>
-                    {orgUnit.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Employee selector */}
-          <div className="flex items-center gap-2">
-            <UserRound className="text-muted-foreground h-4 w-4" />
+              <div className="mb-1 flex items-center gap-2">
+                <User className="text-primary h-5 w-5" />
+                <h2 className="text-lg font-semibold">Employee Selection</h2>
+              </div>
+            </label>
+            <p className="text-muted-foreground mb-3 text-sm">
+              Select an employee to view their competency matrix
+            </p>
             <Select
               value={selectedEmployee}
               onValueChange={handleEmployeeChange}
               disabled={!selectedOrgUnit}
             >
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger
+                id="employee-select"
+                className="border-primary/20 bg-primary/5 !h-[52px] w-100 rounded-md border px-4 py-3"
+              >
                 <SelectValue placeholder="Select employee" />
               </SelectTrigger>
               <SelectContent>
@@ -261,6 +248,96 @@ const CompMatrixPage = () => {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <button
+            className="mt-4 flex w-100 items-center justify-center gap-x-2 rounded-lg bg-green-600 px-4 py-3 font-bold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={!selectedEmployee}
+            type="button"
+          >
+            <ArrowRight className="h-5 w-5" />
+            <span>Load Matrix</span>
+          </button>
+        </div>
+        {/* Right Column: Filter Employees */}
+        <div className="min-w-[340px] flex-1 pt-0">
+          <div className="mb-0.5 flex items-center gap-2">
+            <Filter className="text-muted-foreground h-5 w-5" />
+            <h2 className="text-lg font-semibold">Filter Employees</h2>
+          </div>
+          <p className="text-muted-foreground mb-3 text-sm">
+            Optionally filter the employee list to narrow your selection
+          </p>
+          <div className="bg-muted border-muted-foreground/10 flex w-full max-w-md flex-col gap-4 rounded-lg border p-4 shadow-sm">
+            <div>
+              <label
+                className="text-muted-foreground mb-1 block text-sm font-medium"
+                htmlFor="function-select"
+              >
+                Function
+              </label>
+              <Select
+                value={selectedFunction}
+                onValueChange={handleFunctionChange}
+              >
+                <SelectTrigger className="w-full" id="function-select">
+                  <SelectValue placeholder="Select function" />
+                </SelectTrigger>
+                <SelectContent>
+                  {mockFunctions.map((func) => (
+                    <SelectItem key={func.id} value={func.id}>
+                      {func.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label
+                className="text-muted-foreground mb-1 block text-sm font-medium"
+                htmlFor="orgunit-select"
+              >
+                Org Unit
+              </label>
+              <Select
+                value={selectedOrgUnit}
+                onValueChange={handleOrgUnitChange}
+                disabled={!selectedFunction}
+              >
+                <SelectTrigger className="w-full" id="orgunit-select">
+                  <SelectValue placeholder="Select org unit" />
+                </SelectTrigger>
+                <SelectContent>
+                  {getFilteredOrgUnits().map((orgUnit) => (
+                    <SelectItem key={orgUnit.id} value={orgUnit.id}>
+                      {orgUnit.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label
+                className="text-muted-foreground mb-1 block text-sm font-medium"
+                htmlFor="archetype-select"
+              >
+                Archetype
+              </label>
+              <Select
+                value={selectedArchetype}
+                onValueChange={setSelectedArchetype}
+              >
+                <SelectTrigger className="w-full" id="archetype-select">
+                  <SelectValue placeholder="Select archetype" />
+                </SelectTrigger>
+                <SelectContent>
+                  {mockArchetypes.map((archetype) => (
+                    <SelectItem key={archetype.id} value={archetype.id}>
+                      {archetype.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
       </div>
