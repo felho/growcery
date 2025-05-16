@@ -138,6 +138,19 @@ const CompMatrixPage = () => {
     return buildHierarchicalOptions(orgUnits);
   };
 
+  // Get all child org units recursively
+  const getAllChildOrgUnits = (parentId: number): number[] => {
+    const directChildren = orgUnits
+      .filter((unit) => unit.parentId === parentId)
+      .map((unit) => unit.id);
+
+    const childrenOfChildren = directChildren.flatMap((childId) =>
+      getAllChildOrgUnits(childId),
+    );
+
+    return [...directChildren, ...childrenOfChildren];
+  };
+
   // Get filtered employees based on selected filters
   const getFilteredEmployees = (): UserWithArchetype[] => {
     // If no filters are selected, return all users
@@ -154,9 +167,15 @@ const CompMatrixPage = () => {
       if (selectedFunction !== null && user.functionId !== selectedFunction) {
         return false;
       }
-      // Filter by org unit if selected
-      if (selectedOrgUnit !== null && user.orgUnitId !== selectedOrgUnit) {
-        return false;
+      // Filter by org unit if selected (including child org units)
+      if (selectedOrgUnit !== null) {
+        const childOrgUnits = getAllChildOrgUnits(selectedOrgUnit as number);
+        if (
+          user.orgUnitId !== selectedOrgUnit &&
+          !childOrgUnits.includes(user.orgUnitId)
+        ) {
+          return false;
+        }
       }
       // Filter by archetype if selected
       if (
