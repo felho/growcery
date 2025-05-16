@@ -1,5 +1,5 @@
 import { db } from "~/server/db";
-import { and, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { users } from "~/server/db/schema/tables/users";
 import { userCompMatrixAssignments } from "~/server/db/schema/tables/user_comp_matrix_assignments";
 import { userArchetypes } from "~/server/db/schema/tables/user-archetypes";
@@ -39,7 +39,8 @@ export async function getAllUsersWithActiveMatrixAssignmentsForOrg(
         eq(users.organizationId, organizationId),
         eq(userCompMatrixAssignments.isActive, true),
       ),
-    );
+    )
+    .orderBy(asc(users.fullName));
 
   return results.map((row) => ({
     ...row,
