@@ -213,9 +213,9 @@ const CompMatrixPage = () => {
       <p className="text-muted-foreground mt-1 mb-4">
         View and manage competency assessments
       </p>
-      <div className="flex flex-row items-start gap-8 p-6 pb-2">
+      <div className="flex flex-row items-start gap-4 p-6 pb-6">
         {/* Left Column: Skills Assessment */}
-        <div className="min-w-[340px] flex-1">
+        <div className="min-w-[340px]">
           <div className="mb-2">
             <label
               className="mb-1 block text-sm font-medium"
@@ -236,7 +236,7 @@ const CompMatrixPage = () => {
             >
               <SelectTrigger
                 id="employee-select"
-                className="border-primary/20 bg-primary/5 !h-[52px] w-100 rounded-md border px-4 py-3"
+                className="border-primary/20 bg-primary/5 !h-10 w-100 rounded-md border px-4 py-3"
               >
                 <SelectValue placeholder="Select employee" />
               </SelectTrigger>
@@ -250,7 +250,7 @@ const CompMatrixPage = () => {
             </Select>
           </div>
           <button
-            className="mt-4 flex w-100 items-center justify-center gap-x-2 rounded-lg bg-green-600 px-4 py-3 font-bold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-4 flex !h-10 w-100 items-center justify-center gap-x-2 rounded-lg bg-green-600 px-4 py-3 font-bold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
             disabled={!selectedEmployee}
             type="button"
           >
@@ -259,7 +259,7 @@ const CompMatrixPage = () => {
           </button>
         </div>
         {/* Right Column: Filter Employees */}
-        <div className="min-w-[340px] flex-1 pt-0">
+        <div className="ml-10 flex-1 pt-0">
           <div className="mb-0.5 flex items-center gap-2">
             <Filter className="text-muted-foreground h-5 w-5" />
             <h2 className="text-lg font-semibold">Filter Employees</h2>
@@ -267,10 +267,10 @@ const CompMatrixPage = () => {
           <p className="text-muted-foreground mb-3 text-sm">
             Optionally filter the employee list to narrow your selection
           </p>
-          <div className="bg-muted border-muted-foreground/10 flex w-full max-w-md flex-col gap-4 rounded-lg border p-4 shadow-sm">
-            <div>
+          <div className="bg-muted border-muted-foreground/10 flex !h-25 w-full flex-1 flex-row gap-4 rounded-lg border p-4 shadow-sm">
+            <div className="w-[160px]">
               <label
-                className="text-muted-foreground mb-1 block text-sm font-medium"
+                className="text-muted-foreground mb-1 ml-1 block text-sm font-medium"
                 htmlFor="function-select"
               >
                 Function
@@ -291,9 +291,9 @@ const CompMatrixPage = () => {
                 </SelectContent>
               </Select>
             </div>
-            <div>
+            <div className="ml-1.5 w-[230px]">
               <label
-                className="text-muted-foreground mb-1 block text-sm font-medium"
+                className="text-muted-foreground mb-1 ml-1 block text-sm font-medium"
                 htmlFor="orgunit-select"
               >
                 Org Unit
@@ -315,9 +315,9 @@ const CompMatrixPage = () => {
                 </SelectContent>
               </Select>
             </div>
-            <div>
+            <div className="ml-1.5 w-[160px]">
               <label
-                className="text-muted-foreground mb-1 block text-sm font-medium"
+                className="text-muted-foreground mb-1 ml-1 block text-sm font-medium"
                 htmlFor="archetype-select"
               >
                 Archetype
