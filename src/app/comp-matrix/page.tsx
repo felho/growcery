@@ -83,6 +83,12 @@ const CompMatrixPage = () => {
   const handleEmployeeChange = (employeeId: string) => {
     const id = parseInt(employeeId);
     setSelectedEmployee(id);
+    // Reset matrix data when new employee is selected
+    setAssignment(null);
+    setCompMatrixData(null);
+    setCurrentRatings(null);
+    setRatingOptions(null);
+    setIsMatrixLoaded(false);
   };
 
   const handleFunctionChange = (functionId: string) => {
