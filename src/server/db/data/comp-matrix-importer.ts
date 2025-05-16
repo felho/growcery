@@ -113,7 +113,15 @@ function extractRatingsFromSheets(
         const col = levelPositions[i];
         const key = `${title}::${levelCode}`;
         const definitionId = definitionMap.get(key);
-        if (!definitionId) continue;
+        console.log(`🔍 Processing: ${key} → ${definitionId}`);
+        if (!definitionId) {
+          console.log("⚠️ Missing definitionId for key:", key);
+          console.log(
+            "  Available keys in definitionMap:",
+            Array.from(definitionMap.keys()),
+          );
+          continue;
+        }
 
         const obj: any = { definitionId };
 
@@ -153,6 +161,7 @@ function extractRatingsFromSheets(
         obj.competency = title;
         obj.rawSelfRatingText = selfRating;
         obj.rawManagerRatingText = mgrRating;
+        console.log("📥 Extracted entry", obj);
         results.push(obj);
       }
     }
