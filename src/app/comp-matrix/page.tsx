@@ -154,47 +154,45 @@ const CompMatrixPage = () => {
   // Assignment state and effect
   const [assignment, setAssignment] = useState<any>(null);
 
-  useEffect(() => {
-    const loadAssignment = async () => {
-      if (selectedEmployee) {
-        const data =
-          await fetchActiveUserCompMatrixAssignment(selectedEmployee);
-        setAssignment(data);
-      } else {
-        setAssignment(null);
-      }
-    };
-    loadAssignment();
-  }, [selectedEmployee]);
-
   const [compMatrixData, setCompMatrixData] = useState<any>(null);
   const [ratingOptions, setRatingOptions] = useState<any>(null);
   const [compMatrixCurrentRatings, setCurrentRatings] = useState<any>(null);
 
-  useEffect(() => {
-    const fetchMatrixData = async () => {
-      if (assignment?.compMatrixId && assignment?.id) {
-        try {
-          const [matrix, ratings, options] = await Promise.all([
-            fetchCompMatrix(assignment.compMatrixId),
-            fetchCompMatrixCurrentRating(assignment.id.toString()),
-            fetchCompMatrixRatingOptions(assignment.compMatrixId),
-          ]);
-          setCompMatrixData(matrix);
-          setCurrentRatings(ratings);
-          setRatingOptions(options);
-        } catch (err) {
-          console.error("Error loading matrix data:", err);
-          toast.error("Failed to load matrix data");
-        }
-      } else {
-        setCompMatrixData(null);
-        setCurrentRatings(null);
-        setRatingOptions(null);
+  const handleLoadMatrix = async () => {
+    if (!selectedEmployee) {
+      toast.error("Please select an employee first");
+      return;
+    }
+
+    try {
+      // Load assignment
+      const assignmentData =
+        await fetchActiveUserCompMatrixAssignment(selectedEmployee);
+      if (!assignmentData || !assignmentData.id) {
+        toast.error("No assignment found for the selected employee");
+        return;
       }
-    };
-    fetchMatrixData();
-  }, [assignment]);
+      setAssignment(assignmentData);
+
+      // Load matrix data
+      const [matrix, ratings, options] = await Promise.all([
+        fetchCompMatrix(assignmentData.compMatrixId),
+        fetchCompMatrixCurrentRating(assignmentData.id),
+        fetchCompMatrixRatingOptions(assignmentData.compMatrixId),
+      ]);
+
+      setCompMatrixData(matrix);
+      setCurrentRatings(ratings);
+      setRatingOptions(options);
+
+      setIsMatrixLoaded(true);
+      toast.success("Matrix loaded successfully");
+    } catch (err) {
+      console.error("Error loading matrix data:", err);
+      toast.error("Failed to load matrix data");
+      setIsMatrixLoaded(false);
+    }
+  };
 
   const onSaveCell = async (uiPayload: CompMatrixCellSavePayloadUI) => {
     if (!assignment?.id) {
@@ -229,26 +227,6 @@ const CompMatrixPage = () => {
     );
     setCurrentRatings(ratings);
     // mutate(`/api/comp-matrix-current-ratings?assignmentId=${assignment.id}`);
-  };
-
-  const handleLoadMatrix = async () => {
-    if (!selectedEmployee) {
-      toast.error("Please select an employee first");
-      return;
-    }
-
-    // Wait for assignment to be ready
-    const assignmentData =
-      await fetchActiveUserCompMatrixAssignment(selectedEmployee);
-    if (!assignmentData || !assignmentData.id) {
-      toast.error("No assignment found for the selected employee");
-      return;
-    }
-
-    setAssignment(assignmentData);
-
-    setIsMatrixLoaded(true);
-    toast.success("Matrix loaded successfully");
   };
 
   return (
