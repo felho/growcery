@@ -57,9 +57,12 @@ export const CompetencyMatrix = ({
                 : "Competency Assessment"}
             </CardTitle>
             <CardDescription>
-              {getCurrentFunction() && `${getCurrentFunction()?.name}`}
-              {getCurrentOrgUnit() && ` - ${getCurrentOrgUnit()?.name}`}
-              {getCurrentEmployee()?.archetype &&
+              {getCurrentFunction()?.name}
+              {getCurrentFunction() &&
+                getCurrentOrgUnit() &&
+                ` - ${getCurrentOrgUnit()?.name}`}
+              {(getCurrentFunction() || getCurrentOrgUnit()) &&
+                getCurrentEmployee()?.archetype &&
                 ` - ${getCurrentEmployee()?.archetype.name}`}
             </CardDescription>
           </div>
