@@ -141,14 +141,18 @@ const CompMatrixPage = () => {
     });
   };
 
-  // Get current function
+  // Get current function based on selected employee
   const getCurrentFunction = (): Function | undefined => {
-    return functions.find((func) => func.id === selectedFunction);
+    const employee = getCurrentEmployee();
+    if (!employee) return undefined;
+    return functions.find((func) => func.id === employee.functionId);
   };
 
-  // Get current org unit
+  // Get current org unit based on selected employee
   const getCurrentOrgUnit = (): OrgUnit | undefined => {
-    return orgUnits.find((unit) => unit.id === selectedOrgUnit);
+    const employee = getCurrentEmployee();
+    if (!employee) return undefined;
+    return orgUnits.find((unit) => unit.id === employee.orgUnitId);
   };
 
   // Assignment state and effect
