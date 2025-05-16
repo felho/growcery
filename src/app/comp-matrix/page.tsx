@@ -116,6 +116,28 @@ const CompMatrixPage = () => {
     return orgUnits;
   };
 
+  // Build hierarchical options for org units
+  const buildHierarchicalOptions = (
+    units: OrgUnit[],
+    parentId: number | null = null,
+    level = 0,
+  ): { id: number; description: string }[] => {
+    return units
+      .filter((u) => u.parentId === parentId)
+      .flatMap((u) => [
+        {
+          id: u.id,
+          description: `${level == 0 ? "" : "└"}${"— ".repeat(level)}${u.name}`,
+        },
+        ...buildHierarchicalOptions(units, u.id, level + 1),
+      ]);
+  };
+
+  // Get hierarchical options for org units
+  const getHierarchicalOrgUnitOptions = () => {
+    return buildHierarchicalOptions(orgUnits);
+  };
+
   // Get filtered employees based on selected filters
   const getFilteredEmployees = (): UserWithArchetype[] => {
     // If no filters are selected, return all users
@@ -360,9 +382,9 @@ const CompMatrixPage = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="no-filter">No filter</SelectItem>
-                  {getFilteredOrgUnits().map((orgUnit) => (
+                  {getHierarchicalOrgUnitOptions().map((orgUnit) => (
                     <SelectItem key={orgUnit.id} value={orgUnit.id.toString()}>
-                      {orgUnit.name}
+                      {orgUnit.description}
                     </SelectItem>
                   ))}
                 </SelectContent>
