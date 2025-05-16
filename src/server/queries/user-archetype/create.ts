@@ -1,13 +1,13 @@
 import { db } from "~/server/db";
 import { userArchetypes } from "~/server/db/schema";
-import { auth } from "@clerk/nextjs/server";
+// import { auth } from "@clerk/nextjs/server";
 import type { InsertUserArchetypeInput } from "~/zod-schemas/user-archetype";
 
 export async function createUserArchetype(
   data: InsertUserArchetypeInput,
 ): Promise<number> {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
+  // const { userId } = await auth();
+  // if (!userId) throw new Error("Unauthorized");
 
   const result = await db
     .insert(userArchetypes)
