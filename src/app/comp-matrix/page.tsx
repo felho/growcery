@@ -3,21 +3,6 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import {
-  mockEmployees,
-  type Employee,
-  mockOrgUnits,
-  mockFunctions,
-  type OrgUnit,
-  type Function,
-} from "~/data/mock-competency-data";
-
-// Mock archetypes for demonstration
-const mockArchetypes = [
-  { id: "archetype-1", name: "Leader" },
-  { id: "archetype-2", name: "Innovator" },
-  { id: "archetype-3", name: "Collaborator" },
-];
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -36,121 +21,132 @@ import useSWR, { mutate } from "swr";
 import { fetchCompMatrix } from "~/lib/client-api/comp-matrix";
 import { fetchCompMatrixCurrentRating } from "~/lib/client-api/comp-matrix-current-rating";
 import { fetchCompMatrixRatingOptions } from "~/lib/client-api/comp-matrix-rating-option";
+import { fetchFunctions } from "~/lib/client-api/functions";
+import { fetchOrgUnits } from "~/lib/client-api/org-units";
+import { fetchUsers } from "~/lib/client-api/users";
+import { fetchUserArchetypes } from "~/lib/client-api/user-archetypes";
 
 import CompetencyMatrix from "./_components/competency-matrix";
 import type { CompMatrixCellSavePayloadUI } from "~/server/queries/comp-matrix-current-rating";
 import type { ViewMode, Phase } from "./_components/types";
+import type { Function } from "~/server/queries/function";
+import type { OrgUnit } from "~/server/queries/org-unit";
+import type { UserWithArchetype } from "~/server/queries/user";
+import type { UserArchetype } from "~/server/queries/user-archetype";
 
 const CompMatrixPage = () => {
   const [phase, setPhase] = useState<Phase>("assessment");
   const [viewMode, setViewMode] = useState<ViewMode>("employee");
+  const [isMatrixLoaded, setIsMatrixLoaded] = useState(false);
 
   // Selection state
-  const [selectedFunction, setSelectedFunction] = useState(
-    mockFunctions[0]?.id || "",
+  const [selectedFunction, setSelectedFunction] = useState<number | null>(null);
+  const [selectedOrgUnit, setSelectedOrgUnit] = useState<number | null>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<number | null>(null);
+  const [selectedArchetype, setSelectedArchetype] = useState<number | null>(
+    null,
   );
-  const [selectedOrgUnit, setSelectedOrgUnit] = useState("");
-  const [selectedEmployee, setSelectedEmployee] = useState("");
-  const [selectedArchetype, setSelectedArchetype] = useState(
-    mockArchetypes[0]?.id || "",
+
+  // Fetch data
+  const { data: functions = [] } = useSWR<Function[]>(
+    "/functions",
+    fetchFunctions,
+  );
+  const { data: orgUnits = [] } = useSWR<OrgUnit[]>(
+    "/org-units",
+    fetchOrgUnits,
+  );
+  const { data: users = [] } = useSWR<UserWithArchetype[]>(
+    "/users",
+    fetchUsers,
+  );
+  const { data: archetypes = [] } = useSWR<UserArchetype[]>(
+    "/user-archetypes",
+    fetchUserArchetypes,
   );
 
   // Initialize default selections when component mounts
   useEffect(() => {
-    // Set initial org unit based on selected function
-    const orgUnitsInFunction = mockOrgUnits.filter(
-      (unit) => unit.functionId === selectedFunction,
-    );
-    if (orgUnitsInFunction.length > 0) {
-      setSelectedOrgUnit(orgUnitsInFunction[0]?.id || "");
-
-      // Set initial employee based on selected org unit
-      const employeesInOrgUnit = mockEmployees.filter(
-        (emp) => emp.orgUnitId === orgUnitsInFunction[0]?.id,
-      );
-      if (employeesInOrgUnit.length > 0) {
-        setSelectedEmployee(employeesInOrgUnit[0]?.id || "");
-      } else {
-        setSelectedEmployee("");
-      }
-    } else {
-      setSelectedOrgUnit("");
-      setSelectedEmployee("");
-    }
+    // All selects start with "No filter" selected
+    setSelectedFunction(null);
+    setSelectedOrgUnit(null);
+    setSelectedEmployee(null);
+    setSelectedArchetype(null);
   }, []);
 
   const switchPhase = (newPhase: Phase) => {
     setPhase(newPhase);
   };
 
+  const handleEmployeeChange = (employeeId: string) => {
+    const id = parseInt(employeeId);
+    setSelectedEmployee(id);
+  };
+
   const handleFunctionChange = (functionId: string) => {
-    setSelectedFunction(functionId);
-
-    // Filter org units by function and reset the org unit selection
-    const orgUnitsInFunction = mockOrgUnits.filter(
-      (unit) => unit.functionId === functionId,
+    setSelectedFunction(
+      functionId === "no-filter" ? null : parseInt(functionId),
     );
-    if (orgUnitsInFunction.length > 0) {
-      setSelectedOrgUnit(orgUnitsInFunction[0]?.id || "");
-
-      // Filter employees by new org unit and reset the employee selection
-      const employeesInOrgUnit = mockEmployees.filter(
-        (emp) => emp.orgUnitId === orgUnitsInFunction[0]?.id,
-      );
-      if (employeesInOrgUnit.length > 0) {
-        setSelectedEmployee(employeesInOrgUnit[0]?.id || "");
-      } else {
-        setSelectedEmployee("");
-      }
-    } else {
-      setSelectedOrgUnit("");
-      setSelectedEmployee("");
-    }
   };
 
   const handleOrgUnitChange = (orgUnitId: string) => {
-    setSelectedOrgUnit(orgUnitId);
+    setSelectedOrgUnit(orgUnitId === "no-filter" ? null : parseInt(orgUnitId));
+  };
 
-    // Filter employees by org unit and reset the employee selection
-    const employeesInOrgUnit = mockEmployees.filter(
-      (emp) => emp.orgUnitId === orgUnitId,
+  const handleArchetypeChange = (archetypeId: string) => {
+    setSelectedArchetype(
+      archetypeId === "no-filter" ? null : parseInt(archetypeId),
     );
-    if (employeesInOrgUnit.length > 0) {
-      setSelectedEmployee(employeesInOrgUnit[0]?.id || "");
-    } else {
-      setSelectedEmployee("");
-    }
   };
 
-  const handleEmployeeChange = (employeeId: string) => {
-    setSelectedEmployee(employeeId);
-
-    // In a real app, you would fetch the employee's competency data here
-    toast.success(`Now viewing ${getCurrentEmployee()?.name}'s assessment`);
-  };
-
-  const getCurrentEmployee = (): Employee | undefined => {
-    return mockEmployees.find((emp) => emp.id === selectedEmployee);
+  const getCurrentEmployee = (): UserWithArchetype | undefined => {
+    return users.find((emp) => emp.id === selectedEmployee);
   };
 
   // Get filtered org units based on selected function
   const getFilteredOrgUnits = (): OrgUnit[] => {
-    return mockOrgUnits.filter((unit) => unit.functionId === selectedFunction);
+    return orgUnits;
   };
 
-  // Get filtered employees based on selected org unit
-  const getFilteredEmployees = (): Employee[] => {
-    return mockEmployees.filter((emp) => emp.orgUnitId === selectedOrgUnit);
+  // Get filtered employees based on selected filters
+  const getFilteredEmployees = (): UserWithArchetype[] => {
+    // If no filters are selected, return all users
+    if (
+      selectedFunction === null &&
+      selectedOrgUnit === null &&
+      selectedArchetype === null
+    ) {
+      return users;
+    }
+
+    return users.filter((user) => {
+      // Filter by function if selected
+      if (selectedFunction !== null && user.functionId !== selectedFunction) {
+        return false;
+      }
+      // Filter by org unit if selected
+      if (selectedOrgUnit !== null && user.orgUnitId !== selectedOrgUnit) {
+        return false;
+      }
+      // Filter by archetype if selected
+      if (
+        selectedArchetype !== null &&
+        user.archetypeId !== selectedArchetype
+      ) {
+        return false;
+      }
+      return true;
+    });
   };
 
   // Get current function
   const getCurrentFunction = (): Function | undefined => {
-    return mockFunctions.find((func) => func.id === selectedFunction);
+    return functions.find((func) => func.id === selectedFunction);
   };
 
   // Get current org unit
   const getCurrentOrgUnit = (): OrgUnit | undefined => {
-    return mockOrgUnits.find((unit) => unit.id === selectedOrgUnit);
+    return orgUnits.find((unit) => unit.id === selectedOrgUnit);
   };
 
   const matrixId = 1; // baked in for now
@@ -207,6 +203,15 @@ const CompMatrixPage = () => {
     mutate(`/api/comp-matrix-current-ratings?assignmentId=${assignmentId}`);
   };
 
+  const handleLoadMatrix = () => {
+    if (selectedEmployee) {
+      setIsMatrixLoaded(true);
+      toast.success("Matrix loaded successfully");
+    } else {
+      toast.error("Please select an employee first");
+    }
+  };
+
   return (
     <div className="animate-fade-in space-y-6">
       <h1 className="mb-0.5 text-3xl font-bold">Competency Matrix</h1>
@@ -230,9 +235,8 @@ const CompMatrixPage = () => {
               Select an employee to view their competency matrix
             </p>
             <Select
-              value={selectedEmployee}
+              value={selectedEmployee?.toString()}
               onValueChange={handleEmployeeChange}
-              disabled={!selectedOrgUnit}
             >
               <SelectTrigger
                 id="employee-select"
@@ -242,8 +246,8 @@ const CompMatrixPage = () => {
               </SelectTrigger>
               <SelectContent>
                 {getFilteredEmployees().map((employee) => (
-                  <SelectItem key={employee.id} value={employee.id}>
-                    {employee.name}
+                  <SelectItem key={employee.id} value={employee.id.toString()}>
+                    {employee.fullName}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -252,6 +256,7 @@ const CompMatrixPage = () => {
           <button
             className="mt-4 flex !h-10 w-100 items-center justify-center gap-x-2 rounded-lg bg-green-600 px-4 py-3 font-bold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
             disabled={!selectedEmployee}
+            onClick={handleLoadMatrix}
             type="button"
           >
             <ArrowRight className="h-5 w-5" />
@@ -276,15 +281,20 @@ const CompMatrixPage = () => {
                 Function
               </label>
               <Select
-                value={selectedFunction}
+                value={
+                  selectedFunction === null
+                    ? "no-filter"
+                    : selectedFunction.toString()
+                }
                 onValueChange={handleFunctionChange}
               >
                 <SelectTrigger className="w-full" id="function-select">
                   <SelectValue placeholder="Select function" />
                 </SelectTrigger>
                 <SelectContent>
-                  {mockFunctions.map((func) => (
-                    <SelectItem key={func.id} value={func.id}>
+                  <SelectItem value="no-filter">No filter</SelectItem>
+                  {functions.map((func) => (
+                    <SelectItem key={func.id} value={func.id.toString()}>
                       {func.name}
                     </SelectItem>
                   ))}
@@ -299,16 +309,20 @@ const CompMatrixPage = () => {
                 Org Unit
               </label>
               <Select
-                value={selectedOrgUnit}
+                value={
+                  selectedOrgUnit === null
+                    ? "no-filter"
+                    : selectedOrgUnit.toString()
+                }
                 onValueChange={handleOrgUnitChange}
-                disabled={!selectedFunction}
               >
                 <SelectTrigger className="w-full" id="orgunit-select">
                   <SelectValue placeholder="Select org unit" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="no-filter">No filter</SelectItem>
                   {getFilteredOrgUnits().map((orgUnit) => (
-                    <SelectItem key={orgUnit.id} value={orgUnit.id}>
+                    <SelectItem key={orgUnit.id} value={orgUnit.id.toString()}>
                       {orgUnit.name}
                     </SelectItem>
                   ))}
@@ -323,15 +337,23 @@ const CompMatrixPage = () => {
                 Archetype
               </label>
               <Select
-                value={selectedArchetype}
-                onValueChange={setSelectedArchetype}
+                value={
+                  selectedArchetype === null
+                    ? "no-filter"
+                    : selectedArchetype.toString()
+                }
+                onValueChange={handleArchetypeChange}
               >
                 <SelectTrigger className="w-full" id="archetype-select">
                   <SelectValue placeholder="Select archetype" />
                 </SelectTrigger>
                 <SelectContent>
-                  {mockArchetypes.map((archetype) => (
-                    <SelectItem key={archetype.id} value={archetype.id}>
+                  <SelectItem value="no-filter">No filter</SelectItem>
+                  {archetypes.map((archetype) => (
+                    <SelectItem
+                      key={archetype.id}
+                      value={archetype.id.toString()}
+                    >
                       {archetype.name}
                     </SelectItem>
                   ))}
@@ -342,19 +364,22 @@ const CompMatrixPage = () => {
         </div>
       </div>
 
-      <CompetencyMatrix
-        phase={phase}
-        viewMode={viewMode}
-        selectedEmployee={selectedEmployee}
-        compMatrix={compMatrix}
-        ratingOptions={ratingOptions}
-        compMatrixCurrentRating={compMatrixCurrentRatings}
-        getCurrentEmployee={getCurrentEmployee}
-        getCurrentOrgUnit={getCurrentOrgUnit}
-        getCurrentFunction={getCurrentFunction}
-        switchPhase={switchPhase}
-        onSaveCell={onSaveCell}
-      />
+      {isMatrixLoaded && selectedEmployee && (
+        <CompetencyMatrix
+          key={`matrix-${selectedEmployee}`}
+          phase={phase}
+          viewMode={viewMode}
+          selectedEmployee={selectedEmployee.toString()}
+          compMatrix={compMatrix}
+          ratingOptions={ratingOptions}
+          compMatrixCurrentRating={compMatrixCurrentRatings}
+          getCurrentEmployee={getCurrentEmployee}
+          getCurrentOrgUnit={getCurrentOrgUnit}
+          getCurrentFunction={getCurrentFunction}
+          switchPhase={switchPhase}
+          onSaveCell={onSaveCell}
+        />
+      )}
     </div>
   );
 };
