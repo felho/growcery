@@ -17,6 +17,8 @@ import {
   User,
   ArrowRight,
 } from "lucide-react";
+import { Switch } from "~/components/ui/switch";
+import { Label } from "~/components/ui/label";
 import useSWR, { mutate } from "swr";
 import { fetchCompMatrix } from "~/lib/client-api/comp-matrix";
 import { fetchCompMatrixCurrentRating } from "~/lib/client-api/comp-matrix-current-rating";
@@ -262,6 +264,18 @@ const CompMatrixPage = () => {
             <ArrowRight className="h-5 w-5" />
             <span>Load Matrix</span>
           </button>
+          <div className="mt-4 flex items-center space-x-2">
+            <Switch
+              id="view-mode"
+              checked={viewMode === "manager"}
+              onCheckedChange={(checked) =>
+                setViewMode(checked ? "manager" : "employee")
+              }
+            />
+            <Label htmlFor="view-mode" className="text-sm font-medium">
+              {viewMode === "manager" ? "Manager View" : "Employee View"}
+            </Label>
+          </div>
         </div>
         {/* Right Column: Filter Employees */}
         <div className="ml-10 flex-1 pt-0">
