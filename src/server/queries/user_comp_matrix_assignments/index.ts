@@ -10,4 +10,4 @@ export type NewUserCompMatrixAssignment = InferInsertModel<
 >;
 
 export * from "./create";
-export * from "./get-by-user-id";
+export * from "./get-active-by-user-id";

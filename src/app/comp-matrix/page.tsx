@@ -27,7 +27,7 @@ import { fetchFunctions } from "~/lib/client-api/functions";
 import { fetchOrgUnits } from "~/lib/client-api/org-units";
 import { fetchUsers } from "~/lib/client-api/users";
 import { fetchUserArchetypes } from "~/lib/client-api/user-archetypes";
-
+import { fetchActiveUserCompMatrixAssignment } from "~/lib/client-api/user-comp-matrix-assignment";
 import CompetencyMatrix from "./_components/competency-matrix";
 import type { CompMatrixCellSavePayloadUI } from "~/server/queries/comp-matrix-current-rating";
 import type { ViewMode, Phase } from "./_components/types";
@@ -151,40 +151,62 @@ const CompMatrixPage = () => {
     return orgUnits.find((unit) => unit.id === selectedOrgUnit);
   };
 
-  const matrixId = 1; // baked in for now
-  const {
-    data: compMatrix,
-    isLoading: isMatrixLoading,
-    error: matrixError,
-  } = useSWR(`/api/comp-matrix/${matrixId}`, () => fetchCompMatrix(matrixId));
+  // Assignment state and effect
+  const [assignment, setAssignment] = useState<any>(null);
 
-  const {
-    data: ratingOptions,
-    isLoading: isRatingOptionsLoading,
-    error: ratingOptionsError,
-  } = useSWR(`/api/comp-matrix-rating-option/${matrixId}`, () =>
-    fetchCompMatrixRatingOptions(matrixId),
-  );
+  useEffect(() => {
+    const loadAssignment = async () => {
+      if (selectedEmployee) {
+        const data =
+          await fetchActiveUserCompMatrixAssignment(selectedEmployee);
+        setAssignment(data);
+      } else {
+        setAssignment(null);
+      }
+    };
+    loadAssignment();
+  }, [selectedEmployee]);
 
-  const assignmentId = 1; // baked in for now
-  const {
-    data: compMatrixCurrentRatings,
-    isLoading: isCompMatrixCurrentRatingsLoading,
-    error: compMatrixCurrentRatingsError,
-  } = useSWR(
-    assignmentId
-      ? `/api/comp-matrix-current-ratings?assignmentId=${assignmentId}`
-      : null,
-    fetchCompMatrixCurrentRating,
-  );
+  const [compMatrixData, setCompMatrixData] = useState<any>(null);
+  const [ratingOptions, setRatingOptions] = useState<any>(null);
+  const [compMatrixCurrentRatings, setCurrentRatings] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchMatrixData = async () => {
+      if (assignment?.compMatrixId && assignment?.id) {
+        try {
+          const [matrix, ratings, options] = await Promise.all([
+            fetchCompMatrix(assignment.compMatrixId),
+            fetchCompMatrixCurrentRating(assignment.id.toString()),
+            fetchCompMatrixRatingOptions(assignment.compMatrixId),
+          ]);
+          setCompMatrixData(matrix);
+          setCurrentRatings(ratings);
+          setRatingOptions(options);
+        } catch (err) {
+          console.error("Error loading matrix data:", err);
+          toast.error("Failed to load matrix data");
+        }
+      } else {
+        setCompMatrixData(null);
+        setCurrentRatings(null);
+        setRatingOptions(null);
+      }
+    };
+    fetchMatrixData();
+  }, [assignment]);
 
   const onSaveCell = async (uiPayload: CompMatrixCellSavePayloadUI) => {
-    console.log("onSaveCell", uiPayload);
+    if (!assignment?.id) {
+      toast.error("No assignment found for the selected employee");
+      return;
+    }
+
     const raterType = viewMode === "manager" ? "manager" : "employee";
 
     const apiPayload = {
       ...uiPayload,
-      assignmentId,
+      assignmentId: assignment.id,
       raterType,
     };
 
@@ -202,16 +224,31 @@ const CompMatrixPage = () => {
 
     toast.success("Rating saved successfully");
 
-    mutate(`/api/comp-matrix-current-ratings?assignmentId=${assignmentId}`);
+    const ratings = await fetchCompMatrixCurrentRating(
+      assignment.id.toString(),
+    );
+    setCurrentRatings(ratings);
+    // mutate(`/api/comp-matrix-current-ratings?assignmentId=${assignment.id}`);
   };
 
-  const handleLoadMatrix = () => {
-    if (selectedEmployee) {
-      setIsMatrixLoaded(true);
-      toast.success("Matrix loaded successfully");
-    } else {
+  const handleLoadMatrix = async () => {
+    if (!selectedEmployee) {
       toast.error("Please select an employee first");
+      return;
     }
+
+    // Wait for assignment to be ready
+    const assignmentData =
+      await fetchActiveUserCompMatrixAssignment(selectedEmployee);
+    if (!assignmentData || !assignmentData.id) {
+      toast.error("No assignment found for the selected employee");
+      return;
+    }
+
+    setAssignment(assignmentData);
+
+    setIsMatrixLoaded(true);
+    toast.success("Matrix loaded successfully");
   };
 
   return (
@@ -378,22 +415,26 @@ const CompMatrixPage = () => {
         </div>
       </div>
 
-      {isMatrixLoaded && selectedEmployee && (
-        <CompetencyMatrix
-          key={`matrix-${selectedEmployee}`}
-          phase={phase}
-          viewMode={viewMode}
-          selectedEmployee={selectedEmployee.toString()}
-          compMatrix={compMatrix}
-          ratingOptions={ratingOptions}
-          compMatrixCurrentRating={compMatrixCurrentRatings}
-          getCurrentEmployee={getCurrentEmployee}
-          getCurrentOrgUnit={getCurrentOrgUnit}
-          getCurrentFunction={getCurrentFunction}
-          switchPhase={switchPhase}
-          onSaveCell={onSaveCell}
-        />
-      )}
+      {isMatrixLoaded &&
+        selectedEmployee &&
+        compMatrixData &&
+        compMatrixCurrentRatings &&
+        ratingOptions && (
+          <CompetencyMatrix
+            key={`matrix-${selectedEmployee}-${assignment?.id ?? "none"}`}
+            phase={phase}
+            viewMode={viewMode}
+            selectedEmployee={selectedEmployee.toString()}
+            compMatrix={compMatrixData}
+            ratingOptions={ratingOptions}
+            compMatrixCurrentRating={compMatrixCurrentRatings}
+            getCurrentEmployee={getCurrentEmployee}
+            getCurrentOrgUnit={getCurrentOrgUnit}
+            getCurrentFunction={getCurrentFunction}
+            switchPhase={switchPhase}
+            onSaveCell={onSaveCell}
+          />
+        )}
     </div>
   );
 };

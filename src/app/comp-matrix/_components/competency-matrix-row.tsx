@@ -63,38 +63,41 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
         <div
           className={`flex flex-1 ${isExpanded ? "border-b-0" : "border-b"} border-border`}
         >
-          {levels.map((level, index) => (
-            <CompetencyMatrixCell
-              key={index}
-              phase={phase}
-              isActive={false}
-              onSaveCell={onSaveCell}
-              cellIndex={index}
-              competencyDefinition={
-                competency?.definitions[index]?.definition || ""
-              }
-              definitionId={competency?.definitions[index]?.id || 0}
-              isExpanded={isExpanded}
-              viewMode={viewMode}
-              ratingOptions={ratingOptions ?? []}
-              inheritsPreviousLevel={
-                competency?.definitions[index]?.inheritsPreviousLevel ?? false
-              }
-              currentRating={
-                compMatrixCurrentRating?.[
-                  competency?.definitions[index]?.id || 0
-                ] ?? {
-                  selfRatingId: undefined,
-                  selfComment: null,
-                  selfRatingUpdatedAt: new Date(),
-                  managerId: null,
-                  managerRatingId: undefined,
-                  managerComment: null,
-                  managerRatingUpdatedAt: new Date(),
+          {levels.map((level, index) => {
+            const defId = competency?.definitions[index]?.id;
+            const defIdStr = defId?.toString() ?? "0";
+
+            return (
+              <CompetencyMatrixCell
+                key={index}
+                phase={phase}
+                isActive={false}
+                onSaveCell={onSaveCell}
+                cellIndex={index}
+                competencyDefinition={
+                  competency?.definitions[index]?.definition || ""
                 }
-              }
-            />
-          ))}
+                definitionId={defId || 0}
+                isExpanded={isExpanded}
+                viewMode={viewMode}
+                ratingOptions={ratingOptions ?? []}
+                inheritsPreviousLevel={
+                  competency?.definitions[index]?.inheritsPreviousLevel ?? false
+                }
+                currentRating={
+                  compMatrixCurrentRating?.[defId ?? 0] ?? {
+                    selfRatingId: undefined,
+                    selfComment: null,
+                    selfRatingUpdatedAt: new Date(),
+                    managerId: null,
+                    managerRatingId: undefined,
+                    managerComment: null,
+                    managerRatingUpdatedAt: new Date(),
+                  }
+                }
+              />
+            );
+          })}
         </div>
       </div>
 

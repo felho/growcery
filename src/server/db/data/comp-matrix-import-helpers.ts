@@ -11,7 +11,7 @@ import {
 import { createUser, getAllUsersForOrg, getUserById } from "../../queries/user";
 import {
   createUserCompMatrixAssignment,
-  getUserCompMatrixAssignmentByUserId,
+  getActiveUserCompMatrixAssignmentByUserId,
 } from "../../queries/user_comp_matrix_assignments";
 import { getAllOrgUnitsForOrg } from "../../queries/org-unit";
 import type { OptionValues } from "commander";
@@ -76,12 +76,13 @@ async function getOrCreateUserCompMatrixAssignment(
   matrixId: number,
   createdBy: number,
 ) {
-  let assignment = await getUserCompMatrixAssignmentByUserId(userId);
+  let assignment = await getActiveUserCompMatrixAssignmentByUserId(userId);
   if (!assignment) {
     assignment = await createUserCompMatrixAssignment({
       revieweeId: userId,
       compMatrixId: matrixId,
       createdBy,
+      isActive: true,
     });
   }
   return assignment;

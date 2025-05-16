@@ -1,15 +1,20 @@
 import { db } from "~/server/db";
 import { userCompMatrixAssignments } from "~/server/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import type { UserCompMatrixAssignment } from ".";
 
-export async function getUserCompMatrixAssignmentByUserId(
+export async function getActiveUserCompMatrixAssignmentByUserId(
   userId: number,
 ): Promise<UserCompMatrixAssignment | null> {
   const [result] = await db
     .select()
     .from(userCompMatrixAssignments)
-    .where(eq(userCompMatrixAssignments.revieweeId, userId));
+    .where(
+      and(
+        eq(userCompMatrixAssignments.revieweeId, userId),
+        eq(userCompMatrixAssignments.isActive, true),
+      ),
+    );
 
   return result ?? null;
 }
