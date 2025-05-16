@@ -10,6 +10,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:seed:matrix": "tsx src/server/db/data/engineering-comp-matrix.ts",
+    "db:load:matrix": "tsx src/server/db/data/comp-matrix-importer.ts",
     "db:studio": "drizzle-kit studio",
     "dev": "next dev --turbo",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
