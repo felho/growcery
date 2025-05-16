@@ -221,6 +221,14 @@ export async function insertCurrentRatings({
   ratings,
 }: InsertCurrentRatingsParams) {
   for (const rating of ratings) {
+    if (
+      rating.selfRatingId === undefined &&
+      !rating.selfComment &&
+      rating.managerRatingId === undefined &&
+      !rating.managerComment
+    ) {
+      continue;
+    }
     await db
       .insert(compMatrixCurrentRatings)
       .values({
