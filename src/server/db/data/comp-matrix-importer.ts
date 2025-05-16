@@ -149,6 +149,10 @@ function extractRatingsFromSheets(
           obj.managerComment = mgrComment.trim();
         }
 
+        obj.levelCode = levelCode;
+        obj.competency = title;
+        obj.rawSelfRatingText = selfRating;
+        obj.rawManagerRatingText = mgrRating;
         results.push(obj);
       }
     }
