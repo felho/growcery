@@ -10,12 +10,12 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import {
-  Building2,
-  Users,
-  UserRound,
-  Filter,
-  User,
-  ArrowRight,
+  Building2 as Building2Icon,
+  Users as UsersIcon,
+  Filter as FilterIcon,
+  User as UserIcon,
+  ArrowRight as ArrowRightIcon,
+  Hammer as HammerIcon,
 } from "lucide-react";
 import { Switch } from "~/components/ui/switch";
 import { Label } from "~/components/ui/label";
@@ -172,7 +172,7 @@ const CompMatrixPage = () => {
         const childOrgUnits = getAllChildOrgUnits(selectedOrgUnit as number);
         if (
           user.orgUnitId !== selectedOrgUnit &&
-          !childOrgUnits.includes(user.orgUnitId)
+          !childOrgUnits.includes(user.orgUnitId as number)
         ) {
           return false;
         }
@@ -295,7 +295,7 @@ const CompMatrixPage = () => {
               htmlFor="employee-select"
             >
               <div className="mb-1 flex items-center gap-2">
-                <User className="text-primary h-5 w-5" />
+                <UserIcon className="text-primary h-5 w-5" />
                 <h2 className="text-lg font-semibold">Employee Selection</h2>
               </div>
             </label>
@@ -327,7 +327,7 @@ const CompMatrixPage = () => {
             onClick={handleLoadMatrix}
             type="button"
           >
-            <ArrowRight className="h-5 w-5" />
+            <ArrowRightIcon className="h-5 w-5" />
             <span>Load Matrix</span>
           </button>
           <div className="mt-4 flex items-center space-x-2">
@@ -346,7 +346,7 @@ const CompMatrixPage = () => {
         {/* Right Column: Filter Employees */}
         <div className="ml-10 flex-1 pt-0">
           <div className="mb-0.5 flex items-center gap-2">
-            <Filter className="text-muted-foreground h-5 w-5" />
+            <FilterIcon className="text-muted-foreground h-5 w-5" />
             <h2 className="text-lg font-semibold">Filter Employees</h2>
           </div>
           <p className="text-muted-foreground mb-3 text-sm">
@@ -355,9 +355,10 @@ const CompMatrixPage = () => {
           <div className="bg-muted border-muted-foreground/10 flex !h-25 w-full flex-1 flex-row gap-4 rounded-lg border p-4 shadow-sm">
             <div className="w-[160px]">
               <label
-                className="text-muted-foreground mb-1 ml-1 block text-sm font-medium"
+                className="text-muted-foreground mb-1 ml-1 flex items-center text-sm font-medium"
                 htmlFor="function-select"
               >
+                <Building2Icon className="mr-2 h-4 w-4" />
                 Function
               </label>
               <Select
@@ -383,9 +384,10 @@ const CompMatrixPage = () => {
             </div>
             <div className="ml-1.5 w-[230px]">
               <label
-                className="text-muted-foreground mb-1 ml-1 block text-sm font-medium"
+                className="text-muted-foreground mb-1 ml-1 flex items-center text-sm font-medium"
                 htmlFor="orgunit-select"
               >
+                <UsersIcon className="mr-2 h-4 w-4" />
                 Org Unit
               </label>
               <Select
@@ -411,9 +413,10 @@ const CompMatrixPage = () => {
             </div>
             <div className="ml-1.5 w-[160px]">
               <label
-                className="text-muted-foreground mb-1 ml-1 block text-sm font-medium"
+                className="text-muted-foreground mb-1 ml-1 flex items-center text-sm font-medium"
                 htmlFor="archetype-select"
               >
+                <HammerIcon className="mr-2 h-4 w-4" />
                 Archetype
               </label>
               <Select
