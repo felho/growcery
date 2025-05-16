@@ -353,7 +353,7 @@ const CompMatrixPage = () => {
             Optionally filter the employee list to narrow your selection
           </p>
           <div className="bg-muted border-muted-foreground/10 flex !h-25 w-full flex-1 flex-row gap-4 rounded-lg border p-4 shadow-sm">
-            <div className="w-[160px]">
+            <div className="w-[183px]">
               <label
                 className="text-muted-foreground mb-1 ml-1 flex items-center text-sm font-medium"
                 htmlFor="function-select"
@@ -382,7 +382,7 @@ const CompMatrixPage = () => {
                 </SelectContent>
               </Select>
             </div>
-            <div className="ml-1.5 w-[230px]">
+            <div className="ml-1.5 w-[183px]">
               <label
                 className="text-muted-foreground mb-1 ml-1 flex items-center text-sm font-medium"
                 htmlFor="orgunit-select"
@@ -411,7 +411,7 @@ const CompMatrixPage = () => {
                 </SelectContent>
               </Select>
             </div>
-            <div className="ml-1.5 w-[160px]">
+            <div className="ml-1.5 w-[183px]">
               <label
                 className="text-muted-foreground mb-1 ml-1 flex items-center text-sm font-medium"
                 htmlFor="archetype-select"
