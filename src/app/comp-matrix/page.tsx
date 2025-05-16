@@ -25,9 +25,9 @@ import { fetchCompMatrixCurrentRating } from "~/lib/client-api/comp-matrix-curre
 import { fetchCompMatrixRatingOptions } from "~/lib/client-api/comp-matrix-rating-option";
 import { fetchFunctions } from "~/lib/client-api/functions";
 import { fetchOrgUnits } from "~/lib/client-api/org-units";
-import { fetchUsers } from "~/lib/client-api/users";
 import { fetchUserArchetypes } from "~/lib/client-api/user-archetypes";
 import { fetchActiveUserCompMatrixAssignment } from "~/lib/client-api/user-comp-matrix-assignment";
+import { fetchUsersWithActiveMatrixAssignments } from "~/lib/client-api/users";
 import CompetencyMatrix from "./_components/competency-matrix";
 import type { CompMatrixCellSavePayloadUI } from "~/server/queries/comp-matrix-current-rating";
 import type { ViewMode, Phase } from "./_components/types";
@@ -59,8 +59,8 @@ const CompMatrixPage = () => {
     fetchOrgUnits,
   );
   const { data: users = [] } = useSWR<UserWithArchetype[]>(
-    "/users",
-    fetchUsers,
+    "/api/users/with-active-matrix-assignments",
+    fetchUsersWithActiveMatrixAssignments,
   );
   const { data: archetypes = [] } = useSWR<UserArchetype[]>(
     "/user-archetypes",
