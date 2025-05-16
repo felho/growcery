@@ -43,6 +43,7 @@
     "@t3-oss/env-nextjs": "^0.12.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "commander": "^13.1.0",
     "dotenv": "^16.5.0",
     "drizzle-orm": "^0.41.0",
     "lucide-react": "^0.503.0",
@@ -57,6 +58,7 @@
     "tailwind-merge": "^3.2.0",
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^11.1.0",
+    "xlsx": "^0.18.5",
     "zod": "^3.24.3"
   },
   "devDependencies": {
