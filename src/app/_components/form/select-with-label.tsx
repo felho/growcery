@@ -30,6 +30,7 @@ type Props<S, T = DefaultData> = {
   placeholder?: string;
   getValue?: (item: T) => string;
   getLabel?: (item: T) => string;
+  renderItem?: (item: T) => React.ReactNode;
 };
 
 export function SelectWithLabel<S, T = DefaultData>({
@@ -40,6 +41,7 @@ export function SelectWithLabel<S, T = DefaultData>({
   placeholder = "Select",
   getValue = (item) => (item as DefaultData).id,
   getLabel = (item) => (item as DefaultData).description,
+  renderItem,
 }: Props<S, T>) {
   const form = useFormContext();
 
@@ -78,7 +80,7 @@ export function SelectWithLabel<S, T = DefaultData>({
                   key={`${nameInSchema}_${getValue(item)}`}
                   value={getValue(item)}
                 >
-                  {getLabel(item)}
+                  {renderItem ? renderItem(item) : getLabel(item)}
                 </SelectItem>
               ))}
             </SelectContent>

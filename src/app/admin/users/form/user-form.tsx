@@ -126,10 +126,17 @@ export function UserForm({
           >
             fieldTitle="Function"
             nameInSchema="functionId"
-            data={functions}
+            data={[{ id: 0, description: "No function" }, ...functions]}
             placeholder="Select function"
             getValue={(item) => item.id.toString()}
             getLabel={(item) => item.description}
+            renderItem={(item) => (
+              <div
+                className={item.id === 0 ? "text-muted-foreground italic" : ""}
+              >
+                {item.description}
+              </div>
+            )}
           />
 
           <SelectWithLabel<
@@ -138,10 +145,20 @@ export function UserForm({
           >
             fieldTitle="Manager"
             nameInSchema="managerId"
-            data={users.filter((u) => u.id !== user?.id)}
+            data={[
+              { id: 0, description: "No manager" },
+              ...users.filter((u) => u.id !== user?.id),
+            ]}
             placeholder="Select manager"
             getValue={(item) => item.id.toString()}
             getLabel={(item) => item.description}
+            renderItem={(item) => (
+              <div
+                className={item.id === 0 ? "text-muted-foreground italic" : ""}
+              >
+                {item.description}
+              </div>
+            )}
           />
 
           <SelectWithLabel<
@@ -150,10 +167,20 @@ export function UserForm({
           >
             fieldTitle="Organization Unit"
             nameInSchema="orgUnitId"
-            data={hierarchicalOptions}
+            data={[
+              { id: 0, description: "No organization unit" },
+              ...hierarchicalOptions,
+            ]}
             placeholder="Select organization unit"
             getValue={(item) => item.id.toString()}
             getLabel={(item) => item.description}
+            renderItem={(item) => (
+              <div
+                className={item.id === 0 ? "text-muted-foreground italic" : ""}
+              >
+                {item.description}
+              </div>
+            )}
           />
 
           <SelectWithLabel<
@@ -162,10 +189,17 @@ export function UserForm({
           >
             fieldTitle="Archetype"
             nameInSchema="archetypeId"
-            data={archetypes}
+            data={[{ id: 0, description: "No archetype" }, ...archetypes]}
             placeholder="Select archetype"
             getValue={(item) => item.id.toString()}
             getLabel={(item) => item.description}
+            renderItem={(item) => (
+              <div
+                className={item.id === 0 ? "text-muted-foreground italic" : ""}
+              >
+                {item.description}
+              </div>
+            )}
           />
 
           <div className="flex gap-4">

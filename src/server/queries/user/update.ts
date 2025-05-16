@@ -10,11 +10,20 @@ export async function updateUser(data: UpdateUserInput): Promise<number> {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
+  // Only process fields that are explicitly set to 0 as null values
+  const processedUpdates = { ...updates };
+
+  if (updates.functionId === 0) processedUpdates.functionId = null;
+  if (updates.managerId === 0) processedUpdates.managerId = null;
+  if (updates.orgUnitId === 0) processedUpdates.orgUnitId = null;
+  if (updates.archetypeId === 0) processedUpdates.archetypeId = null;
+
   const result = await db
     .update(users)
-    .set(updates)
+    .set(processedUpdates)
     .where(eq(users.id, id))
     .returning({ updatedId: users.id });
+
   if (!result.length) throw new Error(`User ID #${id} not found`);
   return result[0]!.updatedId;
 }
