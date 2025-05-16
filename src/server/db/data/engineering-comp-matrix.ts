@@ -103,36 +103,51 @@ async function seed() {
   ]);
 
   await db.insert(compMatrixCompetencies).values([
+    // export const compMatrixCompetencies = createTable("comp-matrix-competencies", {
+    //   id: bigint({ mode: "number" }).primaryKey().generatedByDefaultAsIdentity(),
+    //   compMatrixAreaId: bigint({ mode: "number" })
+    //     .notNull()
+    //     .references(() => compMatrixAreas.id),
+    //   title: varchar({ length: 100 }).notNull(),
+    //   calculationWeight: smallint(),
+    //   sortOrder: smallint().notNull(),
+    // });
+
     // Craftsmanship (areaId: 1)
     {
       id: 1,
       compMatrixAreaId: 1,
       title: "Coding & Testing",
       calculationWeight: 1,
+      sortOrder: 1,
     },
     {
       id: 2,
       compMatrixAreaId: 1,
       title: "Software Design",
       calculationWeight: 1,
+      sortOrder: 2,
     },
     {
       id: 3,
       compMatrixAreaId: 1,
       title: "Architecture",
       calculationWeight: 1,
+      sortOrder: 3,
     },
     {
       id: 4,
       compMatrixAreaId: 1,
       title: "Security & Operability (#DevSecOps)",
       calculationWeight: 1,
+      sortOrder: 4,
     },
     {
       id: 5,
       compMatrixAreaId: 1,
       title: "Tools & Technology",
       calculationWeight: 1,
+      sortOrder: 5,
     },
 
     // Collaboration (areaId: 2)
@@ -141,24 +156,28 @@ async function seed() {
       compMatrixAreaId: 2,
       title: "Communication",
       calculationWeight: 1,
+      sortOrder: 1,
     },
     {
       id: 7,
       compMatrixAreaId: 2,
       title: "Teamwork",
       calculationWeight: 1,
+      sortOrder: 2,
     },
     {
       id: 8,
       compMatrixAreaId: 2,
       title: "Feedback",
       calculationWeight: 1,
+      sortOrder: 3,
     },
     {
       id: 9,
       compMatrixAreaId: 2,
       title: "Knowledge Sharing",
       calculationWeight: 1,
+      sortOrder: 4,
     },
 
     // Leadership (areaId: 3)
@@ -167,18 +186,21 @@ async function seed() {
       compMatrixAreaId: 3,
       title: "Mentoring",
       calculationWeight: 1,
+      sortOrder: 1,
     },
     {
       id: 11,
       compMatrixAreaId: 3,
       title: "Ownership",
       calculationWeight: 1,
+      sortOrder: 2,
     },
     {
       id: 12,
       compMatrixAreaId: 3,
       title: "Judgment",
       calculationWeight: 1,
+      sortOrder: 3,
     },
 
     // Impact (areaId: 4)
@@ -187,18 +209,21 @@ async function seed() {
       compMatrixAreaId: 4,
       title: "Delivery",
       calculationWeight: 1,
+      sortOrder: 1,
     },
     {
       id: 14,
       compMatrixAreaId: 4,
       title: "Product Thinking",
       calculationWeight: 1,
+      sortOrder: 2,
     },
     {
       id: 15,
       compMatrixAreaId: 4,
       title: "Project Management",
       calculationWeight: 1,
+      sortOrder: 3,
     },
   ]);
 
