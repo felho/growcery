@@ -13,7 +13,7 @@ import { Input } from "~/components/ui/input";
 import Breadcrumbs from "../_components/breadcrumbs";
 import { OrgUnitNode } from "../_components/org-unit-node";
 import { fetchOrgUnits } from "~/lib/client-api";
-import type { OrgUnitRecord } from "~/server/queries";
+import type { OrgUnit } from "~/server/queries/org-unit";
 
 export default function OrgUnitsPage() {
   const router = useRouter();
@@ -25,7 +25,8 @@ export default function OrgUnitsPage() {
     data: orgUnits = [],
     isLoading,
     error,
-  } = useSWR("/org-units", fetchOrgUnits);
+    mutate,
+  } = useSWR<OrgUnit[]>("/org-units", fetchOrgUnits);
 
   const filteredUnitIds = getMatchingUnitIds(orgUnits, searchTerm);
   const visibleUnits = orgUnits.filter((u) => filteredUnitIds.has(u.id));
@@ -97,17 +98,14 @@ export default function OrgUnitsPage() {
   );
 }
 
-function getMatchingUnitIds(
-  units: OrgUnitRecord[],
-  searchTerm: string,
-): Set<number> {
+function getMatchingUnitIds(units: OrgUnit[], searchTerm: string): Set<number> {
   if (!searchTerm) {
     return new Set(units.map((u) => u.id));
   }
 
   const matched = new Set<number>();
 
-  function matchRecursive(unit: OrgUnitRecord): boolean {
+  function matchRecursive(unit: OrgUnit): boolean {
     const match =
       unit.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (unit.description?.toLowerCase().includes(searchTerm.toLowerCase()) ??
@@ -129,14 +127,14 @@ function getMatchingUnitIds(
 }
 
 function getOpenNodeIds(
-  units: OrgUnitRecord[],
+  units: OrgUnit[],
   searchTerm: string,
   highlightId?: string | null,
 ): Set<number> {
   const open = new Set<number>();
 
   if (searchTerm) {
-    function collectOpenIds(unit: OrgUnitRecord): boolean {
+    function collectOpenIds(unit: OrgUnit): boolean {
       const match =
         unit.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (unit.description?.toLowerCase().includes(searchTerm.toLowerCase()) ??

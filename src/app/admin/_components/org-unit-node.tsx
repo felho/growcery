@@ -15,12 +15,13 @@ import {
   PlusCircle as PlusCircleIcon,
   Pencil as PencilIcon,
 } from "lucide-react";
-import type { OrgUnitRecord } from "~/server/queries";
+import type { OrgUnit } from "~/server/queries/org-unit";
 import { cn } from "~/lib/utils";
+import { DeleteOrgUnitDialog } from "../org-units/_components/delete-org-unit-dialog";
 
 interface OrgUnitNodeProps {
-  unit: OrgUnitRecord;
-  allUnits: OrgUnitRecord[];
+  unit: OrgUnit;
+  allUnits: OrgUnit[];
   level: number;
   openNodes?: Set<number>;
   highlightId?: number;
@@ -123,6 +124,11 @@ export function OrgUnitNode({
               <PencilIcon className="mr-2 h-4 w-4" />
               Edit
             </Button>
+            <DeleteOrgUnitDialog
+              onDelete={() => router.refresh()}
+              className="hover:border-primary hover:bg-primary/10 cursor-pointer border border-transparent px-2 py-1 transition-all duration-200"
+              orgUnitId={unit.id}
+            />
           </div>
         </div>
 

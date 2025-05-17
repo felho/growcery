@@ -8,3 +8,4 @@ export * from "./get-by-id";
 export * from "./get-all-by-org";
 export * from "./create";
 export * from "./update";
+export * from "./delete";
