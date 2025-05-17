@@ -96,7 +96,7 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
                   {uniqueReferenceNames.map((name) => (
                     <span
                       key={name}
-                      className="text-muted-foreground truncate text-xs"
+                      className="text-muted-foreground flex h-6 items-center justify-end truncate text-right text-xs"
                       title={name}
                     >
                       {name}

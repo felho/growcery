@@ -286,20 +286,16 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
                   >
                     {ratingOption ? (
                       <span
-                        className="rounded px-2 py-1 text-xs text-white"
+                        className="inline-block h-6 w-6 rounded-full"
                         style={{ backgroundColor: ratingOption.color }}
-                      >
-                        {ratingOption.title}
-                      </span>
+                      />
                     ) : (
-                      <span className="bg-muted text-muted-foreground rounded px-2 py-1 text-xs">
-                        ?
-                      </span>
+                      <span className="bg-muted inline-block h-6 w-6 rounded-full" />
                     )}
                   </div>
                 );
               } else {
-                return <div key={name} className="h-6" />;
+                return <div key={name} className="h-6 w-6" />;
               }
             })}
           </div>
