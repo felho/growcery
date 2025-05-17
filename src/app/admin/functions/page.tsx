@@ -15,7 +15,7 @@ import { Input } from "~/components/ui/input";
 import {
   PlusCircle as PlusCircleIcon,
   Search as SearchIcon,
-  Edit as EditIcon,
+  Pencil as PencilIcon,
   Trash as TrashIcon,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -23,6 +23,9 @@ import Breadcrumbs from "../_components/breadcrumbs";
 import type { Function } from "~/server/queries/function";
 import useSWR from "swr";
 import { fetchFunctions } from "~/lib/client-api";
+import { useAction } from "next-safe-action/hooks";
+import { deleteFunctionAction } from "~/server/actions/functions/delete";
+import { DeleteFunctionDialog } from "./_components/delete-function-dialog";
 
 export default function FunctionsPage() {
   const router = useRouter();
@@ -32,7 +35,8 @@ export default function FunctionsPage() {
     data: functions = [],
     isLoading,
     error,
-  } = useSWR("/functions", fetchFunctions);
+    mutate,
+  } = useSWR<Function[]>("/functions", fetchFunctions);
 
   const filteredFunctions = functions.filter((func: Function) =>
     [func.name, func.description || ""].some((field) =>
@@ -40,12 +44,20 @@ export default function FunctionsPage() {
     ),
   );
 
+  const { execute: deleteFunction } = useAction(deleteFunctionAction, {
+    onSuccess: () => {
+      toast.success("Function deleted successfully");
+      void mutate();
+    },
+    onError: () => toast.error("Failed to delete function"),
+  });
+
   const handleEdit = (id: number) => {
     router.push(`/admin/functions/form?functionId=${id}`);
   };
 
   const handleDelete = (id: number) => {
-    toast(`Delete function with ID: ${id}`);
+    deleteFunction({ id });
   };
 
   const handleAddFunction = () => {
@@ -112,16 +124,12 @@ export default function FunctionsPage() {
                       className="cursor-pointer"
                       onClick={() => handleEdit(func.id)}
                     >
-                      <EditIcon />
+                      <PencilIcon />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
+                    <DeleteFunctionDialog
+                      onDelete={() => handleDelete(func.id)}
                       className="cursor-pointer"
-                      onClick={() => handleDelete(func.id)}
-                    >
-                      <TrashIcon />
-                    </Button>
+                    />
                   </div>
                 </TableCell>
               </TableRow>

@@ -26,6 +26,7 @@
 - [ ] In the comp-matrix-levels/update.ts axtion if "/update" is removed from here: `import { updateLevel } from "~/server/queries/comp-matrix-levels/update";` then parsedInput indicates an error. Somehow this should be related to the previous issue.
 - [ ] Need to rethink whether having a separate Insert and Update type is a good idea or not. The same applies for the zod schemas as well.
 - [ ] The comp matrix level create.ts query seems odd, the input type doesn't match the type expected by the table.
+- [ ] In the case of deleting a function the delete doesn't work if the function is already assigned to a user. Create a better errors message that explains why the delete failed in such a case.
 
 ### Comp matrix
 

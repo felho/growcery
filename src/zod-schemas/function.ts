@@ -31,6 +31,10 @@ export const updateFunctionSchema = z
   })
   .merge(z.object(baseFields));
 
+export const deleteFunctionSchema = z.object({
+  id: z.number().int(),
+});
+
 export type InsertFunctionInputFromForm = z.infer<
   typeof insertFunctionSchemaFromForm
 >;
@@ -39,3 +43,4 @@ export type UpdateFunctionInputFromForm = z.infer<
   typeof updateFunctionSchemaFromForm
 >;
 export type UpdateFunctionInput = z.infer<typeof updateFunctionSchema>;
+export type DeleteFunctionInput = z.infer<typeof deleteFunctionSchema>;
