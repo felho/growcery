@@ -27,6 +27,7 @@
 - [ ] Need to rethink whether having a separate Insert and Update type is a good idea or not. The same applies for the zod schemas as well.
 - [ ] The comp matrix level create.ts query seems odd, the input type doesn't match the type expected by the table.
 - [ ] In the case of deleting a function the delete doesn't work if the function is already assigned to a user. Create a better errors message that explains why the delete failed in such a case.
+- [ ] The same applies for users as well. Also, later think about whether we shouldn't delete a user but have an is active flag or something like that.
 
 ### Comp matrix
 

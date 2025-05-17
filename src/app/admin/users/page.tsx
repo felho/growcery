@@ -25,12 +25,20 @@ import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { fetchUsers } from "~/lib/client-api";
 import type { UserWithArchetype } from "~/server/queries/user";
+import { useAction } from "next-safe-action/hooks";
+import { deleteUserAction } from "~/server/actions/users/delete";
+import { DeleteUserDialog } from "./_components/delete-user-dialog";
 
 export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
 
-  const { data: users = [], isLoading, error } = useSWR("/users", fetchUsers);
+  const {
+    data: users = [],
+    isLoading,
+    error,
+    mutate,
+  } = useSWR<UserWithArchetype[]>("/users", fetchUsers);
 
   const filteredUsers = users.filter(
     (user) =>
@@ -42,12 +50,20 @@ export default function UsersPage() {
       user.archetype?.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
+  const { execute: deleteUser } = useAction(deleteUserAction, {
+    onSuccess: () => {
+      toast.success("User deleted successfully");
+      void mutate();
+    },
+    onError: () => toast.error("Failed to delete user"),
+  });
+
   const handleEdit = (id: number) => {
     router.push(`/admin/users/form?userId=${id}`);
   };
 
-  const handleDelete = (id: string) => {
-    toast(`Delete user with ID: ${id}`);
+  const handleDelete = (id: number) => {
+    deleteUser({ id });
   };
 
   const handleAddUser = () => {
@@ -166,14 +182,10 @@ export default function UsersPage() {
                     >
                       <EditIcon className="h-4 w-4" />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
+                    <DeleteUserDialog
+                      onDelete={() => handleDelete(user.id)}
                       className="cursor-pointer"
-                      onClick={() => handleDelete(user.id.toString())}
-                    >
-                      <TrashIcon className="h-4 w-4" />
-                    </Button>
+                    />
                   </div>
                 </TableCell>
               </TableRow>
