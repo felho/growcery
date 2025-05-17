@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { Plus, Edit } from "lucide-react";
+import { Plus, Pencil as PencilIcon } from "lucide-react";
 import useSWR, { mutate } from "swr";
 import {
   fetchCompMatrices,
@@ -144,7 +144,7 @@ const CompetencyMatrixList = () => {
                           size="icon"
                           className="cursor-pointer"
                         >
-                          <Edit className="h-4 w-4" />
+                          <PencilIcon className="h-4 w-4" />
                         </Button>
                       </Link>
                       <DeleteMatrixDialog
