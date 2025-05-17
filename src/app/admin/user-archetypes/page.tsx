@@ -18,11 +18,11 @@ import { Input } from "~/components/ui/input";
 import {
   PlusCircle as PlusCircleIcon,
   Search as SearchIcon,
-  Edit as EditIcon,
-  Trash as TrashIcon,
+  Pencil as PencilIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import Breadcrumbs from "../_components/breadcrumbs";
+import { DeleteArchetypeDialog } from "./_components/delete-archetype-dialog";
 
 export default function UserArchetypesPage() {
   const router = useRouter();
@@ -32,6 +32,7 @@ export default function UserArchetypesPage() {
     data: archetypes = [],
     isLoading,
     error,
+    mutate,
   } = useSWR("/user-archetypes", fetchUserArchetypes);
 
   const filteredArchetypes = archetypes.filter((archetype: UserArchetype) =>
@@ -42,10 +43,6 @@ export default function UserArchetypesPage() {
 
   const handleEdit = (id: number) => {
     router.push(`/admin/user-archetypes/form?archetypeId=${id}`);
-  };
-
-  const handleDelete = (id: number) => {
-    toast(`Delete archetype with ID: ${id}`);
   };
 
   const handleAddArchetype = () => {
@@ -134,23 +131,20 @@ export default function UserArchetypesPage() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <div className="flex space-x-2">
+                  <div>
                     <Button
                       variant="ghost"
                       size="icon"
                       className="cursor-pointer"
                       onClick={() => handleEdit(archetype.id)}
                     >
-                      <EditIcon className="h-4 w-4" />
+                      <PencilIcon className="h-4 w-4" />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
+                    <DeleteArchetypeDialog
+                      onDelete={() => void mutate()}
                       className="cursor-pointer"
-                      onClick={() => handleDelete(archetype.id)}
-                    >
-                      <TrashIcon className="h-4 w-4" />
-                    </Button>
+                      archetypeId={archetype.id}
+                    />
                   </div>
                 </TableCell>
               </TableRow>
