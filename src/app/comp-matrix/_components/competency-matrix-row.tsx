@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CompetencyMatrixCell from "./competency-matrix-cell";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import type { CompMatrixCompetencyWithDefinitions } from "~/server/queries/comp-matrix-competency";
@@ -8,9 +8,11 @@ import type { CompMatrixRatingOption } from "~/server/queries/comp-matrix-rating
 import type {
   CompMatrixCellSavePayloadUI,
   CompMatrixRatingsForUIMap,
+  CompMatrixReferenceRatings,
 } from "~/server/queries/comp-matrix-current-rating";
 import type { CompMatrixLevel } from "~/server/queries/comp-matrix-level";
 import { type ViewMode, type Phase } from "./types";
+import { fetchCompMatrixReferenceRatings } from "~/lib/client-api/comp-matrix-reference-ratings";
 
 interface CompetencyMatrixRowProps {
   levels: CompMatrixLevel[];
@@ -20,6 +22,7 @@ interface CompetencyMatrixRowProps {
   phase: Phase;
   viewMode: ViewMode;
   onSaveCell: (uiPayload: CompMatrixCellSavePayloadUI) => Promise<void>;
+  compMatrixId?: number;
 }
 
 const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
@@ -30,12 +33,38 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
   phase,
   viewMode,
   onSaveCell,
+  compMatrixId,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [referenceRatings, setReferenceRatings] = useState<
+    Record<number, CompMatrixReferenceRatings[]>
+  >({});
 
   const handleToggleExpand = () => {
     setIsExpanded(!isExpanded);
   };
+
+  useEffect(() => {
+    if (isExpanded && phase === "calibration" && compMatrixId) {
+      const fetchRatings = async () => {
+        const ratings = await fetchCompMatrixReferenceRatings(
+          compMatrixId,
+          competency.id,
+        );
+        setReferenceRatings(ratings);
+      };
+      void fetchRatings();
+    }
+  }, [isExpanded, phase, compMatrixId, competency.id]);
+
+  // Helper: get all unique names from referenceRatings
+  const uniqueReferenceNames = React.useMemo(() => {
+    const namesSet = new Set<string>();
+    Object.values(referenceRatings).forEach((ratingsArr) => {
+      ratingsArr.forEach((r) => namesSet.add(r.fullName));
+    });
+    return Array.from(namesSet);
+  }, [referenceRatings]);
 
   return (
     <div className="flex flex-col">

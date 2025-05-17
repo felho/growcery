@@ -19,6 +19,7 @@ interface CompetencyAreaSectionProps {
   phase: Phase;
   viewMode: ViewMode;
   onSaveCell: (uiPayload: CompMatrixCellSavePayloadUI) => Promise<void>;
+  compMatrixId?: number;
 }
 
 const CompetencyAreaSection: React.FC<CompetencyAreaSectionProps> = ({
@@ -29,6 +30,7 @@ const CompetencyAreaSection: React.FC<CompetencyAreaSectionProps> = ({
   phase,
   viewMode,
   onSaveCell,
+  compMatrixId,
 }) => {
   return (
     <div className="mb-0">
@@ -56,6 +58,7 @@ const CompetencyAreaSection: React.FC<CompetencyAreaSectionProps> = ({
               phase={phase}
               viewMode={viewMode}
               onSaveCell={onSaveCell}
+              compMatrixId={compMatrixId}
             />
           );
         })}

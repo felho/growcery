@@ -98,6 +98,7 @@ export const CompetencyMatrix = ({
                   phase={phase}
                   viewMode={viewMode}
                   onSaveCell={onSaveCell}
+                  compMatrixId={compMatrix?.id}
                 />
               );
             })}
