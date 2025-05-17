@@ -32,3 +32,10 @@ export interface CompMatrixCellSavePayloadAPI
   assignmentId: number;
   raterType: "employee" | "manager";
 }
+
+export type CompMatrixReferenceRatings = {
+  userId: number;
+  fullName: string;
+  ratingId: number | null;
+  ratingUpdatedAt: Date;
+};
