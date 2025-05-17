@@ -70,22 +70,40 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
     <div className="flex flex-col">
       {/* Row header with competency name */}
       <div className="flex">
+        {/* First column: unique names if calibration phase and expanded */}
         <div
           className="border-border bg-muted/10 flex w-[17.55%] cursor-pointer border-r p-3"
           onClick={handleToggleExpand}
         >
-          <div className="flex w-full gap-2">
-            {isExpanded ? (
-              <ChevronUp className="h-4 w-4 flex-shrink-0" />
-            ) : (
-              <ChevronDown className="h-4 w-4 flex-shrink-0" />
-            )}
-            <span
-              className="truncate text-sm whitespace-nowrap"
-              title={competency?.title}
-            >
-              {competency?.title}
-            </span>
+          <div className="flex w-full flex-col gap-2">
+            <div className="flex items-center gap-2">
+              {isExpanded ? (
+                <ChevronUp className="h-4 w-4 flex-shrink-0" />
+              ) : (
+                <ChevronDown className="h-4 w-4 flex-shrink-0" />
+              )}
+              <span
+                className="truncate text-sm whitespace-nowrap"
+                title={competency?.title}
+              >
+                {competency?.title}
+              </span>
+            </div>
+            {isExpanded &&
+              phase === "calibration" &&
+              uniqueReferenceNames.length > 0 && (
+                <div className="mt-2 flex flex-col gap-1">
+                  {uniqueReferenceNames.map((name) => (
+                    <span
+                      key={name}
+                      className="text-muted-foreground truncate text-xs"
+                      title={name}
+                    >
+                      {name}
+                    </span>
+                  ))}
+                </div>
+              )}
           </div>
         </div>
 
@@ -124,6 +142,8 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
                     managerRatingUpdatedAt: new Date(),
                   }
                 }
+                referenceRatings={referenceRatings[level.id] ?? []}
+                referenceNames={uniqueReferenceNames}
               />
             );
           })}

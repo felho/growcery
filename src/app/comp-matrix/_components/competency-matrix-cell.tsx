@@ -28,6 +28,8 @@ interface CompetencyMatrixCellProps {
   hasDifferentRatings?: boolean;
   viewMode?: ViewMode;
   inheritsPreviousLevel?: boolean;
+  referenceRatings?: any[];
+  referenceNames?: string[];
 }
 
 const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
@@ -41,6 +43,8 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
   isExpanded = false,
   viewMode = "employee",
   inheritsPreviousLevel = false,
+  referenceRatings = [],
+  referenceNames = [],
 }) => {
   const emptyRating: CompMatrixRatingsForUI = {
     selfRatingId: undefined,
@@ -264,6 +268,40 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
                 </Button>
               </div>
             </div>
+          </div>
+        )}
+
+        {isExpanded && phase === "calibration" && referenceNames.length > 0 && (
+          <div className="mt-2 flex flex-col gap-1">
+            {referenceNames.map((name) => {
+              const rating = referenceRatings.find((r) => r.fullName === name);
+              if (rating) {
+                const ratingOption = ratingOptions.find(
+                  (opt) => opt.id === rating.ratingId,
+                );
+                return (
+                  <div
+                    key={name}
+                    className="flex h-6 items-center justify-center"
+                  >
+                    {ratingOption ? (
+                      <span
+                        className="rounded px-2 py-1 text-xs text-white"
+                        style={{ backgroundColor: ratingOption.color }}
+                      >
+                        {ratingOption.title}
+                      </span>
+                    ) : (
+                      <span className="bg-muted text-muted-foreground rounded px-2 py-1 text-xs">
+                        ?
+                      </span>
+                    )}
+                  </div>
+                );
+              } else {
+                return <div key={name} className="h-6" />;
+              }
+            })}
           </div>
         )}
       </div>
