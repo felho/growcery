@@ -97,9 +97,6 @@ export function OrgUnitNode({
 
           <div className="flex-1">
             <h4 className="font-medium">{unit.name}</h4>
-            <p className="text-muted-foreground text-sm">
-              Manager: {unit.description}
-            </p>
           </div>
 
           <div className="text-muted-foreground flex items-center gap-2 text-sm">
@@ -122,7 +119,6 @@ export function OrgUnitNode({
               className="hover:border-primary hover:bg-primary/10 cursor-pointer border border-transparent px-2 py-1 transition-all duration-200"
             >
               <PencilIcon className="mr-2 h-4 w-4" />
-              Edit
             </Button>
             <DeleteOrgUnitDialog
               onDelete={() => router.refresh()}
