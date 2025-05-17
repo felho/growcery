@@ -29,7 +29,6 @@ export async function getReferenceRatings(
     const whereClauses = [
       eq(compMatrixCurrentRatings.compMatrixId, matrixId),
       eq(compMatrixCurrentRatings.compMatrixDefinitionId, definition.id),
-      sql`${compMatrixCurrentRatings.managerRatingId} IS NOT NULL`,
     ];
     if (userIds && userIds.length > 0) {
       whereClauses.push(inArray(users.id, userIds));

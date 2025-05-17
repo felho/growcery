@@ -275,7 +275,7 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
           <div className="mt-2 flex flex-col gap-1">
             {referenceNames.map((name) => {
               const rating = referenceRatings.find((r) => r.fullName === name);
-              if (rating) {
+              if (rating && rating.ratingId != null) {
                 const ratingOption = ratingOptions.find(
                   (opt) => opt.id === rating.ratingId,
                 );
@@ -284,13 +284,11 @@ const CompetencyMatrixCell: React.FC<CompetencyMatrixCellProps> = ({
                     key={name}
                     className="flex h-6 items-center justify-center"
                   >
-                    {ratingOption ? (
+                    {ratingOption && (
                       <span
                         className="inline-block h-6 w-6 rounded-full"
                         style={{ backgroundColor: ratingOption.color }}
                       />
-                    ) : (
-                      <span className="bg-muted inline-block h-6 w-6 rounded-full" />
                     )}
                   </div>
                 );
