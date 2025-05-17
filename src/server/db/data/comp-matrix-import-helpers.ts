@@ -8,7 +8,12 @@ import {
   getAllUserArchetypesForOrg,
   getUserArchetypeById,
 } from "../../queries/user-archetype";
-import { createUser, getAllUsersForOrg, getUserById } from "../../queries/user";
+import {
+  createUser,
+  getAllUsersForOrg,
+  getUserById,
+  updateUser,
+} from "../../queries/user";
 import {
   createUserCompMatrixAssignment,
   getActiveUserCompMatrixAssignmentByUserId,
@@ -56,6 +61,7 @@ async function getOrCreateUser(
 ) {
   const users = await getAllUsersForOrg(organizationId);
   let user = users.find((u) => u.fullName === name);
+
   if (!user) {
     const userId = await createUser({
       fullName: name,
@@ -67,6 +73,26 @@ async function getOrCreateUser(
       managerId: managerId ?? undefined,
     });
     user = await getUserById(userId);
+  } else {
+    // Update existing user's metadata if needed
+    const needsUpdate =
+      (orgUnitId && user.orgUnitId !== orgUnitId) ||
+      (functionId && user.functionId !== functionId) ||
+      (archetypeId && user.archetypeId !== archetypeId) ||
+      (managerId && user.managerId !== managerId);
+
+    if (needsUpdate) {
+      await updateUser({
+        id: user.id,
+        fullName: user.fullName,
+        email: user.email,
+        orgUnitId: orgUnitId ?? undefined,
+        functionId: functionId ?? undefined,
+        archetypeId: archetypeId ?? undefined,
+        managerId: managerId ?? undefined,
+      });
+      user = await getUserById(user.id);
+    }
   }
   return user;
 }
