@@ -30,6 +30,11 @@ const Sidebar = ({ isOpen, hasBeenToggled }: SidebarProps) => {
       icon: <AdminIcon className="h-5 w-5" />,
     },
     {
+      name: "Comp Matrix Import",
+      path: "/comp-matrix-import*",
+      icon: <AdminIcon className="h-5 w-5" />,
+    },
+    {
       name: "Home",
       path: "/",
       icon: <HomeIcon className="h-5 w-5" />,

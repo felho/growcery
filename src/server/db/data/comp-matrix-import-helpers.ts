@@ -88,35 +88,36 @@ async function getOrCreateUserCompMatrixAssignment(
   return assignment;
 }
 
-async function getOrgUnitOrThrow(name: string) {
+async function getOrgUnitById(id: number) {
   const orgUnits = await getAllOrgUnitsForOrg(organizationId);
-  const orgUnit = orgUnits.find((o) => o.name === name);
+  const orgUnit = orgUnits.find((o) => o.id === id);
   if (!orgUnit) {
-    throw new Error(`Org unit not found: ${name}`);
+    throw new Error(`Org unit not found with ID: ${id}`);
   }
   return orgUnit;
 }
 
-export async function getBaseEntities(options: OptionValues) {
-  const orgUnit = await getOrgUnitOrThrow(options.orgUnit);
-  const func = await getOrCreateFunction(options.function);
+export async function getBaseEntities(options: {
+  employeeName: string;
+  employeeEmail: string;
+  managerId: number;
+  functionId: number;
+  orgUnitId: number;
+  archetypeId: number;
+  matrixId: number;
+}) {
+  const orgUnit = await getOrgUnitById(options.orgUnitId);
+  const func = await getFunctionById(options.functionId);
   if (!func) {
-    throw new Error(`Function not found: ${options.function}`);
+    throw new Error(`Function not found with ID: ${options.functionId}`);
   }
-  const archetype = await getOrCreateArchetype(options.archetype);
+  const archetype = await getUserArchetypeById(options.archetypeId);
   if (!archetype) {
-    throw new Error(`Archetype not found: ${options.archetype}`);
+    throw new Error(`Archetype not found with ID: ${options.archetypeId}`);
   }
-  const manager = await getOrCreateUser(
-    options.managerName,
-    options.managerEmail,
-    null,
-    null,
-    null,
-    null,
-  );
+  const manager = await getUserById(options.managerId);
   if (!manager) {
-    throw new Error(`Manager not found: ${options.managerName}`);
+    throw new Error(`Manager not found with ID: ${options.managerId}`);
   }
   const employee = await getOrCreateUser(
     options.employeeName,
