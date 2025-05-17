@@ -5,6 +5,7 @@ import {
   PlusCircle as PlusCircleIcon,
   UserPlus as UserPlusIcon,
   FolderSymlink as FolderSymlinkIcon,
+  UserCog as UserCogIcon,
 } from "lucide-react";
 import { activities, functions, orgUnits, users } from "~/data/mock-data";
 import StatCard from "./_components/stat-card";
@@ -34,7 +35,7 @@ export default async function AdminPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
         <StatCard
           title="Functions"
           value={stats.functionCount}
@@ -55,6 +56,13 @@ export default async function AdminPage() {
           icon={<UsersIcon className="text-primary h-5 w-5" />}
           description="Total registered users"
           route="/admin/users"
+        />
+        <StatCard
+          title="User Archetypes"
+          value={stats.archetypeCount}
+          icon={<UserCogIcon className="text-primary h-5 w-5" />}
+          description="Total user archetypes"
+          route="/admin/user-archetypes"
         />
       </div>
 
@@ -82,6 +90,11 @@ export default async function AdminPage() {
               icon={<UserPlusIcon className="h-4 w-4" />}
               label="Add User"
               route="/admin/users/form"
+            />
+            <QuickAction
+              icon={<UserCogIcon className="h-4 w-4" />}
+              label="Add User Archetype"
+              route="/admin/user-archetypes/form"
             />
           </div>
         </CardContent>
