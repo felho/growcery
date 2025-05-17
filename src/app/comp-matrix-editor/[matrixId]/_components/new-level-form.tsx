@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
@@ -36,6 +36,14 @@ export const NewLevelForm: React.FC<NewLevelFormProps> = ({
   onSubmit,
   insertPosition,
 }) => {
+  const titleInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (showForm && titleInputRef.current) {
+      titleInputRef.current.focus();
+    }
+  }, [showForm]);
+
   const form = useForm<CreateLevelInputFromForm>({
     resolver: zodResolver(createLevelSchemaFromForm),
     defaultValues: {
@@ -93,6 +101,7 @@ export const NewLevelForm: React.FC<NewLevelFormProps> = ({
                     <FormControl>
                       <Input
                         {...field}
+                        ref={titleInputRef}
                         required
                         placeholder="Short descriptive title"
                       />
