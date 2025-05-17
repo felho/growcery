@@ -28,6 +28,22 @@ import type { Function } from "~/server/queries/function";
 import type { UserArchetype } from "~/server/queries/user-archetype";
 import type { UserWithArchetype } from "~/server/queries/user";
 
+function buildHierarchicalOptions(
+  units: OrgUnit[],
+  parentId: number | null = null,
+  level = 0,
+): { id: number; description: string }[] {
+  return units
+    .filter((u) => u.parentId === parentId)
+    .flatMap((u) => [
+      {
+        id: u.id,
+        description: `${level == 0 ? "" : "└"}${"— ".repeat(level)}${u.name}`,
+      },
+      ...buildHierarchicalOptions(units, u.id, level + 1),
+    ]);
+}
+
 const formSchema = z.object({
   employeeName: z.string().min(1, "Employee name is required"),
   employeeEmail: z.string().email("Invalid email address"),
@@ -203,11 +219,12 @@ export default function CompMatrixImportPage() {
                     <SelectValue placeholder="Select organization unit" />
                   </SelectTrigger>
                   <SelectContent>
-                    {orgUnits?.map((unit: OrgUnit) => (
-                      <SelectItem key={unit.id} value={unit.id.toString()}>
-                        {unit.name}
-                      </SelectItem>
-                    ))}
+                    {orgUnits &&
+                      buildHierarchicalOptions(orgUnits).map((unit) => (
+                        <SelectItem key={unit.id} value={unit.id.toString()}>
+                          {unit.description}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
                 {form.formState.errors.orgUnitId && (
