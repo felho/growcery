@@ -31,6 +31,7 @@ interface CompetencyMatrixProps {
   getCurrentFunction: () => any;
   switchPhase: (phase: Phase) => void;
   onSaveCell: (uiPayload: CompMatrixCellSavePayloadUI) => Promise<void>;
+  referenceUserIds: number[];
 }
 
 export const CompetencyMatrix = ({
@@ -45,6 +46,7 @@ export const CompetencyMatrix = ({
   getCurrentFunction,
   switchPhase,
   onSaveCell,
+  referenceUserIds,
 }: CompetencyMatrixProps) => {
   return (
     <Card>
@@ -99,6 +101,7 @@ export const CompetencyMatrix = ({
                   viewMode={viewMode}
                   onSaveCell={onSaveCell}
                   compMatrixId={compMatrix?.id}
+                  referenceUserIds={referenceUserIds}
                 />
               );
             })}

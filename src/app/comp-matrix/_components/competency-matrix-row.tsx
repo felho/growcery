@@ -23,6 +23,7 @@ interface CompetencyMatrixRowProps {
   viewMode: ViewMode;
   onSaveCell: (uiPayload: CompMatrixCellSavePayloadUI) => Promise<void>;
   compMatrixId?: number;
+  referenceUserIds: number[];
 }
 
 const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
@@ -34,6 +35,7 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
   viewMode,
   onSaveCell,
   compMatrixId,
+  referenceUserIds,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [referenceRatings, setReferenceRatings] = useState<
@@ -45,17 +47,26 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
   };
 
   useEffect(() => {
-    if (isExpanded && phase === "calibration" && compMatrixId) {
+    if (
+      isExpanded &&
+      phase === "calibration" &&
+      compMatrixId &&
+      referenceUserIds &&
+      referenceUserIds.length > 0
+    ) {
       const fetchRatings = async () => {
         const ratings = await fetchCompMatrixReferenceRatings(
           compMatrixId,
           competency.id,
+          referenceUserIds,
         );
         setReferenceRatings(ratings);
       };
       void fetchRatings();
+    } else if (referenceUserIds && referenceUserIds.length === 0) {
+      setReferenceRatings({});
     }
-  }, [isExpanded, phase, compMatrixId, competency.id]);
+  }, [isExpanded, phase, compMatrixId, competency.id, referenceUserIds]);
 
   // Helper: get all unique names from referenceRatings
   const uniqueReferenceNames = React.useMemo(() => {

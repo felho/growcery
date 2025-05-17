@@ -3,10 +3,18 @@ import type { CompMatrixReferenceRatings } from "~/server/queries/comp-matrix-cu
 export async function fetchCompMatrixReferenceRatings(
   matrixId: number,
   competencyId: number,
+  userIds: number[],
 ): Promise<Record<number, CompMatrixReferenceRatings[]>> {
   try {
+    const params = new URLSearchParams({
+      matrixId: String(matrixId),
+      competencyId: String(competencyId),
+    });
+    if (userIds && userIds.length > 0) {
+      params.append("userIds", userIds.join(","));
+    }
     const res = await fetch(
-      `/api/comp-matrix-reference-ratings?matrixId=${matrixId}&competencyId=${competencyId}`,
+      `/api/comp-matrix-reference-ratings?${params.toString()}`,
     );
 
     if (!res.ok) {

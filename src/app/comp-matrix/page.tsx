@@ -188,6 +188,10 @@ const CompMatrixPage = () => {
     });
   };
 
+  const referenceUserIds = getFilteredEmployees()
+    .filter((u) => u.id !== selectedEmployee)
+    .map((u) => u.id);
+
   // Get current function based on selected employee
   const getCurrentFunction = (): Function | undefined => {
     const employee = getCurrentEmployee();
@@ -465,6 +469,7 @@ const CompMatrixPage = () => {
             getCurrentFunction={getCurrentFunction}
             switchPhase={switchPhase}
             onSaveCell={onSaveCell}
+            referenceUserIds={referenceUserIds}
           />
         )}
     </div>

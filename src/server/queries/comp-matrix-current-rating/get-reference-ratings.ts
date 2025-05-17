@@ -5,12 +5,13 @@ import {
   users,
   compMatrixDefinitions,
 } from "~/server/db/schema";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, inArray } from "drizzle-orm";
 import type { CompMatrixReferenceRatings } from "./index";
 
 export async function getReferenceRatings(
   matrixId: number,
   competencyId: number,
+  userIds?: number[],
 ): Promise<Record<number, CompMatrixReferenceRatings[]>> {
   // First get all definitions for this competency
   const definitions = await db
@@ -25,6 +26,14 @@ export async function getReferenceRatings(
 
   // For each definition (level), get the reference ratings
   for (const definition of definitions) {
+    const whereClauses = [
+      eq(compMatrixCurrentRatings.compMatrixId, matrixId),
+      eq(compMatrixCurrentRatings.compMatrixDefinitionId, definition.id),
+      sql`${compMatrixCurrentRatings.managerRatingId} IS NOT NULL`,
+    ];
+    if (userIds && userIds.length > 0) {
+      whereClauses.push(inArray(users.id, userIds));
+    }
     const rows = await db
       .select({
         userId: users.id,
@@ -41,13 +50,7 @@ export async function getReferenceRatings(
         ),
       )
       .innerJoin(users, eq(userCompMatrixAssignments.revieweeId, users.id))
-      .where(
-        and(
-          eq(compMatrixCurrentRatings.compMatrixId, matrixId),
-          eq(compMatrixCurrentRatings.compMatrixDefinitionId, definition.id),
-          sql`${compMatrixCurrentRatings.managerRatingId} IS NOT NULL`,
-        ),
-      )
+      .where(and(...whereClauses))
       .orderBy(compMatrixCurrentRatings.managerRatingUpdatedAt)
       .limit(10);
 
