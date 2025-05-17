@@ -75,7 +75,7 @@ export default async function AdminPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-5">
             <QuickAction
               icon={<PlusCircleIcon className="h-4 w-4" />}
               label="Add Function"
