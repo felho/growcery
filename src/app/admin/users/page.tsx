@@ -14,7 +14,7 @@ import { Input } from "~/components/ui/input";
 import {
   PlusCircle as PlusCircleIcon,
   Search as SearchIcon,
-  Edit as EditIcon,
+  Pencil as PencilIcon,
   Trash as TrashIcon,
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
@@ -180,7 +180,7 @@ export default function UsersPage() {
                       className="cursor-pointer"
                       onClick={() => handleEdit(user.id)}
                     >
-                      <EditIcon className="h-4 w-4" />
+                      <PencilIcon className="h-4 w-4" />
                     </Button>
                     <DeleteUserDialog
                       onDelete={() => handleDelete(user.id)}
