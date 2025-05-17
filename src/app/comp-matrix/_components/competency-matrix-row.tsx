@@ -149,15 +149,6 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
           })}
         </div>
       </div>
-
-      {/* If expanded with calibration phase, show message */}
-      {isExpanded && phase === "calibration" && (
-        <div className="bg-muted/5 border-border border-t p-4">
-          <div className="text-center text-sm">
-            Expanded view is not available in calibration mode
-          </div>
-        </div>
-      )}
     </div>
   );
 };
