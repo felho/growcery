@@ -124,6 +124,7 @@ export function OrgUnitNode({
               onDelete={() => router.refresh()}
               className="hover:border-primary hover:bg-primary/10 cursor-pointer border border-transparent px-2 py-1 transition-all duration-200"
               orgUnitId={unit.id}
+              parentId={unit.parentId}
             />
           </div>
         </div>
