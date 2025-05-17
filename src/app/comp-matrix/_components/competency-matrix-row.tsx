@@ -92,11 +92,11 @@ const CompetencyMatrixRow: React.FC<CompetencyMatrixRowProps> = ({
             {isExpanded &&
               phase === "calibration" &&
               uniqueReferenceNames.length > 0 && (
-                <div className="mt-2 flex flex-col gap-1">
+                <div className="mt-2 flex flex-col gap-1 pt-2">
                   {uniqueReferenceNames.map((name) => (
                     <span
                       key={name}
-                      className="text-muted-foreground flex h-6 items-center justify-end truncate text-right text-xs"
+                      className="text-primary-foreground flex h-6 items-center justify-end truncate text-right text-xs leading-none"
                       title={name}
                     >
                       {name}
