@@ -12,6 +12,7 @@ import useSWR from "swr";
 import { fetchFunctions } from "~/lib/client-api/functions";
 import { fetchOrgUnits } from "~/lib/client-api/org-units";
 import { fetchUserArchetypes } from "~/lib/client-api/user-archetypes";
+import { fetchCompMatrices } from "~/lib/client-api/comp-matrix";
 import { fetchUsersWithActiveMatrixAssignments } from "~/lib/client-api/users";
 import type { UserWithArchetype } from "~/server/queries/user";
 import {
@@ -30,7 +31,7 @@ const CompMatrixReportsPage = () => {
   );
 
   // Add filter state hooks
-  const [selectedFunction, setSelectedFunction] = React.useState<number | null>(
+  const [selectedMatrixId, setSelectedMatrixId] = React.useState<number | null>(
     null,
   );
   const [selectedOrgUnit, setSelectedOrgUnit] = React.useState<number | null>(
@@ -46,6 +47,7 @@ const CompMatrixReportsPage = () => {
     "/user-archetypes",
     fetchUserArchetypes,
   );
+  const { data: matrices = [] } = useSWR("/comp-matrices", fetchCompMatrices);
   // SWR for users with active matrix assignments
   const { data: users = [] } = useSWR<UserWithArchetype[]>(
     "/api/users/with-active-matrix-assignments",
@@ -53,12 +55,6 @@ const CompMatrixReportsPage = () => {
   );
 
   // Handlers for filter selects
-  const handleFunctionChange = (functionId: string) => {
-    setSelectedFunction(
-      functionId === "no-filter" ? null : parseInt(functionId),
-    );
-  };
-
   const handleOrgUnitChange = (orgUnitId: string) => {
     setSelectedOrgUnit(orgUnitId === "no-filter" ? null : parseInt(orgUnitId));
   };
@@ -80,20 +76,15 @@ const CompMatrixReportsPage = () => {
     return [...directChildren, ...childrenOfChildren];
   };
 
-  // Filter users by function, org unit (and children), and archetype
+  // Filter users by matrix, org unit (and children), and archetype
   const getFilteredEmployees = (): UserWithArchetype[] => {
-    if (
-      selectedFunction === null &&
-      selectedOrgUnit === null &&
-      selectedArchetype === null
-    ) {
+    if (!selectedMatrixId) return [];
+
+    if (selectedOrgUnit === null && selectedArchetype === null) {
       return users;
     }
 
     return users.filter((user) => {
-      if (selectedFunction !== null && user.functionId !== selectedFunction) {
-        return false;
-      }
       if (selectedOrgUnit !== null) {
         const childOrgUnits = getAllChildOrgUnits(selectedOrgUnit);
         if (
@@ -153,7 +144,7 @@ const CompMatrixReportsPage = () => {
             <button
               className="mt-4 flex !h-10 w-100 cursor-pointer items-center justify-center gap-x-2 rounded-lg bg-green-600 px-4 py-3 font-bold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
               type="button"
-              disabled={!selectedReport}
+              disabled={!selectedReport || !selectedMatrixId}
             >
               <ArrowRightIcon className="h-5 w-5" />
               <span>Load Report</span>
@@ -173,27 +164,31 @@ const CompMatrixReportsPage = () => {
             <div className="flex-1">
               <label
                 className="text-muted-foreground mb-1 ml-1 flex items-center text-sm font-medium"
-                htmlFor="function-select"
+                htmlFor="matrix-select"
               >
                 <Building2Icon className="mr-2 h-4 w-4" />
-                Function
+                Matrix
               </label>
               <Select
                 value={
-                  selectedFunction === null
+                  selectedMatrixId === null
                     ? "no-filter"
-                    : selectedFunction.toString()
+                    : selectedMatrixId.toString()
                 }
-                onValueChange={handleFunctionChange}
+                onValueChange={(val) =>
+                  setSelectedMatrixId(
+                    val === "no-filter" ? null : parseInt(val),
+                  )
+                }
               >
-                <SelectTrigger className="w-full" id="function-select">
-                  <SelectValue placeholder="Select function" />
+                <SelectTrigger className="w-full" id="matrix-select">
+                  <SelectValue placeholder="Select matrix" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="no-filter">No filter</SelectItem>
-                  {functions.map((func) => (
-                    <SelectItem key={func.id} value={func.id.toString()}>
-                      {func.name}
+                  {matrices.map((matrix) => (
+                    <SelectItem key={matrix.id} value={matrix.id.toString()}>
+                      {matrix.title}
                     </SelectItem>
                   ))}
                 </SelectContent>

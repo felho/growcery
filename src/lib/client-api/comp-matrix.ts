@@ -72,3 +72,11 @@ export async function updateCompMatrix(
 
   return response.json();
 }
+
+export async function getAllCompMatricesByOrg(): Promise<CompMatrix[]> {
+  const res = await fetch("/api/comp-matrices");
+  if (!res.ok) {
+    throw new Error("Failed to fetch comp matrices");
+  }
+  return res.json();
+}
