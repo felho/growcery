@@ -18,10 +18,15 @@ import {
   Filter as FilterIcon,
   Hammer as HammerIcon,
   LayoutDashboard as LayoutDashboardIcon,
+  ArrowRightIcon,
 } from "lucide-react";
 import type { OrgUnit } from "~/server/queries/org-unit";
 
 const CompMatrixReportsPage = () => {
+  const [selectedReport, setSelectedReport] = React.useState<string | null>(
+    null,
+  );
+
   const { data: functions = [] } = useSWR("/functions", fetchFunctions);
   const { data: orgUnits = [] } = useSWR("/org-units", fetchOrgUnits);
   const { data: archetypes = [] } = useSWR(
@@ -50,8 +55,11 @@ const CompMatrixReportsPage = () => {
             <p className="text-muted-foreground mb-3 text-sm">
               Select a report to view insights
             </p>
-            <Select>
-              <SelectTrigger className="w-full" id="report-select">
+            <Select
+              value={selectedReport ?? undefined}
+              onValueChange={(value) => setSelectedReport(value)}
+            >
+              <SelectTrigger className="w-100" id="report-select">
                 <SelectValue placeholder="Select report" />
               </SelectTrigger>
               <SelectContent>
@@ -62,6 +70,14 @@ const CompMatrixReportsPage = () => {
                 </SelectItem>
               </SelectContent>
             </Select>
+            <button
+              className="mt-4 flex !h-10 w-100 cursor-pointer items-center justify-center gap-x-2 rounded-lg bg-green-600 px-4 py-3 font-bold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
+              type="button"
+              disabled={!selectedReport}
+            >
+              <ArrowRightIcon className="h-5 w-5" />
+              <span>Load Report</span>
+            </button>
           </div>
         </div>
         {/* Right Column: Filter Employees */}
