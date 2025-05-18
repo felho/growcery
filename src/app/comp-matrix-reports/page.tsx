@@ -27,6 +27,7 @@ import {
   ArrowRightIcon,
 } from "lucide-react";
 import type { OrgUnit } from "~/server/queries/org-unit";
+import { AverageRatingsReport } from "./_reports/average-ratings";
 
 const CompMatrixReportsPage = () => {
   const [selectedReport, setSelectedReport] = React.useState<string | null>(
@@ -309,104 +310,15 @@ const CompMatrixReportsPage = () => {
       {/* Main content area (empty for now) */}
 
       {selectedMatrix && reportLoaded && (
-        <div className="p-6">
-          <h2 className="mb-4 text-xl font-semibold">
-            Average Ratings ({filteredEmployees.length} people
-            {selectedOrgUnit !== null &&
-              ` in ${orgUnits.find((ou) => ou.id === selectedOrgUnit)?.name}`}
-            {selectedArchetype !== null &&
-              `, archetype: ${
-                archetypes.find((a) => a.id === selectedArchetype)?.name
-              }`}
-            )
-          </h2>
-          <div className="overflow-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  <th className="border px-4 py-2 text-left">Competency</th>
-                  {selectedMatrix.levels.map((level) => (
-                    <th key={level.id} className="border px-4 py-2 text-center">
-                      {level.levelCode}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {selectedMatrix.areas.map((area) => (
-                  <React.Fragment key={area.id}>
-                    <tr>
-                      <td
-                        colSpan={1 + selectedMatrix.levels.length}
-                        className="bg-muted px-4 py-2 text-left font-semibold"
-                      >
-                        {area.title}
-                      </td>
-                    </tr>
-                    {area.competencies.map((competency) => (
-                      <tr key={competency.id}>
-                        <td className="border px-4 py-2">{competency.title}</td>
-                        {selectedMatrix.levels.map((level) => {
-                          const def = competency.definitions.find(
-                            (d) => d.compMatrixLevelId === level.id,
-                          );
-                          if (!def) {
-                            return (
-                              <td key={level.id} className="border px-4 py-2">
-                                —
-                              </td>
-                            );
-                          }
-
-                          if (def.inheritsPreviousLevel) {
-                            return (
-                              <td
-                                key={level.id}
-                                className="border bg-gray-200 px-4 py-2 text-center font-medium text-gray-500"
-                              >
-                                N/A
-                              </td>
-                            );
-                          }
-
-                          const data = averageRatings[def.id];
-                          // Find the maximum calculationWeight from all ratingOptions
-                          const maxWeight =
-                            selectedMatrix?.ratingOptions?.reduce(
-                              (acc, opt) =>
-                                Math.max(acc, opt.calculationWeight),
-                              0,
-                            ) ?? 0;
-                          const percent =
-                            data && data.count > 0 && maxWeight > 0
-                              ? Math.round(
-                                  (data.sum / (data.count * maxWeight)) * 100,
-                                )
-                              : null;
-
-                          const backgroundColor =
-                            percent === null
-                              ? "#f3f4f6" // gray-100
-                              : `rgba(59, 130, 246, ${percent / 100})`; // Tailwind blue-500 with variable opacity
-
-                          return (
-                            <td
-                              key={level.id}
-                              className="border px-4 py-2 text-center font-medium"
-                              style={{ backgroundColor }}
-                            >
-                              {percent !== null ? `${percent}%` : "—"}
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    ))}
-                  </React.Fragment>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <AverageRatingsReport
+          selectedMatrix={selectedMatrix}
+          filteredEmployees={filteredEmployees}
+          compMatrixCurrentRatings={compMatrixCurrentRatings}
+          selectedOrgUnit={selectedOrgUnit}
+          selectedArchetype={selectedArchetype}
+          orgUnits={orgUnits}
+          archetypes={archetypes}
+        />
       )}
     </div>
   );
