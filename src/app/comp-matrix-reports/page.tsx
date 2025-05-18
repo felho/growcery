@@ -179,7 +179,10 @@ const CompMatrixReportsPage = () => {
             </p>
             <Select
               value={selectedReport ?? undefined}
-              onValueChange={(value) => setSelectedReport(value)}
+              onValueChange={(value) => {
+                setSelectedReport(value);
+                setReportLoaded(false);
+              }}
             >
               <SelectTrigger className="w-100" id="report-select">
                 <SelectValue placeholder="Select report" />
