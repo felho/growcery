@@ -14,7 +14,10 @@ import { fetchOrgUnits } from "~/lib/client-api/org-units";
 import { fetchUserArchetypes } from "~/lib/client-api/user-archetypes";
 import { fetchCompMatrices } from "~/lib/client-api/comp-matrix";
 import { fetchUsersWithActiveMatrixAssignments } from "~/lib/client-api/users";
+import { fetchCompMatrixCurrentRatingsByUserIds } from "~/lib/client-api/comp-matrix-current-rating";
+import { fetchCompMatrix } from "~/lib/client-api/comp-matrix";
 import type { UserWithArchetype } from "~/server/queries/user";
+import type { CompMatrixWithFullRelations } from "~/server/queries/comp-matrix";
 import {
   Building2 as Building2Icon,
   Users as UsersIcon,
@@ -52,6 +55,11 @@ const CompMatrixReportsPage = () => {
   const { data: users = [] } = useSWR<UserWithArchetype[]>(
     "/api/users/with-active-matrix-assignments",
     fetchUsersWithActiveMatrixAssignments,
+  );
+
+  const { data: selectedMatrix } = useSWR<CompMatrixWithFullRelations>(
+    selectedMatrixId ? `/comp-matrices/${selectedMatrixId}` : null,
+    () => fetchCompMatrix(selectedMatrixId!),
   );
 
   // Handlers for filter selects
@@ -103,6 +111,46 @@ const CompMatrixReportsPage = () => {
       return true;
     });
   };
+
+  const filteredEmployees = getFilteredEmployees();
+  const userIds = filteredEmployees.map((u) => u.id);
+
+  // compMatrixCurrentRatings should be an array of current rating records
+  const { data: compMatrixCurrentRatings } = useSWR(
+    userIds.length > 0 && selectedMatrixId !== null
+      ? [
+          "/api/comp-matrix-current-ratings/by-user-ids",
+          userIds.sort().join(","),
+        ]
+      : null,
+    () => fetchCompMatrixCurrentRatingsByUserIds(userIds),
+  );
+
+  // Calculate averages using calculationWeight from the ratingOption instead of managerRatingId directly
+  const averageRatings: Record<number, { sum: number; count: number }> = {};
+
+  if (Array.isArray(compMatrixCurrentRatings)) {
+    for (const record of compMatrixCurrentRatings) {
+      const defId = record.compMatrixDefinitionId;
+      const ratingId = record.managerRatingId;
+
+      if (ratingId == null) continue;
+
+      const ratingOption = selectedMatrix?.ratingOptions.find(
+        (opt) => opt.id === ratingId,
+      );
+
+      if (!ratingOption) continue;
+
+      const weight = ratingOption.calculationWeight;
+
+      if (!averageRatings[defId]) {
+        averageRatings[defId] = { sum: 0, count: 0 };
+      }
+      averageRatings[defId].sum += weight;
+      averageRatings[defId].count += 1;
+    }
+  }
 
   return (
     <div className="animate-fade-in space-y-6">
@@ -256,6 +304,107 @@ const CompMatrixReportsPage = () => {
         </div>
       </div>
       {/* Main content area (empty for now) */}
+
+      {selectedMatrix && (
+        <div className="p-6">
+          <h2 className="mb-4 text-xl font-semibold">
+            Average Ratings ({filteredEmployees.length} people
+            {selectedOrgUnit !== null &&
+              ` in ${orgUnits.find((ou) => ou.id === selectedOrgUnit)?.name}`}
+            {selectedArchetype !== null &&
+              `, archetype: ${
+                archetypes.find((a) => a.id === selectedArchetype)?.name
+              }`}
+            )
+          </h2>
+          <div className="overflow-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr>
+                  <th className="border px-4 py-2 text-left">Competency</th>
+                  {selectedMatrix.levels.map((level) => (
+                    <th key={level.id} className="border px-4 py-2 text-center">
+                      {level.levelCode}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {selectedMatrix.areas.map((area) => (
+                  <React.Fragment key={area.id}>
+                    <tr>
+                      <td
+                        colSpan={1 + selectedMatrix.levels.length}
+                        className="bg-muted px-4 py-2 text-left font-semibold"
+                      >
+                        {area.title}
+                      </td>
+                    </tr>
+                    {area.competencies.map((competency) => (
+                      <tr key={competency.id}>
+                        <td className="border px-4 py-2">{competency.title}</td>
+                        {selectedMatrix.levels.map((level) => {
+                          const def = competency.definitions.find(
+                            (d) => d.compMatrixLevelId === level.id,
+                          );
+                          if (!def) {
+                            return (
+                              <td key={level.id} className="border px-4 py-2">
+                                —
+                              </td>
+                            );
+                          }
+
+                          if (def.inheritsPreviousLevel) {
+                            return (
+                              <td
+                                key={level.id}
+                                className="border bg-gray-200 px-4 py-2 text-center font-medium text-gray-500"
+                              >
+                                N/A
+                              </td>
+                            );
+                          }
+
+                          const data = averageRatings[def.id];
+                          // Find the maximum calculationWeight from all ratingOptions
+                          const maxWeight =
+                            selectedMatrix?.ratingOptions?.reduce(
+                              (acc, opt) =>
+                                Math.max(acc, opt.calculationWeight),
+                              0,
+                            ) ?? 0;
+                          const percent =
+                            data && data.count > 0 && maxWeight > 0
+                              ? Math.round(
+                                  (data.sum / (data.count * maxWeight)) * 100,
+                                )
+                              : null;
+
+                          const backgroundColor =
+                            percent === null
+                              ? "#f3f4f6" // gray-100
+                              : `rgba(59, 130, 246, ${percent / 100})`; // Tailwind blue-500 with variable opacity
+
+                          return (
+                            <td
+                              key={level.id}
+                              className="border px-4 py-2 text-center font-medium"
+                              style={{ backgroundColor }}
+                            >
+                              {percent !== null ? `${percent}%` : "—"}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </React.Fragment>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
