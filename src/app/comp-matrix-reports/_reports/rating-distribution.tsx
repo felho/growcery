@@ -48,9 +48,13 @@ export function RatingDistributionReport({
     const total = Object.values(ratings).reduce((acc, count) => acc + count, 0);
     if (total === 0) return "—";
 
+    const sortedOptions = [...selectedMatrix.ratingOptions].sort(
+      (a, b) => a.calculationWeight - b.calculationWeight,
+    );
+
     return (
-      <div className="flex h-5 w-full overflow-hidden rounded border border-gray-200">
-        {selectedMatrix.ratingOptions.map((opt) => {
+      <div className="flex h-5 w-full overflow-hidden">
+        {sortedOptions.map((opt) => {
           const count = ratings[opt.id] ?? 0;
           const percentage = (count / total) * 100;
           if (count === 0) return null;
