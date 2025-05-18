@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import { Combobox } from "~/components/ui/combobox";
 import {
   Building2 as Building2Icon,
   Users as UsersIcon,
@@ -306,24 +307,16 @@ const CompMatrixPage = () => {
             <p className="text-muted-foreground mb-3 text-sm">
               Select an employee to view their competency matrix
             </p>
-            <Select
+            <Combobox
+              id="employee-select"
+              items={getFilteredEmployees().map((employee) => ({
+                label: employee.fullName,
+                value: employee.id.toString(),
+              }))}
+              placeholder="Select employee"
               value={selectedEmployee?.toString()}
-              onValueChange={handleEmployeeChange}
-            >
-              <SelectTrigger
-                id="employee-select"
-                className="border-primary/20 bg-primary/5 !h-10 w-100 rounded-md border px-4 py-3"
-              >
-                <SelectValue placeholder="Select employee" />
-              </SelectTrigger>
-              <SelectContent>
-                {getFilteredEmployees().map((employee) => (
-                  <SelectItem key={employee.id} value={employee.id.toString()}>
-                    {employee.fullName}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              onChange={handleEmployeeChange}
+            />
           </div>
           <button
             className="mt-4 flex !h-10 w-100 items-center justify-center gap-x-2 rounded-lg bg-green-600 px-4 py-3 font-bold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
