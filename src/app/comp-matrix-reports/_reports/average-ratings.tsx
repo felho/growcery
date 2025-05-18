@@ -128,7 +128,7 @@ export const AverageRatingsReport = ({
                       return (
                         <td
                           key={level.id}
-                          className="border px-4 py-2 text-center font-medium"
+                          className="min-w-25 border px-4 py-2 text-center font-medium"
                           style={{ backgroundColor }}
                         >
                           {percent !== null ? `${percent}%` : "—"}
