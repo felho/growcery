@@ -12,6 +12,8 @@ import useSWR from "swr";
 import { fetchFunctions } from "~/lib/client-api/functions";
 import { fetchOrgUnits } from "~/lib/client-api/org-units";
 import { fetchUserArchetypes } from "~/lib/client-api/user-archetypes";
+import { fetchUsersWithActiveMatrixAssignments } from "~/lib/client-api/users";
+import type { UserWithArchetype } from "~/server/queries/user";
 import {
   Building2 as Building2Icon,
   Users as UsersIcon,
@@ -27,12 +29,90 @@ const CompMatrixReportsPage = () => {
     null,
   );
 
+  // Add filter state hooks
+  const [selectedFunction, setSelectedFunction] = React.useState<number | null>(
+    null,
+  );
+  const [selectedOrgUnit, setSelectedOrgUnit] = React.useState<number | null>(
+    null,
+  );
+  const [selectedArchetype, setSelectedArchetype] = React.useState<
+    number | null
+  >(null);
+
   const { data: functions = [] } = useSWR("/functions", fetchFunctions);
   const { data: orgUnits = [] } = useSWR("/org-units", fetchOrgUnits);
   const { data: archetypes = [] } = useSWR(
     "/user-archetypes",
     fetchUserArchetypes,
   );
+  // SWR for users with active matrix assignments
+  const { data: users = [] } = useSWR<UserWithArchetype[]>(
+    "/api/users/with-active-matrix-assignments",
+    fetchUsersWithActiveMatrixAssignments,
+  );
+
+  // Handlers for filter selects
+  const handleFunctionChange = (functionId: string) => {
+    setSelectedFunction(
+      functionId === "no-filter" ? null : parseInt(functionId),
+    );
+  };
+
+  const handleOrgUnitChange = (orgUnitId: string) => {
+    setSelectedOrgUnit(orgUnitId === "no-filter" ? null : parseInt(orgUnitId));
+  };
+
+  const handleArchetypeChange = (archetypeId: string) => {
+    setSelectedArchetype(
+      archetypeId === "no-filter" ? null : parseInt(archetypeId),
+    );
+  };
+
+  // Recursively get all child org units
+  const getAllChildOrgUnits = (parentId: number): number[] => {
+    const directChildren = orgUnits
+      .filter((unit) => unit.parentId === parentId)
+      .map((unit) => unit.id);
+    const childrenOfChildren = directChildren.flatMap((childId) =>
+      getAllChildOrgUnits(childId),
+    );
+    return [...directChildren, ...childrenOfChildren];
+  };
+
+  // Filter users by function, org unit (and children), and archetype
+  const getFilteredEmployees = (): UserWithArchetype[] => {
+    if (
+      selectedFunction === null &&
+      selectedOrgUnit === null &&
+      selectedArchetype === null
+    ) {
+      return users;
+    }
+
+    return users.filter((user) => {
+      if (selectedFunction !== null && user.functionId !== selectedFunction) {
+        return false;
+      }
+      if (selectedOrgUnit !== null) {
+        const childOrgUnits = getAllChildOrgUnits(selectedOrgUnit);
+        if (
+          user.orgUnitId !== selectedOrgUnit &&
+          !childOrgUnits.includes(user.orgUnitId as number)
+        ) {
+          return false;
+        }
+      }
+      if (
+        selectedArchetype !== null &&
+        user.archetypeId !== selectedArchetype
+      ) {
+        return false;
+      }
+      return true;
+    });
+  };
+
   return (
     <div className="animate-fade-in space-y-6">
       <h1 className="mb-0.5 text-3xl font-bold">Competency Reports</h1>
@@ -98,7 +178,14 @@ const CompMatrixReportsPage = () => {
                 <Building2Icon className="mr-2 h-4 w-4" />
                 Function
               </label>
-              <Select>
+              <Select
+                value={
+                  selectedFunction === null
+                    ? "no-filter"
+                    : selectedFunction.toString()
+                }
+                onValueChange={handleFunctionChange}
+              >
                 <SelectTrigger className="w-full" id="function-select">
                   <SelectValue placeholder="Select function" />
                 </SelectTrigger>
@@ -120,8 +207,14 @@ const CompMatrixReportsPage = () => {
                 <UsersIcon className="mr-2 h-4 w-4" />
                 Org Unit
               </label>
-              {/* Hierarchical Org Unit Select */}
-              <Select>
+              <Select
+                value={
+                  selectedOrgUnit === null
+                    ? "no-filter"
+                    : selectedOrgUnit.toString()
+                }
+                onValueChange={handleOrgUnitChange}
+              >
                 <SelectTrigger className="w-full" id="orgunit-select">
                   <SelectValue placeholder="Select org unit" />
                 </SelectTrigger>
@@ -143,7 +236,14 @@ const CompMatrixReportsPage = () => {
                 <HammerIcon className="mr-2 h-4 w-4" />
                 Archetype
               </label>
-              <Select>
+              <Select
+                value={
+                  selectedArchetype === null
+                    ? "no-filter"
+                    : selectedArchetype.toString()
+                }
+                onValueChange={handleArchetypeChange}
+              >
                 <SelectTrigger className="w-full" id="archetype-select">
                   <SelectValue placeholder="Select archetype" />
                 </SelectTrigger>
