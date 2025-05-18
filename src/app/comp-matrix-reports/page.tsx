@@ -186,10 +186,10 @@ const CompMatrixReportsPage = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="average">Average Ratings</SelectItem>
-                <SelectItem value="gap">Competency Gaps</SelectItem>
                 <SelectItem value="distribution">
                   Rating Distribution
                 </SelectItem>
+                <SelectItem value="gap">TODO --&gt; Competency Gaps</SelectItem>
               </SelectContent>
             </Select>
             <button
