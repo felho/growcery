@@ -28,6 +28,7 @@
 - [ ] The comp matrix level create.ts query seems odd, the input type doesn't match the type expected by the table.
 - [ ] In the case of deleting a function the delete doesn't work if the function is already assigned to a user. Create a better errors message that explains why the delete failed in such a case.
 - [ ] The same applies for users as well. Also, later think about whether we shouldn't delete a user but have an is active flag or something like that.
+- [ ] Check the different entity folder whether the file naming is consistent or not (e.g., under the client-api it is not, comp-matrix.ts is not plural like the others)
 
 ### Comp matrix
 
