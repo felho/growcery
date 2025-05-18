@@ -21,20 +21,17 @@ export function RatingDistributionReport({
   selectedMatrix,
   filteredEmployees,
   compMatrixCurrentRatings,
+  selectedOrgUnit,
+  selectedArchetype,
+  orgUnits,
+  archetypes,
 }: Props) {
-  const definitionIds = selectedMatrix.areas
-    .flatMap((area) =>
-      area.competencies.flatMap((comp) =>
-        comp.definitions.map((def) => def.id),
-      ),
-    )
-    .filter(Boolean);
-
   const distributionMap: Record<number, Record<number, number>> = {};
+
   if (Array.isArray(compMatrixCurrentRatings)) {
-    for (const rating of compMatrixCurrentRatings) {
-      const defId = rating.compMatrixDefinitionId;
-      const ratingId = rating.managerRatingId;
+    for (const record of compMatrixCurrentRatings) {
+      const defId = record.compMatrixDefinitionId;
+      const ratingId = record.managerRatingId;
       if (defId == null || ratingId == null) continue;
       if (!distributionMap[defId]) {
         distributionMap[defId] = {};
@@ -46,10 +43,10 @@ export function RatingDistributionReport({
 
   const getDistributionBar = (definitionId: number) => {
     const ratings = distributionMap[definitionId];
-    if (!ratings) return null;
+    if (!ratings) return "—";
 
     const total = Object.values(ratings).reduce((acc, count) => acc + count, 0);
-    if (total === 0) return null;
+    if (total === 0) return "—";
 
     return (
       <div className="flex h-5 w-full overflow-hidden rounded border border-gray-200">
@@ -74,22 +71,24 @@ export function RatingDistributionReport({
   };
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-semibold">
-        Rating Distribution ({filteredEmployees.length} people)
+    <div className="p-6">
+      <h2 className="mb-4 text-xl font-semibold">
+        Rating Distribution ({filteredEmployees.length} people
+        {selectedOrgUnit !== null &&
+          ` in ${orgUnits.find((ou) => ou.id === selectedOrgUnit)?.name}`}
+        {selectedArchetype !== null &&
+          `, archetype: ${
+            archetypes.find((a) => a.id === selectedArchetype)?.name
+          }`}
+        )
       </h2>
       <div className="overflow-auto">
-        <table className="min-w-full table-auto border-collapse border border-gray-300 text-sm">
+        <table className="w-full border-collapse">
           <thead>
             <tr>
-              <th className="border border-gray-300 bg-gray-100 p-2 text-left font-medium">
-                Competency
-              </th>
+              <th className="border px-4 py-2 text-left">Competency</th>
               {selectedMatrix.levels.map((level) => (
-                <th
-                  key={level.id}
-                  className="border border-gray-300 bg-gray-100 p-2 text-left font-medium"
-                >
+                <th key={level.id} className="border px-4 py-2 text-center">
                   {level.levelCode}
                 </th>
               ))}
@@ -101,26 +100,43 @@ export function RatingDistributionReport({
                 <tr>
                   <td
                     colSpan={1 + selectedMatrix.levels.length}
-                    className="bg-muted border-t border-b border-gray-400 px-2 py-1 font-semibold text-gray-700"
+                    className="bg-muted px-4 py-2 text-left font-semibold"
                   >
                     {area.title}
                   </td>
                 </tr>
-                {area.competencies.map((comp) => (
-                  <tr key={comp.id}>
-                    <td className="border border-gray-300 px-2 py-1 font-medium text-gray-800">
-                      {comp.title}
-                    </td>
+                {area.competencies.map((competency) => (
+                  <tr key={competency.id}>
+                    <td className="border px-4 py-2">{competency.title}</td>
                     {selectedMatrix.levels.map((level) => {
-                      const def = comp.definitions.find(
+                      const def = competency.definitions.find(
                         (d) => d.compMatrixLevelId === level.id,
                       );
+                      if (!def) {
+                        return (
+                          <td key={level.id} className="border px-4 py-2">
+                            —
+                          </td>
+                        );
+                      }
+
+                      if (def.inheritsPreviousLevel) {
+                        return (
+                          <td
+                            key={level.id}
+                            className="border bg-gray-200 px-4 py-2 text-center font-medium text-gray-500"
+                          >
+                            N/A
+                          </td>
+                        );
+                      }
+
                       return (
                         <td
                           key={level.id}
-                          className="border border-gray-300 p-1"
+                          className="min-w-25 border px-4 py-2 text-center font-medium"
                         >
-                          {def ? getDistributionBar(def.id) : null}
+                          {getDistributionBar(def.id)}
                         </td>
                       );
                     })}
