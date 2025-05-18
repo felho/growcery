@@ -32,6 +32,7 @@ const CompMatrixReportsPage = () => {
   const [selectedReport, setSelectedReport] = React.useState<string | null>(
     null,
   );
+  const [reportLoaded, setReportLoaded] = React.useState(false);
 
   // Add filter state hooks
   const [selectedMatrixId, setSelectedMatrixId] = React.useState<number | null>(
@@ -193,6 +194,7 @@ const CompMatrixReportsPage = () => {
               className="mt-4 flex !h-10 w-100 cursor-pointer items-center justify-center gap-x-2 rounded-lg bg-green-600 px-4 py-3 font-bold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
               type="button"
               disabled={!selectedReport || !selectedMatrixId}
+              onClick={() => setReportLoaded(true)}
             >
               <ArrowRightIcon className="h-5 w-5" />
               <span>Load Report</span>
@@ -216,6 +218,7 @@ const CompMatrixReportsPage = () => {
               >
                 <Building2Icon className="mr-2 h-4 w-4" />
                 Matrix
+                <span className="ml-1 text-red-500">*</span>
               </label>
               <Select
                 value={
@@ -305,7 +308,7 @@ const CompMatrixReportsPage = () => {
       </div>
       {/* Main content area (empty for now) */}
 
-      {selectedMatrix && (
+      {selectedMatrix && reportLoaded && (
         <div className="p-6">
           <h2 className="mb-4 text-xl font-semibold">
             Average Ratings ({filteredEmployees.length} people
