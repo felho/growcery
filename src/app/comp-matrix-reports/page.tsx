@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import type { OrgUnit } from "~/server/queries/org-unit";
 import { AverageRatingsReport } from "./_reports/average-ratings";
+import { RatingDistributionReport } from "./_reports/rating-distribution";
 
 const CompMatrixReportsPage = () => {
   const [selectedReport, setSelectedReport] = React.useState<string | null>(
@@ -307,10 +308,22 @@ const CompMatrixReportsPage = () => {
           </div>
         </div>
       </div>
-      {/* Main content area (empty for now) */}
+      {/* Main content area */}
 
-      {selectedMatrix && reportLoaded && (
+      {selectedMatrix && reportLoaded && selectedReport === "average" && (
         <AverageRatingsReport
+          selectedMatrix={selectedMatrix}
+          filteredEmployees={filteredEmployees}
+          compMatrixCurrentRatings={compMatrixCurrentRatings}
+          selectedOrgUnit={selectedOrgUnit}
+          selectedArchetype={selectedArchetype}
+          orgUnits={orgUnits}
+          archetypes={archetypes}
+        />
+      )}
+
+      {selectedMatrix && reportLoaded && selectedReport === "distribution" && (
+        <RatingDistributionReport
           selectedMatrix={selectedMatrix}
           filteredEmployees={filteredEmployees}
           compMatrixCurrentRatings={compMatrixCurrentRatings}
