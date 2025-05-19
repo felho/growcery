@@ -34,10 +34,17 @@ export const compMatrixLevelAssessments = createTable(
     updatedAt: timestamp({ mode: "date" }).defaultNow().notNull(),
   },
   (t) => [
+    // This one is needed to make the upsert work
     uniqueIndex("uq_level_assessment").on(
       t.userCompMatrixAssignmentId,
       t.isGeneral,
       t.compMatrixAreaId,
     ),
+    uniqueIndex("uq_general_rating")
+      .on(t.userCompMatrixAssignmentId)
+      .where(sql`${t.isGeneral} = true`),
+    uniqueIndex("uq_area_rating")
+      .on(t.userCompMatrixAssignmentId, t.compMatrixAreaId)
+      .where(sql`${t.isGeneral} = false`),
   ],
 );
