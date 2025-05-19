@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Pencil, Save } from "lucide-react";
+import { Pencil, Save, X } from "lucide-react";
 import { Input } from "~/components/ui/input";
 import { cn } from "~/lib/utils";
 import { createLevelAssessmentAction } from "~/server/actions/comp-matrix-level-assessments/create";
+import { updateLevelAssessmentAction } from "~/server/actions/comp-matrix-level-assessments/update";
 import { toast } from "sonner";
 
 interface LevelAssessmentBadgeProps {
@@ -50,14 +51,21 @@ export function LevelAssessmentBadge({
 
     setIsSaving(true);
     try {
-      await createLevelAssessmentAction({
+      const data = {
         userCompMatrixAssignmentId,
         compMatrixId,
         isGeneral,
         compMatrixAreaId,
         mainLevel: mainLevelNum,
         subLevel: subLevelNum,
-      });
+      };
+
+      if (initialMainLevel && initialSubLevel) {
+        await updateLevelAssessmentAction(data);
+      } else {
+        await createLevelAssessmentAction(data);
+      }
+
       toast.success("Level assessment saved");
       setIsEditing(false);
     } catch (error) {
@@ -65,6 +73,12 @@ export function LevelAssessmentBadge({
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleCancel = () => {
+    setMainLevel(initialMainLevel?.toString() ?? "");
+    setSubLevel(initialSubLevel?.toString() ?? "");
+    setIsEditing(false);
   };
 
   if (isEditing) {
@@ -97,6 +111,12 @@ export function LevelAssessmentBadge({
           className="text-green-600 hover:text-green-700 disabled:opacity-50"
         >
           <Save className="h-4 w-4" />
+        </button>
+        <button
+          onClick={handleCancel}
+          className="text-gray-600 hover:text-gray-800"
+        >
+          <X className="h-4 w-4" />
         </button>
       </div>
     );
