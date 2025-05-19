@@ -94,8 +94,7 @@ export function LevelAssessmentBadge({
             max={maxLevel}
             value={mainLevel}
             onChange={(e) => setMainLevel(e.target.value)}
-            className="h-6 w-12 text-sm"
-            placeholder="e.g. 2"
+            className="h-6 w-14 text-sm"
           />
           <span className="text-sm">.</span>
           <Input
@@ -104,8 +103,7 @@ export function LevelAssessmentBadge({
             max={3}
             value={subLevel}
             onChange={(e) => setSubLevel(e.target.value)}
-            className="h-6 w-12 text-sm"
-            placeholder="e.g. 2"
+            className="h-6 w-14 text-sm"
           />
         </div>
         <button
