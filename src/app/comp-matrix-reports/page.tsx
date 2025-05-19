@@ -29,6 +29,7 @@ import {
 import type { OrgUnit } from "~/server/queries/org-unit";
 import { AverageRatingsReport } from "./_reports/average-ratings";
 import { RatingDistributionReport } from "./_reports/rating-distribution";
+import { CompetencyGapsReport } from "./_reports/competency-gaps";
 
 const CompMatrixReportsPage = () => {
   const [selectedReport, setSelectedReport] = React.useState<string | null>(
@@ -192,7 +193,7 @@ const CompMatrixReportsPage = () => {
                 <SelectItem value="distribution">
                   Rating Distribution
                 </SelectItem>
-                <SelectItem value="gap">TODO --&gt; Competency Gaps</SelectItem>
+                <SelectItem value="gap">Competency Gaps</SelectItem>
               </SelectContent>
             </Select>
             <button
@@ -327,6 +328,18 @@ const CompMatrixReportsPage = () => {
 
       {selectedMatrix && reportLoaded && selectedReport === "distribution" && (
         <RatingDistributionReport
+          selectedMatrix={selectedMatrix}
+          filteredEmployees={filteredEmployees}
+          compMatrixCurrentRatings={compMatrixCurrentRatings}
+          selectedOrgUnit={selectedOrgUnit}
+          selectedArchetype={selectedArchetype}
+          orgUnits={orgUnits}
+          archetypes={archetypes}
+        />
+      )}
+
+      {selectedMatrix && reportLoaded && selectedReport === "gap" && (
+        <CompetencyGapsReport
           selectedMatrix={selectedMatrix}
           filteredEmployees={filteredEmployees}
           compMatrixCurrentRatings={compMatrixCurrentRatings}
