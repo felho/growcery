@@ -11,6 +11,9 @@ import type {
 } from "~/server/queries/comp-matrix-current-rating";
 import type { CompMatrixCompetencyWithDefinitions } from "~/server/queries/comp-matrix-competency";
 import type { CompMatrixLevel } from "~/server/queries/comp-matrix-level";
+import { LevelAssessmentBadge } from "./level-assessment-badge";
+import type { LevelAssessment } from "~/zod-schemas/comp-matrix-level-assessments";
+
 interface CompetencyAreaSectionProps {
   levels: CompMatrixLevel[];
   area: CompMatrixAreaWithFullRelations;
@@ -21,6 +24,8 @@ interface CompetencyAreaSectionProps {
   onSaveCell: (uiPayload: CompMatrixCellSavePayloadUI) => Promise<void>;
   compMatrixId?: number;
   referenceUserIds: number[];
+  userCompMatrixAssignmentId?: number;
+  levelAssessments?: LevelAssessment[];
 }
 
 const CompetencyAreaSection: React.FC<CompetencyAreaSectionProps> = ({
@@ -33,11 +38,32 @@ const CompetencyAreaSection: React.FC<CompetencyAreaSectionProps> = ({
   onSaveCell,
   compMatrixId,
   referenceUserIds,
+  userCompMatrixAssignmentId,
+  levelAssessments,
 }) => {
+  const areaAssessment = levelAssessments?.find(
+    (a) => !a.isGeneral && a.compMatrixAreaId === area.id,
+  );
+
   return (
     <div className="mb-0">
       <div className="bg-muted border-border flex items-center justify-between rounded-t-md border p-2 font-semibold">
-        <span>{area.title}</span>
+        <div className="flex items-center gap-2">
+          <span>{area.title}</span>
+          {phase === "calibration" &&
+            userCompMatrixAssignmentId &&
+            compMatrixId && (
+              <LevelAssessmentBadge
+                userCompMatrixAssignmentId={userCompMatrixAssignmentId}
+                compMatrixId={compMatrixId}
+                isGeneral={false}
+                compMatrixAreaId={area.id}
+                initialMainLevel={areaAssessment?.mainLevel}
+                initialSubLevel={areaAssessment?.subLevel}
+                maxLevel={levels.length}
+              />
+            )}
+        </div>
         {area.shortDescription && (
           <span className="text-muted-foreground text-xs">
             {area.shortDescription}

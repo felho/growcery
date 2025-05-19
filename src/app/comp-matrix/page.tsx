@@ -36,6 +36,8 @@ import type { Function } from "~/server/queries/function";
 import type { OrgUnit } from "~/server/queries/org-unit";
 import type { UserWithArchetype } from "~/server/queries/user";
 import type { UserArchetype } from "~/server/queries/user-archetype";
+import { fetchCompMatrixLevelAssessments } from "~/lib/client-api/comp-matrix-level-assessments";
+import type { LevelAssessment } from "~/zod-schemas/comp-matrix-level-assessments";
 
 const CompMatrixPage = () => {
   const [phase, setPhase] = useState<Phase>("assessment");
@@ -89,6 +91,7 @@ const CompMatrixPage = () => {
     setCompMatrixData(null);
     setCurrentRatings(null);
     setRatingOptions(null);
+    setLevelAssessments([]);
     setIsMatrixLoaded(false);
   };
 
@@ -213,6 +216,9 @@ const CompMatrixPage = () => {
   const [compMatrixData, setCompMatrixData] = useState<any>(null);
   const [ratingOptions, setRatingOptions] = useState<any>(null);
   const [compMatrixCurrentRatings, setCurrentRatings] = useState<any>(null);
+  const [levelAssessments, setLevelAssessments] = useState<LevelAssessment[]>(
+    [],
+  );
 
   const handleLoadMatrix = async () => {
     if (!selectedEmployee) {
@@ -231,15 +237,17 @@ const CompMatrixPage = () => {
       setAssignment(assignmentData);
 
       // Load matrix data
-      const [matrix, ratings, options] = await Promise.all([
+      const [matrix, ratings, options, assessments] = await Promise.all([
         fetchCompMatrix(assignmentData.compMatrixId),
         fetchCompMatrixCurrentRating(assignmentData.id),
         fetchCompMatrixRatingOptions(assignmentData.compMatrixId),
+        fetchCompMatrixLevelAssessments(assignmentData.id),
       ]);
 
       setCompMatrixData(matrix);
       setCurrentRatings(ratings);
       setRatingOptions(options);
+      setLevelAssessments(assessments);
 
       setIsMatrixLoaded(true);
       toast.success("Matrix loaded successfully");
@@ -463,6 +471,8 @@ const CompMatrixPage = () => {
             switchPhase={switchPhase}
             onSaveCell={onSaveCell}
             referenceUserIds={referenceUserIds}
+            userCompMatrixAssignmentId={assignment?.id}
+            levelAssessments={levelAssessments}
           />
         )}
     </div>

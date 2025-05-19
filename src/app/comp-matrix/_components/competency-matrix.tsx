@@ -18,6 +18,7 @@ import type {
   CompMatrixCellSavePayloadUI,
   CompMatrixRatingsForUIMap,
 } from "~/server/queries/comp-matrix-current-rating";
+import type { LevelAssessment } from "~/zod-schemas/comp-matrix-level-assessments";
 
 interface CompetencyMatrixProps {
   phase: Phase;
@@ -32,6 +33,8 @@ interface CompetencyMatrixProps {
   switchPhase: (phase: Phase) => void;
   onSaveCell: (uiPayload: CompMatrixCellSavePayloadUI) => Promise<void>;
   referenceUserIds: number[];
+  userCompMatrixAssignmentId?: number;
+  levelAssessments?: LevelAssessment[];
 }
 
 export const CompetencyMatrix = ({
@@ -47,6 +50,8 @@ export const CompetencyMatrix = ({
   switchPhase,
   onSaveCell,
   referenceUserIds,
+  userCompMatrixAssignmentId,
+  levelAssessments,
 }: CompetencyMatrixProps) => {
   return (
     <Card>
@@ -102,6 +107,8 @@ export const CompetencyMatrix = ({
                   onSaveCell={onSaveCell}
                   compMatrixId={compMatrix?.id}
                   referenceUserIds={referenceUserIds}
+                  userCompMatrixAssignmentId={userCompMatrixAssignmentId}
+                  levelAssessments={levelAssessments}
                 />
               );
             })}
