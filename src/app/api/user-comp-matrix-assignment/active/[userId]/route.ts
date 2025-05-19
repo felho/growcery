@@ -3,8 +3,9 @@ import { getActiveUserCompMatrixAssignmentByUserId } from "~/server/queries/user
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { userId: string } },
+  context: { params: { userId: string } },
 ) {
+  const params = await context.params;
   const userId = parseInt(params.userId);
   if (isNaN(userId)) {
     return new Response(JSON.stringify({ error: "Invalid user ID" }), {

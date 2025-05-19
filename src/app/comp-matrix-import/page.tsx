@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -21,12 +21,17 @@ import { fetchCompMatrices } from "~/lib/client-api/comp-matrix";
 import { fetchOrgUnits } from "~/lib/client-api/org-units";
 import { fetchFunctions } from "~/lib/client-api/functions";
 import { fetchUserArchetypes } from "~/lib/client-api/user-archetypes";
-import { fetchUsers } from "~/lib/client-api/users";
+import {
+  fetchUsersWithActiveMatrixAssignments,
+  fetchUsers,
+} from "~/lib/client-api/users";
+import { fetchActiveUserCompMatrixAssignment } from "~/lib/client-api/user-comp-matrix-assignment";
 import type { CompMatrix } from "~/server/queries/comp-matrix";
 import type { OrgUnit } from "~/server/queries/org-unit";
 import type { Function } from "~/server/queries/function";
 import type { UserArchetype } from "~/server/queries/user-archetype";
 import type { UserWithArchetype } from "~/server/queries/user";
+import { Combobox } from "~/components/ui/combobox";
 
 function buildHierarchicalOptions(
   units: OrgUnit[],
@@ -59,6 +64,9 @@ type FormData = z.infer<typeof formSchema>;
 export default function CompMatrixImportPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [terminalOutput, setTerminalOutput] = useState<string[]>([]);
+  const [savedLevelAssessments, setSavedLevelAssessments] = useState<any[]>([]);
+  const [selectedUserId, setSelectedUserId] = useState<string>("");
+  const employeeNameRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -84,7 +92,61 @@ export default function CompMatrixImportPage() {
     "user-archetypes",
     fetchUserArchetypes,
   );
-  const { data: users } = useSWR<UserWithArchetype[]>("users", fetchUsers);
+  const { data: users } = useSWR<UserWithArchetype[]>(
+    "users",
+    fetchUsersWithActiveMatrixAssignments,
+  );
+  const { data: allUsers } = useSWR<UserWithArchetype[]>(
+    "all-users",
+    fetchUsers,
+  );
+
+  // Autofill logic
+  React.useEffect(() => {
+    if (!users) return;
+    if (!selectedUserId || selectedUserId === "__new__") {
+      // Clear fields for new user
+      form.reset({
+        employeeName: "",
+        employeeEmail: "",
+        managerId: "",
+        functionId: "",
+        orgUnitId: "",
+        archetypeId: "",
+        matrixId: form.getValues("matrixId"),
+      });
+      return;
+    }
+    const user = users.find((u) => u.id.toString() === selectedUserId);
+    if (user) {
+      form.setValue("employeeName", user.fullName || "");
+      form.setValue("employeeEmail", user.email || "");
+      form.setValue(
+        "managerId",
+        user.managerId ? user.managerId.toString() : "",
+      );
+      form.setValue(
+        "functionId",
+        user.functionId ? user.functionId.toString() : "",
+      );
+      form.setValue(
+        "orgUnitId",
+        user.orgUnitId ? user.orgUnitId.toString() : "",
+      );
+      form.setValue(
+        "archetypeId",
+        user.archetypeId ? user.archetypeId.toString() : "",
+      );
+      // Fetch active assignment and set matrixId if exists
+      fetchActiveUserCompMatrixAssignment(Number(user.id)).then(
+        (assignment) => {
+          if (assignment && assignment.compMatrixId) {
+            form.setValue("matrixId", assignment.compMatrixId.toString());
+          }
+        },
+      );
+    }
+  }, [selectedUserId, users]);
 
   const onSubmit = async (data: FormData) => {
     try {
@@ -114,6 +176,7 @@ export default function CompMatrixImportPage() {
 
       const result = await response.json();
       setTerminalOutput(result.messages);
+      setSavedLevelAssessments(result.savedLevelAssessments || []);
       toast.success("File imported successfully");
     } catch (error) {
       console.error("Error importing file:", error);
@@ -130,6 +193,33 @@ export default function CompMatrixImportPage() {
           <CardTitle>Import Competency Matrix</CardTitle>
         </CardHeader>
         <CardContent>
+          {/* User select combobox */}
+          <div className="mb-6">
+            <Label htmlFor="user-combobox">Select existing user</Label>
+            <div className="w-1/2 max-w-md">
+              <Combobox
+                id="user-combobox"
+                items={[
+                  { label: "New user", value: "__new__" },
+                  ...(users
+                    ? users.map((u) => ({
+                        label: `${u.fullName} (${u.email})`,
+                        value: u.id.toString(),
+                      }))
+                    : []),
+                ]}
+                value={selectedUserId}
+                onChange={(val) => {
+                  setSelectedUserId(val);
+                  if (val === "__new__" && employeeNameRef.current) {
+                    setTimeout(() => employeeNameRef.current?.focus(), 0);
+                  }
+                }}
+                placeholder="Select an existing user or start typing..."
+              />
+            </div>
+          </div>
+
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -137,6 +227,10 @@ export default function CompMatrixImportPage() {
                 <Input
                   id="employeeName"
                   {...form.register("employeeName")}
+                  ref={(el) => {
+                    form.register("employeeName").ref(el);
+                    employeeNameRef.current = el;
+                  }}
                   placeholder="Enter employee name"
                 />
                 {form.formState.errors.employeeName && (
@@ -171,7 +265,7 @@ export default function CompMatrixImportPage() {
                     <SelectValue placeholder="Select manager" />
                   </SelectTrigger>
                   <SelectContent>
-                    {users?.map((user: UserWithArchetype) => (
+                    {allUsers?.map((user: UserWithArchetype) => (
                       <SelectItem key={user.id} value={user.id.toString()}>
                         {user.fullName}
                       </SelectItem>
@@ -308,6 +402,16 @@ export default function CompMatrixImportPage() {
                   {line}
                 </pre>
               ))}
+              {savedLevelAssessments.length > 0 && (
+                <div className="mt-4 border-t border-gray-700 pt-4">
+                  <div className="mb-2 font-bold">Level assessments saved:</div>
+                  {savedLevelAssessments.map((a, i) => (
+                    <div key={i}>
+                      {a.type}: {a.mainLevel}.{a.subLevel}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </CardContent>

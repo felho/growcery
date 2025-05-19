@@ -284,3 +284,71 @@ export async function insertCurrentRatings({
       });
   }
 }
+
+import {
+  compMatrixLevelAssessments,
+  compMatrixAreas,
+} from "~/server/db/schema";
+import { sql } from "drizzle-orm";
+
+/**
+ * Upsert level assessments for a user assignment and matrix.
+ * @param params
+ *   - assignmentId: userCompMatrixAssignmentId
+ *   - matrixId: compMatrixId
+ *   - assessments: Array<{ isGeneral, areaTitle, mainLevel, subLevel }>
+ *     - isGeneral: true, areaTitle: null (general), false + areaTitle (area)
+ */
+export async function upsertLevelAssessments({
+  assignmentId,
+  matrixId,
+  assessments,
+}: {
+  assignmentId: number;
+  matrixId: number;
+  assessments: Array<{
+    isGeneral: boolean;
+    areaTitle: string | null;
+    mainLevel: number;
+    subLevel: number;
+  }>;
+}) {
+  // Get all areas for this matrix
+  const areaRows = await db
+    .select({ id: compMatrixAreas.id, title: compMatrixAreas.title })
+    .from(compMatrixAreas)
+    .where(eq(compMatrixAreas.compMatrixId, matrixId));
+  const areaMap = new Map(areaRows.map((a) => [a.title, a.id]));
+
+  for (const assessment of assessments) {
+    let compMatrixAreaId: number | null = null;
+    if (!assessment.isGeneral && assessment.areaTitle) {
+      compMatrixAreaId = areaMap.get(assessment.areaTitle) ?? null;
+      if (!compMatrixAreaId) {
+        throw new Error(`Area not found: ${assessment.areaTitle}`);
+      }
+    }
+    await db
+      .insert(compMatrixLevelAssessments)
+      .values({
+        userCompMatrixAssignmentId: assignmentId,
+        compMatrixId: matrixId,
+        isGeneral: assessment.isGeneral,
+        compMatrixAreaId,
+        mainLevel: assessment.mainLevel,
+        subLevel: assessment.subLevel,
+      })
+      .onConflictDoUpdate({
+        target: [
+          compMatrixLevelAssessments.userCompMatrixAssignmentId,
+          compMatrixLevelAssessments.isGeneral,
+          compMatrixLevelAssessments.compMatrixAreaId,
+        ],
+        set: {
+          mainLevel: assessment.mainLevel,
+          subLevel: assessment.subLevel,
+          updatedAt: sql`CURRENT_TIMESTAMP`,
+        },
+      });
+  }
+}

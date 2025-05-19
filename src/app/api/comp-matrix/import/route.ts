@@ -8,6 +8,7 @@ import {
   getDefinitionMap,
   getRatingOptionMap,
   insertCurrentRatings,
+  upsertLevelAssessments,
 } from "~/server/db/data/comp-matrix-import-helpers";
 
 export async function POST(req: NextRequest) {
@@ -71,16 +72,16 @@ export async function POST(req: NextRequest) {
         await getBaseEntities({
           employeeName,
           employeeEmail,
-          managerId: parseInt(managerId),
-          functionId: parseInt(functionId),
-          orgUnitId: parseInt(orgUnitId),
-          archetypeId: parseInt(archetypeId),
-          matrixId: parseInt(matrixId),
+          managerId: parseInt(managerId!),
+          functionId: parseInt(functionId!),
+          orgUnitId: parseInt(orgUnitId!),
+          archetypeId: parseInt(archetypeId!),
+          matrixId: parseInt(matrixId!),
         });
 
       // Get definition and rating option maps
       const definitionMap = await getDefinitionMap();
-      const ratingOptionMap = await getRatingOptionMap(parseInt(matrixId));
+      const ratingOptionMap = await getRatingOptionMap(parseInt(matrixId!));
 
       // Read Excel file directly from buffer
       console.log("Reading Excel file from buffer");
@@ -89,10 +90,107 @@ export async function POST(req: NextRequest) {
 
       const teamSheet = workbook.Sheets["Team member assessment"];
       const managerSheet = workbook.Sheets["Manager assessment"];
+      const heatmapSheet = workbook.Sheets["Heatmap"];
 
       if (!teamSheet || !managerSheet) {
         throw new Error("Missing required sheets in the Excel file");
       }
+
+      // --- HEATMAP LEVEL ASSESSMENTS ---
+      let savedLevelAssessments: any[] = [];
+      if (heatmapSheet) {
+        console.log("[DEBUG] Heatmap sheet found");
+        // Helper to parse "4,3" or "4.3" to {mainLevel, subLevel}
+        function parseLevelValue(val: any) {
+          if (typeof val === "number") {
+            // Pl. 4.3 -> mainLevel: 4, subLevel: 3
+            const mainLevel = Math.floor(val);
+            const subLevel = Math.round((val - mainLevel) * 10);
+            return { mainLevel, subLevel };
+          }
+          if (typeof val === "string") {
+            // Pl. "4,3" vagy "4.3"
+            let match = val.trim().match(/^(\d+)[,.](\d+)$/);
+            if (match) {
+              return {
+                mainLevel: parseInt(match[1]!),
+                subLevel: parseInt(match[2]!),
+              };
+            }
+            // Pl. "E4.2" vagy "E4,2"
+            match = val.trim().match(/^E(\d+)[,.](\d+)$/i);
+            if (match) {
+              return {
+                mainLevel: parseInt(match[1]!),
+                subLevel: parseInt(match[2]!),
+              };
+            }
+          }
+          return null;
+        }
+        // Area cell mapping
+        const areaCells = [
+          { area: "Craftsmanship", cell: "J2" },
+          { area: "Collaboration", cell: "J7" },
+          { area: "Leadership", cell: "J11" },
+          { area: "Impact", cell: "J14" },
+        ];
+        const generalCell = "L2";
+        const assessments = [];
+        for (const { area, cell } of areaCells) {
+          const val = heatmapSheet[cell]?.v;
+          console.log(`[DEBUG] Heatmap cell ${cell} (${area}):`, val);
+          const parsed = parseLevelValue(val);
+          if (parsed) {
+            assessments.push({
+              isGeneral: false,
+              areaTitle: area,
+              mainLevel: parsed.mainLevel,
+              subLevel: parsed.subLevel,
+            });
+            savedLevelAssessments.push({
+              type: area,
+              mainLevel: parsed.mainLevel,
+              subLevel: parsed.subLevel,
+            });
+          }
+        }
+        // General
+        const generalVal = heatmapSheet[generalCell]?.v;
+        console.log(
+          `[DEBUG] Heatmap cell ${generalCell} (General):`,
+          generalVal,
+        );
+        const parsedGeneral = parseLevelValue(generalVal);
+        if (parsedGeneral) {
+          assessments.push({
+            isGeneral: true,
+            areaTitle: null,
+            mainLevel: parsedGeneral.mainLevel,
+            subLevel: parsedGeneral.subLevel,
+          });
+          savedLevelAssessments.push({
+            type: "General",
+            mainLevel: parsedGeneral.mainLevel,
+            subLevel: parsedGeneral.subLevel,
+          });
+        }
+        console.log("[DEBUG] Assessments to save:", assessments);
+        if (assessments.length > 0) {
+          console.log("[DEBUG] Calling upsertLevelAssessments with:", {
+            assignmentId: assignment.id,
+            matrixId: parseInt(matrixId!),
+            assessments,
+          });
+          await upsertLevelAssessments({
+            assignmentId: assignment.id,
+            matrixId: parseInt(matrixId!),
+            assessments,
+          });
+          console.log("[DEBUG] upsertLevelAssessments finished");
+        }
+      }
+      // --- END HEATMAP ---
 
       // Extract ratings
       const ratings = extractRatingsFromSheets(
@@ -105,7 +203,7 @@ export async function POST(req: NextRequest) {
       // Insert ratings
       await insertCurrentRatings({
         assignmentId: assignment.id,
-        matrixId: parseInt(matrixId),
+        matrixId: parseInt(matrixId!),
         managerId: manager.id,
         ratings,
       });
@@ -122,7 +220,7 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      return new Response(JSON.stringify({ messages }), {
+      return new Response(JSON.stringify({ messages, savedLevelAssessments }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       });
