@@ -1,13 +1,13 @@
-import type { UserWithArchetype } from "~/server/queries/user";
+import type { UserWithArchetypeAndAssignments } from "~/server/queries/user";
 
-export async function fetchUsers(): Promise<UserWithArchetype[]> {
+export async function fetchUsers(): Promise<UserWithArchetypeAndAssignments[]> {
   const res = await fetch("/api/users");
   if (!res.ok) throw new Error("Failed to fetch users");
   return res.json();
 }
 
 export async function fetchUsersWithActiveMatrixAssignments(): Promise<
-  UserWithArchetype[]
+  UserWithArchetypeAndAssignments[]
 > {
   const response = await fetch("/api/users/with-active-matrix-assignments");
   if (!response.ok) {

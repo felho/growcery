@@ -14,9 +14,10 @@ import { fetchOrgUnits } from "~/lib/client-api/org-units";
 import { fetchUserArchetypes } from "~/lib/client-api/user-archetypes";
 import { fetchCompMatrices } from "~/lib/client-api/comp-matrix";
 import { fetchUsersWithActiveMatrixAssignments } from "~/lib/client-api/users";
+import { fetchCompMatrixLevelAssessmentsByAssignmentIds } from "~/lib/client-api/comp-matrix-level-assessments";
 import { fetchCompMatrixCurrentRatingsByUserIds } from "~/lib/client-api/comp-matrix-current-rating";
 import { fetchCompMatrix } from "~/lib/client-api/comp-matrix";
-import type { UserWithArchetype } from "~/server/queries/user";
+import type { UserWithArchetypeAndAssignments } from "~/server/queries/user";
 import type { CompMatrixWithFullRelations } from "~/server/queries/comp-matrix";
 import {
   Building2 as Building2Icon,
@@ -30,6 +31,7 @@ import type { OrgUnit } from "~/server/queries/org-unit";
 import { AverageRatingsReport } from "./_reports/average-ratings";
 import { RatingDistributionReport } from "./_reports/rating-distribution";
 import { CompetencyGapsReport } from "./_reports/competency-gaps";
+import { LevelHistogram } from "./_reports/level-histogram";
 
 const CompMatrixReportsPage = () => {
   const [selectedReport, setSelectedReport] = React.useState<string | null>(
@@ -56,7 +58,7 @@ const CompMatrixReportsPage = () => {
   );
   const { data: matrices = [] } = useSWR("/comp-matrices", fetchCompMatrices);
   // SWR for users with active matrix assignments
-  const { data: users = [] } = useSWR<UserWithArchetype[]>(
+  const { data: users = [] } = useSWR<UserWithArchetypeAndAssignments[]>(
     "/api/users/with-active-matrix-assignments",
     fetchUsersWithActiveMatrixAssignments,
   );
@@ -89,7 +91,7 @@ const CompMatrixReportsPage = () => {
   };
 
   // Filter users by matrix, org unit (and children), and archetype
-  const getFilteredEmployees = (): UserWithArchetype[] => {
+  const getFilteredEmployees = (): UserWithArchetypeAndAssignments[] => {
     if (!selectedMatrixId) return [];
 
     if (selectedOrgUnit === null && selectedArchetype === null) {
@@ -128,6 +130,21 @@ const CompMatrixReportsPage = () => {
         ]
       : null,
     () => fetchCompMatrixCurrentRatingsByUserIds(userIds),
+  );
+
+  // SWR for compMatrixLevelAssessments by assignmentIds
+  const assignmentIds = filteredEmployees.flatMap(
+    (u) => u.userCompMatrixAssignments?.map((a) => a.id) ?? [],
+  );
+
+  const { data: compMatrixLevelAssessments } = useSWR(
+    assignmentIds.length > 0 && selectedMatrixId !== null
+      ? [
+          "/api/comp-matrix-level-assessments/by-assignment-ids",
+          assignmentIds.join(","),
+        ]
+      : null,
+    () => fetchCompMatrixLevelAssessmentsByAssignmentIds(assignmentIds),
   );
 
   // Calculate averages using calculationWeight from the ratingOption instead of managerRatingId directly
@@ -194,6 +211,7 @@ const CompMatrixReportsPage = () => {
                   Rating Distribution
                 </SelectItem>
                 <SelectItem value="gap">Competency Gaps</SelectItem>
+                <SelectItem value="level-histogram">Level Histogram</SelectItem>
               </SelectContent>
             </Select>
             <button
@@ -349,6 +367,15 @@ const CompMatrixReportsPage = () => {
           archetypes={archetypes}
         />
       )}
+
+      {selectedMatrix &&
+        reportLoaded &&
+        selectedReport === "level-histogram" &&
+        compMatrixLevelAssessments && (
+          <LevelHistogram
+            data={Object.values(compMatrixLevelAssessments).flat()}
+          />
+        )}
     </div>
   );
 };

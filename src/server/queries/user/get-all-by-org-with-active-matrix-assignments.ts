@@ -5,9 +5,13 @@ import { userCompMatrixAssignments } from "~/server/db/schema/tables/user_comp_m
 import { userArchetypes } from "~/server/db/schema/tables/user-archetypes";
 import type { UserWithArchetype } from "./index";
 
+export type UserWithArchetypeAndAssignments = UserWithArchetype & {
+  userCompMatrixAssignments: { id: number }[];
+};
+
 export async function getAllUsersWithActiveMatrixAssignmentsForOrg(
   organizationId: number,
-): Promise<UserWithArchetype[]> {
+): Promise<UserWithArchetypeAndAssignments[]> {
   const results = await db
     .select({
       id: users.id,
@@ -27,6 +31,7 @@ export async function getAllUsersWithActiveMatrixAssignmentsForOrg(
         name: userArchetypes.name,
         description: userArchetypes.description,
       },
+      assignmentId: userCompMatrixAssignments.id,
     })
     .from(users)
     .innerJoin(
@@ -42,8 +47,20 @@ export async function getAllUsersWithActiveMatrixAssignmentsForOrg(
     )
     .orderBy(asc(users.fullName));
 
-  return results.map((row) => ({
-    ...row,
-    archetype: row.archetype ?? null,
-  }));
+  const userMap = new Map<number, UserWithArchetypeAndAssignments>();
+
+  for (const row of results) {
+    const existing = userMap.get(row.id);
+    if (existing) {
+      existing.userCompMatrixAssignments.push({ id: row.assignmentId });
+    } else {
+      userMap.set(row.id, {
+        ...row,
+        archetype: row.archetype ?? null,
+        userCompMatrixAssignments: [{ id: row.assignmentId }],
+      });
+    }
+  }
+
+  return Array.from(userMap.values());
 }

@@ -11,6 +11,10 @@ export type UserWithArchetype = User & {
   archetype: InferSelectModel<typeof userArchetypes> | null;
 };
 
+export type UserWithArchetypeAndAssignments = UserWithArchetype & {
+  userCompMatrixAssignments: { id: number }[];
+};
+
 // Query exports
 export * from "./get-by-id";
 export * from "./get-by-auth-id";

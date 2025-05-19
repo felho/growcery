@@ -13,3 +13,26 @@ export async function fetchCompMatrixLevelAssessments(
 
   return response.json();
 }
+
+export async function fetchCompMatrixLevelAssessmentsByAssignmentIds(
+  userCompMatrixAssignmentIds: number[],
+): Promise<Record<number, LevelAssessment[]>> {
+  const response = await fetch(
+    "/api/comp-matrix-level-assessments/by-assignment-ids",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userCompMatrixAssignmentIds: userCompMatrixAssignmentIds,
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch level assessments by assignmentIds");
+  }
+
+  return response.json();
+}
