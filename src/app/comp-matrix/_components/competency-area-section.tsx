@@ -26,6 +26,7 @@ interface CompetencyAreaSectionProps {
   referenceUserIds: number[];
   userCompMatrixAssignmentId?: number;
   levelAssessments?: LevelAssessment[];
+  onLevelAssessmentSave?: () => void;
 }
 
 const CompetencyAreaSection: React.FC<CompetencyAreaSectionProps> = ({
@@ -40,6 +41,7 @@ const CompetencyAreaSection: React.FC<CompetencyAreaSectionProps> = ({
   referenceUserIds,
   userCompMatrixAssignmentId,
   levelAssessments,
+  onLevelAssessmentSave,
 }) => {
   const areaAssessment = levelAssessments?.find(
     (a) => !a.isGeneral && a.compMatrixAreaId === area.id,
@@ -61,6 +63,7 @@ const CompetencyAreaSection: React.FC<CompetencyAreaSectionProps> = ({
                 initialMainLevel={areaAssessment?.mainLevel}
                 initialSubLevel={areaAssessment?.subLevel}
                 maxLevel={levels.length}
+                onSave={onLevelAssessmentSave}
               />
             )}
         </div>

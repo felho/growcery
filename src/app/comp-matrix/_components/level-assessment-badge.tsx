@@ -14,6 +14,7 @@ interface LevelAssessmentBadgeProps {
   initialMainLevel?: number;
   initialSubLevel?: number;
   maxLevel: number;
+  onSave?: () => void;
 }
 
 export function LevelAssessmentBadge({
@@ -24,6 +25,7 @@ export function LevelAssessmentBadge({
   initialMainLevel,
   initialSubLevel,
   maxLevel,
+  onSave,
 }: LevelAssessmentBadgeProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [mainLevel, setMainLevel] = useState(
@@ -68,6 +70,7 @@ export function LevelAssessmentBadge({
 
       toast.success("Level assessment saved");
       setIsEditing(false);
+      onSave?.();
     } catch (error) {
       toast.error("Failed to save level assessment");
     } finally {

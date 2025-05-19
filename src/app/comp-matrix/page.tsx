@@ -293,6 +293,18 @@ const CompMatrixPage = () => {
     // mutate(`/api/comp-matrix-current-ratings?assignmentId=${assignment.id}`);
   };
 
+  const handleLevelAssessmentSave = async () => {
+    if (!assignment?.id) return;
+
+    try {
+      const assessments = await fetchCompMatrixLevelAssessments(assignment.id);
+      setLevelAssessments(assessments);
+    } catch (error) {
+      console.error("Error refreshing level assessments:", error);
+      toast.error("Failed to refresh level assessments");
+    }
+  };
+
   return (
     <div className="animate-fade-in space-y-6">
       <h1 className="mb-0.5 text-3xl font-bold">Competency Matrix</h1>
@@ -473,6 +485,7 @@ const CompMatrixPage = () => {
             referenceUserIds={referenceUserIds}
             userCompMatrixAssignmentId={assignment?.id}
             levelAssessments={levelAssessments}
+            onLevelAssessmentSave={handleLevelAssessmentSave}
           />
         )}
     </div>

@@ -35,6 +35,7 @@ interface CompetencyMatrixProps {
   referenceUserIds: number[];
   userCompMatrixAssignmentId?: number;
   levelAssessments?: LevelAssessment[];
+  onLevelAssessmentSave?: () => void;
 }
 
 export const CompetencyMatrix = ({
@@ -52,6 +53,7 @@ export const CompetencyMatrix = ({
   referenceUserIds,
   userCompMatrixAssignmentId,
   levelAssessments,
+  onLevelAssessmentSave,
 }: CompetencyMatrixProps) => {
   return (
     <Card>
@@ -109,6 +111,7 @@ export const CompetencyMatrix = ({
                   referenceUserIds={referenceUserIds}
                   userCompMatrixAssignmentId={userCompMatrixAssignmentId}
                   levelAssessments={levelAssessments}
+                  onLevelAssessmentSave={onLevelAssessmentSave}
                 />
               );
             })}
