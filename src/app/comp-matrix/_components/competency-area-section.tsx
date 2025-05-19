@@ -53,6 +53,7 @@ const CompetencyAreaSection: React.FC<CompetencyAreaSectionProps> = ({
         <div className="flex items-center gap-2">
           <span>{area.title}</span>
           {phase === "calibration" &&
+            viewMode === "manager" &&
             userCompMatrixAssignmentId &&
             compMatrixId && (
               <div className="-mt-[2px]">
