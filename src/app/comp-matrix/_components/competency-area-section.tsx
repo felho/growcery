@@ -55,16 +55,18 @@ const CompetencyAreaSection: React.FC<CompetencyAreaSectionProps> = ({
           {phase === "calibration" &&
             userCompMatrixAssignmentId &&
             compMatrixId && (
-              <LevelAssessmentBadge
-                userCompMatrixAssignmentId={userCompMatrixAssignmentId}
-                compMatrixId={compMatrixId}
-                isGeneral={false}
-                compMatrixAreaId={area.id}
-                initialMainLevel={areaAssessment?.mainLevel}
-                initialSubLevel={areaAssessment?.subLevel}
-                maxLevel={levels.length}
-                onSave={onLevelAssessmentSave}
-              />
+              <div className="-mt-[2px]">
+                <LevelAssessmentBadge
+                  userCompMatrixAssignmentId={userCompMatrixAssignmentId}
+                  compMatrixId={compMatrixId}
+                  isGeneral={false}
+                  compMatrixAreaId={area.id}
+                  initialMainLevel={areaAssessment?.mainLevel}
+                  initialSubLevel={areaAssessment?.subLevel}
+                  maxLevel={levels.length}
+                  onSave={onLevelAssessmentSave}
+                />
+              </div>
             )}
         </div>
         {area.shortDescription && (
