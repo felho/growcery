@@ -61,8 +61,8 @@ export const CompetencyMatrix = ({
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>
-              {getCurrentEmployee()?.name
-                ? `${getCurrentEmployee()?.name}'s Competency Assessment`
+              {getCurrentEmployee()?.fullName
+                ? `${getCurrentEmployee()?.fullName}'s Competency Assessment`
                 : "Competency Assessment"}
             </CardTitle>
             <CardDescription>
