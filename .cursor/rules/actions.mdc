@@ -25,21 +25,16 @@ alwaysApply: false
 - Purpose: Wrap server-side mutations using `next-safe-action`
 - Validation: Use Zod schemas from `~/zod-schemas/`
 - Dependencies: Import from corresponding `queries` modules
-- Auth: Include explicit auth checks in every action
 
 ## Example Structure
 ```typescript
 import { action } from "~/lib/safe-action";
 import { createUserSchema } from "~/zod-schemas/users";
 import { createUser } from "~/server/queries/users";
-import { requireUserId } from "~/lib/auth";
 
 export const createUserAction = action(
   createUserSchema,
   async ({ data }) => {
-    // Auth check
-    const userId = await requireUserId();
-    
     // Perform operation
     return createUser(data);
   }
