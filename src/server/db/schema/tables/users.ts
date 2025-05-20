@@ -21,6 +21,7 @@ export const users = createTable(
       .notNull()
       .references(() => organizations.id),
     fullName: varchar({ length: 250 }).notNull(),
+    fullNameBackup: varchar({ length: 250 }),
     email: varchar({ length: 500 }).notNull().unique(),
     orgUnitId: bigint({ mode: "number" }).references(() => orgUnits.id),
     functionId: bigint({ mode: "number" }).references(() => functions.id),
