@@ -9,8 +9,7 @@ export const levelAssessmentSchema = z.object({
   subLevel: z.number().min(1).max(3),
 });
 
-// TODO: Rename to CompMatrixLevelAssessment for clarity and consistency
-export type LevelAssessment = z.infer<typeof levelAssessmentSchema>;
+export type CompMatrixLevelAssessment = z.infer<typeof levelAssessmentSchema>;
 
 // Schema for creating/updating from the client
 export const createLevelAssessmentSchema = levelAssessmentSchema;

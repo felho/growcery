@@ -1,9 +1,9 @@
 import { db } from "~/server/db";
 import { compMatrixLevelAssessments } from "~/server/db/schema/tables/comp-matrix-level-assessments";
 import { and, eq } from "drizzle-orm";
-import type { LevelAssessment } from "~/zod-schemas/comp-matrix-level-assessment";
+import type { CompMatrixLevelAssessment } from "~/zod-schemas/comp-matrix-level-assessment";
 
-export async function createLevelAssessment(data: LevelAssessment) {
+export async function createLevelAssessment(data: CompMatrixLevelAssessment) {
   // Check if assessment already exists
   const existing = await db.query.compMatrixLevelAssessments.findFirst({
     where: and(

@@ -18,7 +18,7 @@ import type {
   CompMatrixCellSavePayloadUI,
   CompMatrixRatingsForUIMap,
 } from "~/server/queries/comp-matrix-current-rating";
-import type { LevelAssessment } from "~/zod-schemas/comp-matrix-level-assessment";
+import type { CompMatrixLevelAssessment } from "~/zod-schemas/comp-matrix-level-assessment";
 import { LevelAssessmentBadge } from "./level-assessment-badge";
 
 interface CompetencyMatrixProps {
@@ -35,7 +35,7 @@ interface CompetencyMatrixProps {
   onSaveCell: (uiPayload: CompMatrixCellSavePayloadUI) => Promise<void>;
   referenceUserIds: number[];
   userCompMatrixAssignmentId?: number;
-  levelAssessments?: LevelAssessment[];
+  levelAssessments?: CompMatrixLevelAssessment[];
   onLevelAssessmentSave?: () => void;
 }
 

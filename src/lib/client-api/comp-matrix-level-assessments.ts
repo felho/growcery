@@ -1,8 +1,8 @@
-import type { LevelAssessment } from "~/zod-schemas/comp-matrix-level-assessment";
+import type { CompMatrixLevelAssessment } from "~/zod-schemas/comp-matrix-level-assessment";
 
 export async function fetchCompMatrixLevelAssessments(
   userCompMatrixAssignmentId: number,
-): Promise<LevelAssessment[]> {
+): Promise<CompMatrixLevelAssessment[]> {
   const response = await fetch(
     `/api/comp-matrix-level-assessments?userCompMatrixAssignmentId=${userCompMatrixAssignmentId}`,
   );
@@ -16,7 +16,7 @@ export async function fetchCompMatrixLevelAssessments(
 
 export async function fetchCompMatrixLevelAssessmentsByAssignmentIds(
   userCompMatrixAssignmentIds: number[],
-): Promise<Record<number, LevelAssessment[]>> {
+): Promise<Record<number, CompMatrixLevelAssessment[]>> {
   const response = await fetch(
     "/api/comp-matrix-level-assessments/by-assignment-ids",
     {

@@ -37,7 +37,7 @@ import type { OrgUnit } from "~/server/queries/org-unit";
 import type { UserWithArchetype } from "~/server/queries/user";
 import type { UserArchetype } from "~/server/queries/user-archetype";
 import { fetchCompMatrixLevelAssessments } from "~/lib/client-api/comp-matrix-level-assessments";
-import type { LevelAssessment } from "~/zod-schemas/comp-matrix-level-assessment";
+import type { CompMatrixLevelAssessment } from "~/zod-schemas/comp-matrix-level-assessment";
 
 const CompMatrixPage = () => {
   const [phase, setPhase] = useState<Phase>("assessment");
@@ -216,9 +216,9 @@ const CompMatrixPage = () => {
   const [compMatrixData, setCompMatrixData] = useState<any>(null);
   const [ratingOptions, setRatingOptions] = useState<any>(null);
   const [compMatrixCurrentRatings, setCurrentRatings] = useState<any>(null);
-  const [levelAssessments, setLevelAssessments] = useState<LevelAssessment[]>(
-    [],
-  );
+  const [levelAssessments, setLevelAssessments] = useState<
+    CompMatrixLevelAssessment[]
+  >([]);
 
   const handleLoadMatrix = async () => {
     if (!selectedEmployee) {

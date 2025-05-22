@@ -11,10 +11,10 @@ import {
 } from "recharts";
 import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/card";
 import { cn } from "~/lib/utils";
-import type { LevelAssessment } from "~/zod-schemas/comp-matrix-level-assessment";
+import type { CompMatrixLevelAssessment } from "~/zod-schemas/comp-matrix-level-assessment";
 
 interface Props {
-  data: LevelAssessment[];
+  data: CompMatrixLevelAssessment[];
 }
 
 interface HistogramRow {
