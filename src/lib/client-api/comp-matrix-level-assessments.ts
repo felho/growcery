@@ -1,4 +1,4 @@
-import type { LevelAssessment } from "~/zod-schemas/comp-matrix-level-assessments";
+import type { LevelAssessment } from "~/zod-schemas/comp-matrix-level-assessment";
 
 export async function fetchCompMatrixLevelAssessments(
   userCompMatrixAssignmentId: number,

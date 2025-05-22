@@ -1,7 +1,7 @@
 import { db } from "~/server/db";
 import { compMatrixLevelAssessments } from "~/server/db/schema/tables/comp-matrix-level-assessments";
 import { and, eq } from "drizzle-orm";
-import type { LevelAssessment } from "~/zod-schemas/comp-matrix-level-assessments";
+import type { LevelAssessment } from "~/zod-schemas/comp-matrix-level-assessment";
 
 export async function createLevelAssessment(data: LevelAssessment) {
   // Check if assessment already exists

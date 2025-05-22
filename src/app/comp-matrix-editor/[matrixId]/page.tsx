@@ -45,7 +45,7 @@ import type { CompMatrixWithFullRelations } from "~/server/queries/comp-matrix";
 import { reorderLevelsAction } from "~/server/actions/comp-matrix-levels/reorder";
 import { updateLevelAction } from "~/server/actions/comp-matrix-levels/update";
 import { createLevelAction } from "~/server/actions/comp-matrix-levels/create";
-import type { CreateLevelInputFromForm } from "~/zod-schemas/comp-matrix-levels";
+import type { CreateLevelInputFromForm } from "~/zod-schemas/comp-matrix-level";
 import { deleteLevelAction } from "~/server/actions/comp-matrix-levels/delete";
 import { createCompMatrixAreaAction } from "~/server/actions/comp-matrix-area/create";
 import { updateCompMatrixAreaAction } from "~/server/actions/comp-matrix-area/update";

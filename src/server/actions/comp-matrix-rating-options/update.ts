@@ -1,7 +1,7 @@
 "use server";
 
 import { actionClient } from "~/lib/safe-action";
-import { updateRatingOptionSchema } from "~/zod-schemas/comp-matrix-rating-options";
+import { updateRatingOptionSchema } from "~/zod-schemas/comp-matrix-rating-option";
 import { updateCompMatrixRatingOption } from "~/server/queries/comp-matrix-rating-option/update";
 import { flattenValidationErrors } from "next-safe-action";
 export const updateRatingOptionAction = actionClient

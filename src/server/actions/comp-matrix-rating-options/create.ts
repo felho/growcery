@@ -1,7 +1,7 @@
 "use server";
 
 import { actionClient } from "~/lib/safe-action";
-import { createRatingOptionSchema } from "~/zod-schemas/comp-matrix-rating-options";
+import { createRatingOptionSchema } from "~/zod-schemas/comp-matrix-rating-option";
 import { createCompMatrixRatingOption } from "~/server/queries/comp-matrix-rating-option/create";
 import { flattenValidationErrors } from "next-safe-action";
 

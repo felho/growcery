@@ -1,7 +1,7 @@
 import { db } from "~/server/db";
 import { compMatrixLevels } from "~/server/db/schema";
 import { eq, gte, and, sql } from "drizzle-orm";
-import type { CreateLevelInput } from "~/zod-schemas/comp-matrix-levels";
+import type { CreateLevelInput } from "~/zod-schemas/comp-matrix-level";
 
 export async function createLevel(input: CreateLevelInput) {
   const {

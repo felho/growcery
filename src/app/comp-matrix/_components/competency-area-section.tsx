@@ -12,7 +12,7 @@ import type {
 import type { CompMatrixCompetencyWithDefinitions } from "~/server/queries/comp-matrix-competency";
 import type { CompMatrixLevel } from "~/server/queries/comp-matrix-level";
 import { LevelAssessmentBadge } from "./level-assessment-badge";
-import type { LevelAssessment } from "~/zod-schemas/comp-matrix-level-assessments";
+import type { LevelAssessment } from "~/zod-schemas/comp-matrix-level-assessment";
 
 interface CompetencyAreaSectionProps {
   levels: CompMatrixLevel[];

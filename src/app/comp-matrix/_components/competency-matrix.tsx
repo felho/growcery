@@ -18,7 +18,7 @@ import type {
   CompMatrixCellSavePayloadUI,
   CompMatrixRatingsForUIMap,
 } from "~/server/queries/comp-matrix-current-rating";
-import type { LevelAssessment } from "~/zod-schemas/comp-matrix-level-assessments";
+import type { LevelAssessment } from "~/zod-schemas/comp-matrix-level-assessment";
 import { LevelAssessmentBadge } from "./level-assessment-badge";
 
 interface CompetencyMatrixProps {

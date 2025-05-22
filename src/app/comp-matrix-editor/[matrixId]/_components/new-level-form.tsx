@@ -21,7 +21,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   createLevelSchemaFromForm,
   type CreateLevelInputFromForm,
-} from "~/zod-schemas/comp-matrix-levels";
+} from "~/zod-schemas/comp-matrix-level";
 
 interface NewLevelFormProps {
   showForm: boolean;

@@ -3,7 +3,7 @@
 import { db } from "~/server/db";
 import { compMatrixLevelAssessments } from "~/server/db/schema/tables/comp-matrix-level-assessments";
 import { and, eq } from "drizzle-orm";
-import { levelAssessmentSchema } from "~/zod-schemas/comp-matrix-level-assessments";
+import { levelAssessmentSchema } from "~/zod-schemas/comp-matrix-level-assessment";
 
 export async function updateLevelAssessmentAction(data: {
   userCompMatrixAssignmentId: number;

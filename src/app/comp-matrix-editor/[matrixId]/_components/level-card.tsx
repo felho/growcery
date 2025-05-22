@@ -23,7 +23,7 @@ import {
 } from "~/components/ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { updateLevelSchema } from "~/zod-schemas/comp-matrix-levels";
+import { updateLevelSchema } from "~/zod-schemas/comp-matrix-level";
 import {
   AlertDialog,
   AlertDialogAction,

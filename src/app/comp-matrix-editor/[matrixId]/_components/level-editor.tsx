@@ -20,7 +20,7 @@ import { LevelCard } from "./level-card";
 import { NewLevelForm } from "./new-level-form";
 import { toast } from "sonner";
 import { useParams } from "next/navigation";
-import { type CreateLevelInputFromForm } from "~/zod-schemas/comp-matrix-levels";
+import { type CreateLevelInputFromForm } from "~/zod-schemas/comp-matrix-level";
 
 interface LevelMetadata {
   title: string;
