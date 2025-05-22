@@ -2,7 +2,7 @@
 
 import { DeleteDialog } from "../../_components/delete-dialog";
 import { useAction } from "next-safe-action/hooks";
-import { deleteOrgUnitAction } from "~/server/actions/org-units/delete";
+import { deleteOrgUnitAction } from "~/server/actions/org-unit/delete";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { useRouter } from "next/navigation";

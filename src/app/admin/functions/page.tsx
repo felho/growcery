@@ -24,7 +24,7 @@ import type { Function } from "~/server/queries/function";
 import useSWR from "swr";
 import { fetchFunctions } from "~/lib/client-api";
 import { useAction } from "next-safe-action/hooks";
-import { deleteFunctionAction } from "~/server/actions/functions/delete";
+import { deleteFunctionAction } from "~/server/actions/function/delete";
 import { DeleteFunctionDialog } from "./_components/delete-function-dialog";
 
 export default function FunctionsPage() {

@@ -42,11 +42,11 @@ import type { CompMatrix } from "~/server/queries/comp-matrix";
 import { fetchFunctions } from "~/lib/client-api/functions";
 import type { Function } from "~/server/queries/function";
 import type { CompMatrixWithFullRelations } from "~/server/queries/comp-matrix";
-import { reorderLevelsAction } from "~/server/actions/comp-matrix-levels/reorder";
-import { updateLevelAction } from "~/server/actions/comp-matrix-levels/update";
-import { createLevelAction } from "~/server/actions/comp-matrix-levels/create";
+import { reorderLevelsAction } from "~/server/actions/comp-matrix-level/reorder";
+import { updateLevelAction } from "~/server/actions/comp-matrix-level/update";
+import { createLevelAction } from "~/server/actions/comp-matrix-level/create";
 import type { CreateLevelInputFromForm } from "~/zod-schemas/comp-matrix-level";
-import { deleteLevelAction } from "~/server/actions/comp-matrix-levels/delete";
+import { deleteLevelAction } from "~/server/actions/comp-matrix-level/delete";
 import { createCompMatrixAreaAction } from "~/server/actions/comp-matrix-area/create";
 import { updateCompMatrixAreaAction } from "~/server/actions/comp-matrix-area/update";
 import type { CompMatrixAreaEditUI } from "~/server/queries/comp-matrix-area";
@@ -62,10 +62,10 @@ import type {
   CompMatrixRatingOptionUI,
   NewCompMatrixRatingOptionUI,
 } from "~/server/queries/comp-matrix-rating-option";
-import { createRatingOptionAction } from "~/server/actions/comp-matrix-rating-options/create";
-import { deleteRatingOptionAction } from "~/server/actions/comp-matrix-rating-options/delete";
-import { updateRatingOptionAction } from "~/server/actions/comp-matrix-rating-options/update";
-import { reorderRatingOptionsAction } from "~/server/actions/comp-matrix-rating-options/reorder";
+import { createRatingOptionAction } from "~/server/actions/comp-matrix-rating-option/create";
+import { deleteRatingOptionAction } from "~/server/actions/comp-matrix-rating-option/delete";
+import { updateRatingOptionAction } from "~/server/actions/comp-matrix-rating-option/update";
+import { reorderRatingOptionsAction } from "~/server/actions/comp-matrix-rating-option/reorder";
 import { reorderCompMatrixCompetenciesAction } from "~/server/actions/comp-matrix-competency/reorder";
 import type { CompMatrixCompetencyWithDefinitions } from "~/server/queries/comp-matrix-competency";
 

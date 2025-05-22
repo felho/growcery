@@ -13,8 +13,8 @@ import {
 } from "~/zod-schemas/user-archetype";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAction } from "next-safe-action/hooks";
-import { createUserArchetypeAction } from "~/server/actions/user-archetypes/create";
-import { updateUserArchetypeAction } from "~/server/actions/user-archetypes/update";
+import { createUserArchetypeAction } from "~/server/actions/user-archetype/create";
+import { updateUserArchetypeAction } from "~/server/actions/user-archetype/update";
 import { toast } from "sonner";
 import { LoaderCircle as LoaderCircleIcon } from "lucide-react";
 import { useRouter } from "next/navigation";

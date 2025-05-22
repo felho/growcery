@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Pencil, Save, X } from "lucide-react";
 import { Input } from "~/components/ui/input";
 import { cn } from "~/lib/utils";
-import { createLevelAssessmentAction } from "~/server/actions/comp-matrix-level-assessments/create";
-import { updateLevelAssessmentAction } from "~/server/actions/comp-matrix-level-assessments/update";
+import { createLevelAssessmentAction } from "~/server/actions/comp-matrix-level-assessment/create";
+import { updateLevelAssessmentAction } from "~/server/actions/comp-matrix-level-assessment/update";
 import { toast } from "sonner";
 
 interface LevelAssessmentBadgeProps {

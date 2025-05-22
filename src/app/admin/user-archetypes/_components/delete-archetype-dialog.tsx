@@ -2,7 +2,7 @@
 
 import { DeleteDialog } from "../../_components/delete-dialog";
 import { useAction } from "next-safe-action/hooks";
-import { deleteUserArchetypeAction } from "~/server/actions/user-archetypes/delete";
+import { deleteUserArchetypeAction } from "~/server/actions/user-archetype/delete";
 import { toast } from "sonner";
 
 interface DeleteArchetypeDialogProps {

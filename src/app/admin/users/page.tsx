@@ -26,7 +26,7 @@ import useSWR from "swr";
 import { fetchUsers } from "~/lib/client-api";
 import type { UserWithArchetype } from "~/server/queries/user";
 import { useAction } from "next-safe-action/hooks";
-import { deleteUserAction } from "~/server/actions/users/delete";
+import { deleteUserAction } from "~/server/actions/user/delete";
 import { DeleteUserDialog } from "./_components/delete-user-dialog";
 
 export default function UsersPage() {
