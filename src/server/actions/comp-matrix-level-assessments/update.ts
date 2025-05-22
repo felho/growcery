@@ -3,7 +3,7 @@
 import { db } from "~/server/db";
 import { compMatrixLevelAssessments } from "~/server/db/schema/tables/comp-matrix-level-assessments";
 import { and, eq } from "drizzle-orm";
-import { levelAssessmentSchema } from "~/zod-schemas/comp-matrix-level-assessment";
+import { compMatrixLevelAssessmentSchema } from "~/zod-schemas/comp-matrix-level-assessment";
 
 export async function updateLevelAssessmentAction(data: {
   userCompMatrixAssignmentId: number;
@@ -13,7 +13,7 @@ export async function updateLevelAssessmentAction(data: {
   mainLevel: number;
   subLevel: number;
 }) {
-  const validatedData = levelAssessmentSchema.parse(data);
+  const validatedData = compMatrixLevelAssessmentSchema.parse(data);
 
   const existing = await db.query.compMatrixLevelAssessments.findFirst({
     where: and(

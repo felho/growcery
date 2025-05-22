@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const levelAssessmentSchema = z.object({
+export const compMatrixLevelAssessmentSchema = z.object({
   userCompMatrixAssignmentId: z.number(),
   compMatrixId: z.number(),
   isGeneral: z.boolean(),
@@ -9,7 +9,10 @@ export const levelAssessmentSchema = z.object({
   subLevel: z.number().min(1).max(3),
 });
 
-export type CompMatrixLevelAssessment = z.infer<typeof levelAssessmentSchema>;
+export type CompMatrixLevelAssessment = z.infer<
+  typeof compMatrixLevelAssessmentSchema
+>;
 
 // Schema for creating/updating from the client
-export const createLevelAssessmentSchema = levelAssessmentSchema;
+export const createCompMatrixLevelAssessmentSchema =
+  compMatrixLevelAssessmentSchema;
