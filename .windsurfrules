@@ -14,6 +14,8 @@
 - Organize components by feature/domain in the app directory.
 - Keep reusable UI components in the components/ui directory.
 - Place server-side logic in the server directory.
+- Use plural names for API routes (e.g., /api/users, not /api/user).
+- Use singular names for Zod schemas.
 
 # Authentication & Authorization
 
@@ -47,6 +49,9 @@
 - Implement server actions in the server/actions directory.
 - Use consistent naming for database tables with the "growcery\_" prefix.
 - Implement proper error handling for database operations.
+- Use plural names for API endpoints (e.g., /api/users).
+- Use singular names for server actions directories (e.g., comp-matrix-level, not comp-matrix-levels).
+- Use singular names for queries directories (e.g., comp-matrix-level, not comp-matrix-levels).
 
 # Testing & Quality Assurance
 
