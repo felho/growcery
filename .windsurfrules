@@ -1,0 +1,56 @@
+# General Code Style & Formatting
+
+- Use Kebab Case for React component file names (e.g., user-card.tsx).
+- Use TypeScript for type safety throughout the project.
+- Follow consistent import ordering (React imports first, then external libraries, then internal modules).
+- Use named exports for components.
+- Maintain consistent code formatting using Prettier.
+
+# Project Structure & Architecture
+
+- Follow Next.js patterns and use the App Router.
+- Correctly determine when to use server vs. client components in Next.js.
+- Use "use client" directive only when necessary for client components.
+- Organize components by feature/domain in the app directory.
+- Keep reusable UI components in the components/ui directory.
+- Place server-side logic in the server directory.
+
+# Authentication & Authorization
+
+- Follow security best practices for handling user data.
+- Ensure OWASP top 10 are not violated.
+
+# Styling & UI
+
+- Use Tailwind CSS for styling.
+- Use Shadcn UI for components.
+- Maintain a consistent design system (colors, spacing, typography).
+- Use CSS variables for theme customization.
+
+# Data Fetching & Forms
+
+- Use React Hook Form for form handling.
+- Use Zod for validation.
+- Place Zod schemas in the zod-schemas directory for reusability.
+- Implement proper error handling for form submissions.
+
+# State Management & Logic
+
+- Use React's built-in state management where appropriate.
+- Consider SWR for data fetching and caching.
+- Keep business logic separate from UI components.
+
+# Backend & Database
+
+- Use Drizzle for database access.
+- Follow the established schema organization in server/db/schema.
+- Implement server actions in the server/actions directory.
+- Use consistent naming for database tables with the "growcery\_" prefix.
+- Implement proper error handling for database operations.
+
+# Testing & Quality Assurance
+
+<!-- - Write unit tests for critical components and logic.
+- Implement end-to-end tests for key user flows.
+- Use ESLint for code quality checks.
+- Maintain high code coverage for critical paths. -->
