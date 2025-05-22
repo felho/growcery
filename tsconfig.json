@@ -32,7 +32,6 @@
   },
   "include": [
     "next-env.d.ts",
-    "src/types/react-beautiful-dnd.d.ts",
     "**/*.ts",
     "**/*.tsx",
     "**/*.cjs",
