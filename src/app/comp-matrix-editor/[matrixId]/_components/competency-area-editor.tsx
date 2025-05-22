@@ -44,7 +44,7 @@ import type {
 } from "~/server/queries/comp-matrix-area";
 import type { CompMatrixCompetencyWithDefinitions } from "~/server/queries/comp-matrix-competency";
 import CompetencyArea from "./competency-area";
-import type { CompMatrixLevel } from "~/server/queries/comp-matrix-level";
+import type { CompMatrixLevel } from "~/server/queries/comp-matrix-levels";
 
 interface CompetencyAreaEditorProps {
   areas: CompMatrixAreaWithFullRelations[];

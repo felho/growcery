@@ -10,7 +10,7 @@ import type {
   CompMatrixRatingsForUIMap,
   CompMatrixReferenceRatings,
 } from "~/server/queries/comp-matrix-current-rating";
-import type { CompMatrixLevel } from "~/server/queries/comp-matrix-level";
+import type { CompMatrixLevel } from "~/server/queries/comp-matrix-levels";
 import { type ViewMode, type Phase } from "./types";
 import { fetchCompMatrixReferenceRatings } from "~/lib/client-api/comp-matrix-reference-ratings";
 
