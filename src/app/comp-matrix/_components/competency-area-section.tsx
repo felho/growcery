@@ -10,7 +10,7 @@ import type {
   CompMatrixRatingsForUIMap,
 } from "~/server/queries/comp-matrix-current-rating";
 import type { CompMatrixCompetencyWithDefinitions } from "~/server/queries/comp-matrix-competency";
-import type { CompMatrixLevel } from "~/server/queries/comp-matrix-levels";
+import type { CompMatrixLevel } from "~/server/queries/comp-matrix-level";
 import { LevelAssessmentBadge } from "./level-assessment-badge";
 import type { CompMatrixLevelAssessment } from "~/zod-schemas/comp-matrix-level-assessment";
 

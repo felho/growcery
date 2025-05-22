@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getLevelAssessments } from "~/server/queries/comp-matrix-level-assessments/get";
+import { getLevelAssessments } from "~/server/queries/comp-matrix-level-assessment/get";
 import { updateLevelAssessmentAction } from "~/server/actions/comp-matrix-level-assessments/update";
 
 export async function GET(request: Request) {

@@ -1,4 +1,4 @@
-import type { UserCompMatrixAssignment } from "~/server/queries/user_comp_matrix_assignments";
+import type { UserCompMatrixAssignment } from "~/server/queries/user_comp_matrix_assignment";
 
 export async function fetchActiveUserCompMatrixAssignment(
   userId: number,

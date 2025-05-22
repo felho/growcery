@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { getActiveUserCompMatrixAssignmentByUserId } from "~/server/queries/user_comp_matrix_assignments";
+import { getActiveUserCompMatrixAssignmentByUserId } from "~/server/queries/user_comp_matrix_assignment";
 
 export async function GET(
   req: NextRequest,

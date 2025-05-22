@@ -2,7 +2,7 @@
 
 import { actionClient } from "~/lib/safe-action";
 import { flattenValidationErrors } from "next-safe-action";
-import { updateLevel } from "~/server/queries/comp-matrix-levels/update";
+import { updateLevel } from "~/server/queries/comp-matrix-level/update";
 import { updateLevelSchema } from "~/zod-schemas/comp-matrix-level";
 
 export const updateLevelAction = actionClient

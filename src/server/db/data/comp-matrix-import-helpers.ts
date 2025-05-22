@@ -17,7 +17,7 @@ import {
 import {
   createUserCompMatrixAssignment,
   getActiveUserCompMatrixAssignmentByUserId,
-} from "../../queries/user_comp_matrix_assignments";
+} from "../../queries/user_comp_matrix_assignment";
 import { getAllOrgUnitsForOrg } from "../../queries/org-unit";
 import type { OptionValues } from "commander";
 

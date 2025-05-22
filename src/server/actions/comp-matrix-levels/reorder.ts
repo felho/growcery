@@ -2,7 +2,7 @@
 
 import { actionClient } from "~/lib/safe-action";
 import { flattenValidationErrors } from "next-safe-action";
-import { reorderLevels } from "~/server/queries/comp-matrix-levels/reorder";
+import { reorderLevels } from "~/server/queries/comp-matrix-level/reorder";
 import { reorderLevelsSchema } from "~/zod-schemas/comp-matrix-level";
 
 export const reorderLevelsAction = actionClient

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import type { CompMatrixLevel } from "~/server/queries/comp-matrix-levels";
+import type { CompMatrixLevel } from "~/server/queries/comp-matrix-level";
 interface CompetencyMatrixHeaderProps {
   levels: CompMatrixLevel[];
 }
