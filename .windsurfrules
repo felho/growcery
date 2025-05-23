@@ -5,7 +5,8 @@
 - Follow consistent import ordering (React imports first, then external libraries, then internal modules).
 - Use named exports for components.
 - Maintain consistent code formatting using Prettier.
-- Always use English for variable names, function names, and comments.
+- Always use English for variable names, function names.
+- Never use non-English for comments.
 
 # Project Structure & Architecture
 
