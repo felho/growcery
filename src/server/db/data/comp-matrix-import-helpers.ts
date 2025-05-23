@@ -320,6 +320,23 @@ export async function upsertLevelAssessments({
     .where(eq(compMatrixAreas.compMatrixId, matrixId));
   const areaMap = new Map(areaRows.map((a) => [a.title, a.id]));
 
+  // First, let's find all existing assessments for this assignment
+  const existingAssessments = await db
+    .select()
+    .from(compMatrixLevelAssessments)
+    .where(eq(compMatrixLevelAssessments.userCompMatrixAssignmentId, assignmentId));
+  
+  // Create a map for quick lookup
+  const existingAssessmentsMap = new Map();
+  for (const existing of existingAssessments) {
+    if (existing.isGeneral) {
+      existingAssessmentsMap.set('general', existing);
+    } else if (existing.compMatrixAreaId) {
+      existingAssessmentsMap.set(`area-${existing.compMatrixAreaId}`, existing);
+    }
+  }
+
+  // Process each assessment
   for (const assessment of assessments) {
     let compMatrixAreaId: number | null = null;
     if (!assessment.isGeneral && assessment.areaTitle) {
@@ -328,27 +345,33 @@ export async function upsertLevelAssessments({
         throw new Error(`Area not found: ${assessment.areaTitle}`);
       }
     }
-    await db
-      .insert(compMatrixLevelAssessments)
-      .values({
-        userCompMatrixAssignmentId: assignmentId,
-        compMatrixId: matrixId,
-        isGeneral: assessment.isGeneral,
-        compMatrixAreaId,
-        mainLevel: assessment.mainLevel,
-        subLevel: assessment.subLevel,
-      })
-      .onConflictDoUpdate({
-        target: [
-          compMatrixLevelAssessments.userCompMatrixAssignmentId,
-          compMatrixLevelAssessments.isGeneral,
-          compMatrixLevelAssessments.compMatrixAreaId,
-        ],
-        set: {
+
+    // Check if an assessment already exists
+    const key = assessment.isGeneral ? 'general' : `area-${compMatrixAreaId}`;
+    const existingAssessment = existingAssessmentsMap.get(key);
+
+    if (existingAssessment) {
+      // Update existing assessment
+      await db
+        .update(compMatrixLevelAssessments)
+        .set({
           mainLevel: assessment.mainLevel,
           subLevel: assessment.subLevel,
           updatedAt: sql`CURRENT_TIMESTAMP`,
-        },
-      });
+        })
+        .where(eq(compMatrixLevelAssessments.id, existingAssessment.id));
+    } else {
+      // Insert new assessment
+      await db
+        .insert(compMatrixLevelAssessments)
+        .values({
+          userCompMatrixAssignmentId: assignmentId,
+          compMatrixId: matrixId,
+          isGeneral: assessment.isGeneral,
+          compMatrixAreaId,
+          mainLevel: assessment.mainLevel,
+          subLevel: assessment.subLevel,
+        });
+    }
   }
 }
