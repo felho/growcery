@@ -33,7 +33,6 @@ import {
   fetchCompMatrix,
   updateCompMatrix,
 } from "~/lib/client-api/comp-matrix";
-import type { CompMatrix } from "~/server/queries/comp-matrix";
 import { fetchFunctions } from "~/lib/client-api/functions";
 import type { Function } from "~/server/queries/function";
 import type { CompMatrixWithFullRelations } from "~/server/queries/comp-matrix";
@@ -47,13 +46,9 @@ import { updateCompMatrixAreaAction } from "~/server/actions/comp-matrix-area/up
 import type { CompMatrixAreaEditUI } from "~/server/queries/comp-matrix-area";
 import { createCompMatrixCompetencyAction } from "~/server/actions/comp-matrix-competency/create";
 import { upsertCompMatrixDefinitionAction } from "~/server/actions/comp-matrix-definition/upsert";
-import {
-  deleteCompMatrixCompetencyAction as deleteCompetency,
-  deleteCompMatrixCompetencyAction,
-} from "~/server/actions/comp-matrix-competency/delete";
+import { deleteCompMatrixCompetencyAction } from "~/server/actions/comp-matrix-competency/delete";
 import { deleteCompMatrixAreaAction } from "~/server/actions/comp-matrix-area/delete";
 import type {
-  CompMatrixRatingOption,
   CompMatrixRatingOptionUI,
   NewCompMatrixRatingOptionUI,
 } from "~/server/queries/comp-matrix-rating-option";

@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { Switch } from "~/components/ui/switch";
 import { Label } from "~/components/ui/label";
-import useSWR, { mutate } from "swr";
+import useSWR from "swr";
 import { fetchCompMatrix } from "~/lib/client-api/comp-matrix";
 import { fetchCompMatrixCurrentRating } from "~/lib/client-api/comp-matrix-current-rating";
 import { fetchCompMatrixRatingOptions } from "~/lib/client-api/comp-matrix-rating-option";

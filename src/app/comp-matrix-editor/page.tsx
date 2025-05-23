@@ -27,7 +27,6 @@ import {
 } from "~/lib/client-api/comp-matrix";
 import { fetchFunctions } from "~/lib/client-api/functions";
 import type { CompMatrix } from "~/server/queries/comp-matrix";
-import type { Function } from "~/server/queries/function";
 import { CreateMatrixDialog } from "./_components/create-matrix-dialog";
 import { DeleteMatrixDialog } from "./_components/delete-matrix-dialog";
 import { toast } from "sonner";

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-// import { deleteCompMatrixCompetencyAction as deleteCompetency } from "~/server/actions/comp-matrix-competency/delete";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
@@ -16,7 +15,6 @@ import {
 } from "~/components/ui/dialog";
 import { Label } from "~/components/ui/label";
 import { Checkbox } from "~/components/ui/checkbox";
-import { v4 as uuidv4 } from "uuid";
 import {
   DndContext,
   closestCenter,
