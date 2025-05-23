@@ -3,9 +3,8 @@ import "~/styles/globals.css";
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 import { ClerkProvider, SignedIn, SignedOut } from "@clerk/nextjs";
-import { SyncUser } from "./_components/sync-user";
+import { EnsureUserSync } from "~/lib/auth/ensure-user-sync";
 import MainLayout from "./_components/main-layout";
-import SignInLayout from "./_components/sign-in-layout";
 import { Toaster } from "~/components/ui/sonner";
 
 export const metadata: Metadata = {
@@ -27,11 +26,12 @@ export default function RootLayout({
       <html lang="en" className={`${geist.variable}`}>
         <body className="dark overscroll-none">
           <SignedOut>
-            <SignInLayout />
+            <MainLayout>{children}</MainLayout>
+            <Toaster />
           </SignedOut>
 
           <SignedIn>
-            <SyncUser />
+            <EnsureUserSync />
             <MainLayout>{children}</MainLayout>
             <Toaster />
           </SignedIn>

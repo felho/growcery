@@ -29,6 +29,7 @@
 - [ ] In the case of deleting a function the delete doesn't work if the function is already assigned to a user. Create a better errors message that explains why the delete failed in such a case.
 - [ ] The same applies for users as well. Also, later think about whether we shouldn't delete a user but have an is active flag or something like that.
 - [ ] IMPORTANT BUG: The reference ratings are loeded even in employee view.
+- [ ] Turn off managing account option at Clerk
 
 ### Comp matrix
 

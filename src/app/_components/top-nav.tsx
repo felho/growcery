@@ -1,9 +1,9 @@
-import { SignedOut, SignedIn, SignInButton, UserButton } from "@clerk/nextjs";
+import { SignedOut, SignedIn, UserButton } from "@clerk/nextjs";
 import { Menu as MenuIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 
 interface TopNavProps {
-  toggleSidebar: () => void;
+  toggleSidebar?: () => void;
   hasSidebar?: boolean;
 }
 
@@ -29,9 +29,12 @@ export function TopNav({ toggleSidebar, hasSidebar = false }: TopNavProps) {
       </div>
       <div className="flex items-center gap-2">
         <SignedOut>
-          <div className="[&>*]:cursor-pointer">
-            <SignInButton />
-          </div>
+          <Button
+            variant="outline"
+            onClick={() => window.location.href = "/sign-in"}
+          >
+            Sign In
+          </Button>
         </SignedOut>
         <SignedIn>
           <UserButton />
