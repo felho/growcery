@@ -23,7 +23,6 @@ import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
 import { Pencil, Save } from "lucide-react";
 import { toast } from "sonner";
-import { type CompetencyMatrix } from "~/data/mock-competency-data";
 import { LevelEditor } from "./_components/level-editor";
 import CompetencyAreaEditor from "./_components/competency-area-editor";
 import { reorderCompMatrixAreasAction } from "~/server/actions/comp-matrix-area/reorder";
@@ -65,12 +64,6 @@ import { reorderRatingOptionsAction } from "~/server/actions/comp-matrix-rating-
 import { reorderCompMatrixCompetenciesAction } from "~/server/actions/comp-matrix-competency/reorder";
 import type { CompMatrixCompetencyWithDefinitions } from "~/server/queries/comp-matrix-competency";
 
-// Temporary type that combines DB and mock data
-type HybridMatrix = CompMatrixWithFullRelations & {
-  competencies: CompetencyMatrix["competencies"];
-  ratingOptions: CompMatrixRatingOption[];
-};
-
 interface LevelData {
   id: number;
   name: string;
@@ -88,21 +81,13 @@ interface MatrixMetadata {
   isPublished: boolean;
 }
 
-const emptyMatrix: CompetencyMatrix = {
-  levels: [],
-  ratingOptions: [],
-  ratingDescriptions: {} as Record<string, string>,
-  ratingColors: {} as Record<string, string>,
-  ratingLabels: {} as Record<string, string>,
-  ratingWeights: {} as Record<string, number>,
-  competencies: [],
-};
-
 const CompetencyMatrixEditor = () => {
   const router = useRouter();
   const params = useParams();
   const matrixId = params.matrixId as string;
-  const [matrix, setMatrix] = useState<HybridMatrix | null>(null);
+  const [matrix, setMatrix] = useState<CompMatrixWithFullRelations | null>(
+    null,
+  );
   const [functions, setFunctions] = useState<Function[]>([]);
   const [metadata, setMetadata] = useState<MatrixMetadata>({
     title: "",
@@ -132,13 +117,7 @@ const CompetencyMatrixEditor = () => {
           })),
         };
 
-        const hybridMatrix: HybridMatrix = {
-          ...normalizedData,
-          competencies: emptyMatrix.competencies,
-          ratingOptions: normalizedData.ratingOptions,
-        };
-
-        setMatrix(hybridMatrix);
+        setMatrix(normalizedData);
         setFunctions(functionsData);
         setMetadata({
           title: matrixData.title,
