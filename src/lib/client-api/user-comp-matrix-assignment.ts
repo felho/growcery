@@ -3,7 +3,7 @@ import type { UserCompMatrixAssignment } from "~/server/queries/user_comp_matrix
 export async function fetchActiveUserCompMatrixAssignment(
   userId: number,
 ): Promise<UserCompMatrixAssignment | null> {
-  const res = await fetch(`/api/user-comp-matrix-assignment/active/${userId}`);
+  const res = await fetch(`/api/user-comp-matrix-assignments/active/${userId}`);
   if (!res.ok) {
     if (res.status === 404) {
       return null;
