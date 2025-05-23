@@ -7,7 +7,7 @@ import {
   FolderSymlink as FolderSymlinkIcon,
   UserCog as UserCogIcon,
 } from "lucide-react";
-import { activities, functions, orgUnits, users } from "~/data/mock-data";
+import { activities } from "~/data/mock-data";
 import StatCard from "./_components/stat-card";
 import {
   Card,

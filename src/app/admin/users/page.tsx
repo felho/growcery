@@ -20,7 +20,8 @@ import {
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import { toast } from "sonner";
 import Breadcrumbs from "../_components/breadcrumbs";
-import { getOrgUnitName } from "~/data/mock-data";
+import { fetchOrgUnits } from "~/lib/client-api/org-units";
+import type { OrgUnit } from "~/server/queries/org-unit";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { fetchUsers } from "~/lib/client-api";
@@ -35,10 +36,21 @@ export default function UsersPage() {
 
   const {
     data: users = [],
-    isLoading,
-    error,
+    isLoading: isLoadingUsers,
+    error: usersError,
     mutate,
   } = useSWR<UserWithArchetype[]>("/users", fetchUsers);
+
+  const {
+    data: orgUnits = [],
+    isLoading: isLoadingOrgUnits,
+    error: orgUnitsError,
+  } = useSWR<OrgUnit[]>("/org-units", fetchOrgUnits);
+
+  const getOrgUnitName = (id: number): string => {
+    const orgUnit = orgUnits.find((ou) => ou.id === id);
+    return orgUnit ? orgUnit.name : "Unknown";
+  };
 
   const filteredUsers = users.filter(
     (user) =>
@@ -77,6 +89,9 @@ export default function UsersPage() {
       .join("")
       .toUpperCase()
       .substring(0, 2);
+
+  const isLoading = isLoadingUsers || isLoadingOrgUnits;
+  const error = usersError || orgUnitsError;
 
   if (isLoading) {
     return (
