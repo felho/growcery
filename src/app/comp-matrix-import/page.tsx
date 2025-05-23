@@ -165,7 +165,7 @@ export default function CompMatrixImportPage() {
       }
       formData.append("file", fileInput.files[0]);
 
-      const response = await fetch("/api/comp-matrix/import", {
+      const response = await fetch("/api/comp-matrices/import", {
         method: "POST",
         body: formData,
       });
