@@ -45,10 +45,6 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import CompetencyItem from "./competency-item";
-// import type {
-//   CompetencyCategory,
-//   CompetencyItem as CompetencyItemType,
-// } from "~/data/mock-competency-data";
 import type {
   CompMatrixAreaEditUI,
   CompMatrixAreaWithFullRelations,

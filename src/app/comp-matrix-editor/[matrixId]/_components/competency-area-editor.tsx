@@ -34,10 +34,6 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-// import type {
-//   CompetencyCategory,
-//   CompetencyItem,
-// } from "~/data/mock-competency-data";
 import type {
   CompMatrixAreaEditUI,
   CompMatrixAreaWithFullRelations,

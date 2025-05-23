@@ -23,17 +23,13 @@ import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
 import { Pencil, Save } from "lucide-react";
 import { toast } from "sonner";
-import {
-  type CompetencyMatrix,
-  type Rating,
-} from "~/data/mock-competency-data";
+import { type CompetencyMatrix } from "~/data/mock-competency-data";
 import { LevelEditor } from "./_components/level-editor";
 import CompetencyAreaEditor from "./_components/competency-area-editor";
 import { reorderCompMatrixAreasAction } from "~/server/actions/comp-matrix-area/reorder";
 import { useAction } from "next-safe-action/hooks";
 import { updateCompMatrixCompetencyAction } from "~/server/actions/comp-matrix-competency/update";
 import { RatingOptionsEditor } from "./_components/rating-options-editor";
-import { mockFunctions } from "~/data/mock-competency-data";
 import {
   fetchCompMatrix,
   updateCompMatrix,

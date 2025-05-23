@@ -15,7 +15,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
-// import type { CompetencyItem as CompetencyItemType } from "~/data/mock-competency-data";
 import type { CompMatrixCompetencyWithDefinitions } from "~/server/queries/comp-matrix-competency";
 
 interface CompetencyItemProps {
