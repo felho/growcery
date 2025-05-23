@@ -124,11 +124,18 @@ const CompetencyMatrixEditor = () => {
           fetchFunctions(),
         ]);
 
-        // Combine DB data with actual ratingOptions from DB
-        const hybridMatrix: HybridMatrix = {
+        const normalizedData = {
           ...matrixData,
+          areas: matrixData.areas.map((area) => ({
+            ...area,
+            competencies: area.competencies || [],
+          })),
+        };
+
+        const hybridMatrix: HybridMatrix = {
+          ...normalizedData,
           competencies: emptyMatrix.competencies,
-          ratingOptions: matrixData.ratingOptions,
+          ratingOptions: normalizedData.ratingOptions,
         };
 
         setMatrix(hybridMatrix);
