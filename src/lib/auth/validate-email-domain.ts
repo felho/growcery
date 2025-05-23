@@ -1,14 +1,8 @@
 import "server-only";
+import { ALLOWED_DOMAINS } from "./allowed-domains";
 
-// List of allowed email domains
-export const ALLOWED_DOMAINS = [
-  // Add your allowed domains here, for example:
-  "gmail.com",
-  "outlook.com",
-  "hotmail.com",
-  "company.com",
-  // Add more as needed
-];
+// Re-export for backward compatibility
+export { ALLOWED_DOMAINS };
 
 /**
  * Checks if the provided email domain is in the allowed domains list
