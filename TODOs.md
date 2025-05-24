@@ -30,6 +30,7 @@
 - [ ] The same applies for users as well. Also, later think about whether we shouldn't delete a user but have an is active flag or something like that.
 - [ ] IMPORTANT BUG: The reference ratings are loeded even in employee view.
 - [ ] Turn off managing account option at Clerk
+- [ ] Attribute ideas for the future: geo location, office vs remote, tenure, tech stack, employee vs contractor
 
 ### Comp matrix
 
