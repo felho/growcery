@@ -37,12 +37,13 @@ function buildHierarchicalOptions(
   units: OrgUnit[],
   parentId: number | null = null,
   level = 0,
-): { id: number; description: string }[] {
+): { id: number; name: string; description: string }[] {
   return units
     .filter((u) => u.parentId === parentId)
     .flatMap((u) => [
       {
         id: u.id,
+        name: u.name, // Store the original name for keyboard navigation
         description: `${level == 0 ? "" : "└"}${"— ".repeat(level)}${u.name}`,
       },
       ...buildHierarchicalOptions(units, u.id, level + 1),
@@ -376,7 +377,14 @@ export default function CompMatrixImportPage() {
                   <SelectContent>
                     {orgUnits &&
                       buildHierarchicalOptions(orgUnits).map((unit) => (
-                        <SelectItem key={unit.id} value={unit.id.toString()}>
+                        <SelectItem 
+                          key={unit.id} 
+                          value={unit.id.toString()}
+                          // Add data-name attribute for keyboard navigation
+                          data-name={unit.name}
+                          // Add textValue prop for keyboard navigation
+                          textValue={unit.name}
+                        >
                           {unit.description}
                         </SelectItem>
                       ))}

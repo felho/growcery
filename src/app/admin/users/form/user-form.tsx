@@ -29,12 +29,13 @@ function buildHierarchicalOptions(
   units: { id: number; name: string; parentId: number | null }[],
   parentId: number | null = null,
   level = 0,
-): { id: number; description: string }[] {
+): { id: number; name: string; description: string }[] {
   return units
     .filter((u) => u.parentId === parentId)
     .flatMap((u) => [
       {
         id: u.id,
+        name: u.name,
         description: `${level == 0 ? "" : "└"}${"— ".repeat(level)}${u.name}`,
       },
       ...buildHierarchicalOptions(units, u.id, level + 1),
@@ -123,11 +124,18 @@ export function UserForm({
 
           <SelectWithLabel<
             InsertUserInputFromForm,
-            { id: number; description: string }
+            { id: number; name: string; description: string }
           >
             fieldTitle="Function"
             nameInSchema="functionId"
-            data={[{ id: 0, description: "No function" }, ...functions]}
+            data={[
+              { id: 0, name: "No function", description: "No function" },
+              ...functions.map((f) => ({
+                id: f.id,
+                name: f.description,
+                description: f.description,
+              })),
+            ]}
             placeholder="Select function"
             getValue={(item) => item.id.toString()}
             getLabel={(item) => item.description}
@@ -168,12 +176,16 @@ export function UserForm({
 
           <SelectWithLabel<
             InsertUserInputFromForm,
-            { id: number; description: string }
+            { id: number; name: string; description: string }
           >
             fieldTitle="Organization Unit"
             nameInSchema="orgUnitId"
             data={[
-              { id: 0, description: "No organization unit" },
+              {
+                id: 0,
+                name: "No organization unit",
+                description: "No organization unit",
+              },
               ...hierarchicalOptions,
             ]}
             placeholder="Select organization unit"
@@ -190,11 +202,18 @@ export function UserForm({
 
           <SelectWithLabel<
             InsertUserInputFromForm,
-            { id: number; description: string }
+            { id: number; name: string; description: string }
           >
             fieldTitle="Archetype"
             nameInSchema="archetypeId"
-            data={[{ id: 0, description: "No archetype" }, ...archetypes]}
+            data={[
+              { id: 0, name: "No archetype", description: "No archetype" },
+              ...archetypes.map((a) => ({
+                id: a.id,
+                name: a.description,
+                description: a.description,
+              })),
+            ]}
             placeholder="Select archetype"
             getValue={(item) => item.id.toString()}
             getLabel={(item) => item.description}

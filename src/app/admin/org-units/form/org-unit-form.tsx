@@ -21,12 +21,13 @@ function buildHierarchicalOptions(
   units: { id: number; name: string; parentId?: number | null }[],
   parentId: number | null = null,
   level = 0,
-): { id: number; description: string }[] {
+): { id: number; name: string; description: string }[] {
   return units
     .filter((u) => u.parentId === parentId)
     .flatMap((u) => [
       {
         id: u.id,
+        name: u.name,
         description: `${level == 0 ? "" : "└"}${"— ".repeat(level)}${u.name}`,
       },
       ...buildHierarchicalOptions(units, u.id, level + 1),
@@ -55,7 +56,7 @@ export function OrgUnitForm({
 
           <SelectWithLabel<
             InsertOrgUnitInputFromForm,
-            { id: number; description: string }
+            { id: number; name: string; description: string }
           >
             fieldTitle="Parent Unit (optional)"
             nameInSchema="parentId"

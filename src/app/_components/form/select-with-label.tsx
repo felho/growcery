@@ -79,6 +79,7 @@ export function SelectWithLabel<S, T = DefaultData>({
                 <SelectItem
                   key={`${nameInSchema}_${getValue(item)}`}
                   value={getValue(item)}
+                  textValue={(item as any).name || getLabel(item)} // Use name for keyboard navigation if available
                 >
                   {renderItem ? renderItem(item) : getLabel(item)}
                 </SelectItem>

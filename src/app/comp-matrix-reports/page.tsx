@@ -291,7 +291,12 @@ const CompMatrixReportsPage = () => {
                 <SelectContent>
                   <SelectItem value="no-filter">No filter</SelectItem>
                   {buildHierarchicalOptions(orgUnits).map((ou) => (
-                    <SelectItem key={ou.id} value={ou.id.toString()}>
+                    <SelectItem 
+                      key={ou.id} 
+                      value={ou.id.toString()}
+                      textValue={ou.name} // Add textValue for keyboard navigation
+                      data-name={ou.name} // Add data-name attribute for reference
+                    >
                       {ou.description}
                     </SelectItem>
                   ))}
@@ -387,12 +392,13 @@ const buildHierarchicalOptions = (
   units: OrgUnit[],
   parentId: number | null = null,
   level = 0,
-): { id: number; description: string }[] => {
+): { id: number; name: string; description: string }[] => {
   return units
     .filter((u) => u.parentId === parentId)
     .flatMap((u) => [
       {
         id: u.id,
+        name: u.name, // Store the original name for keyboard navigation
         description: `${level === 0 ? "" : "└"}${"— ".repeat(level)}${u.name}`,
       },
       ...buildHierarchicalOptions(units, u.id, level + 1),
