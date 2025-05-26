@@ -255,25 +255,20 @@ export default function CompMatrixImportPage() {
                 )}
               </div>
 
-              <div className="space-y-2">
+              <div className="max-w-xs space-y-2">
                 <Label htmlFor="managerId">Manager</Label>
-                <Select
-                  onValueChange={(value) => form.setValue("managerId", value)}
+                <Combobox
+                  id="manager-select"
+                  items={allUsers?.map((user: UserWithArchetype) => ({
+                    label: user.fullName,
+                    value: user.id.toString(),
+                  })) || []}
+                  placeholder="Select manager"
                   value={form.watch("managerId")}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select manager" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {allUsers?.map((user: UserWithArchetype) => (
-                      <SelectItem key={user.id} value={user.id.toString()}>
-                        {user.fullName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  onChange={(value) => form.setValue("managerId", value)}
+                />
                 {form.formState.errors.managerId && (
-                  <p className="text-sm text-red-500">
+                  <p className="text-destructive text-sm font-medium">
                     {form.formState.errors.managerId.message}
                   </p>
                 )}

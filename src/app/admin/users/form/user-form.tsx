@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { LoaderCircle as LoaderCircleIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { SelectWithLabel } from "~/app/_components/form/select-with-label";
+import { Combobox } from "~/components/ui/combobox";
 
 interface UserFormProps {
   mode: "create" | "edit";
@@ -139,27 +140,31 @@ export function UserForm({
             )}
           />
 
-          <SelectWithLabel<
-            InsertUserInputFromForm,
-            { id: number; description: string }
-          >
-            fieldTitle="Manager"
-            nameInSchema="managerId"
-            data={[
-              { id: 0, description: "No manager" },
-              ...users.filter((u) => u.id !== user?.id),
-            ]}
-            placeholder="Select manager"
-            getValue={(item) => item.id.toString()}
-            getLabel={(item) => item.description}
-            renderItem={(item) => (
-              <div
-                className={item.id === 0 ? "text-muted-foreground italic" : ""}
-              >
-                {item.description}
-              </div>
+          <div className="max-w-xs space-y-2">
+            <label className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              Manager
+            </label>
+            <Combobox
+              id="manager-select"
+              items={[
+                { label: "No manager", value: "0" },
+                ...users
+                  .filter((u) => u.id !== user?.id)
+                  .map((user) => ({
+                    label: user.description,
+                    value: user.id.toString(),
+                  })),
+              ]}
+              placeholder="Select manager"
+              value={form.watch("managerId")?.toString()}
+              onChange={(value) => form.setValue("managerId", parseInt(value))}
+            />
+            {form.formState.errors.managerId && (
+              <p className="text-destructive text-sm font-medium">
+                {form.formState.errors.managerId.message}
+              </p>
             )}
-          />
+          </div>
 
           <SelectWithLabel<
             InsertUserInputFromForm,
