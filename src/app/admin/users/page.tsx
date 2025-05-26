@@ -15,7 +15,6 @@ import {
   PlusCircle as PlusCircleIcon,
   Search as SearchIcon,
   Pencil as PencilIcon,
-  Trash as TrashIcon,
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import { toast } from "sonner";
@@ -52,15 +51,17 @@ export default function UsersPage() {
     return orgUnit ? orgUnit.name : "Unknown";
   };
 
-  const filteredUsers = users.filter(
-    (user) =>
-      user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      getOrgUnitName(user.orgUnitId ?? 0)
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      user.archetype?.name.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const filteredUsers = users
+    .filter(
+      (user) =>
+        user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        getOrgUnitName(user.orgUnitId ?? 0)
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        user.archetype?.name.toLowerCase().includes(searchTerm.toLowerCase()),
+    )
+    .sort((a, b) => a.fullName.localeCompare(b.fullName));
 
   const { execute: deleteUser } = useAction(deleteUserAction, {
     onSuccess: () => {
