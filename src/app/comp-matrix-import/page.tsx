@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -68,9 +68,27 @@ export default function CompMatrixImportPage() {
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const employeeNameRef = useRef<HTMLInputElement>(null);
 
+  // Load saved form data from localStorage on initial render
+  const loadSavedFormData = () => {
+    if (typeof window === "undefined") return null;
+
+    const savedData = localStorage.getItem("compMatrixImportFormData");
+    if (savedData) {
+      try {
+        return JSON.parse(savedData);
+      } catch (e) {
+        console.error("Error parsing saved form data:", e);
+        return null;
+      }
+    }
+    return null;
+  };
+
+  const savedFormData = loadSavedFormData();
+
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
+    defaultValues: savedFormData || {
       employeeName: "",
       employeeEmail: "",
       managerId: "",
@@ -80,6 +98,17 @@ export default function CompMatrixImportPage() {
       matrixId: "",
     },
   });
+
+  // Save form data to localStorage whenever it changes
+  const formValues = form.watch();
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(
+        "compMatrixImportFormData",
+        JSON.stringify(formValues),
+      );
+    }
+  }, [formValues]);
 
   // Data fetching
   const { data: matrices } = useSWR<CompMatrix[]>(
@@ -100,6 +129,21 @@ export default function CompMatrixImportPage() {
     "all-users",
     fetchUsers,
   );
+
+  // Load saved user selection
+  useEffect(() => {
+    const savedUserId = localStorage.getItem("compMatrixImportSelectedUserId");
+    if (savedUserId) {
+      setSelectedUserId(savedUserId);
+    }
+  }, []);
+
+  // Save selected user ID to localStorage
+  useEffect(() => {
+    if (selectedUserId) {
+      localStorage.setItem("compMatrixImportSelectedUserId", selectedUserId);
+    }
+  }, [selectedUserId]);
 
   // Autofill logic
   React.useEffect(() => {
@@ -152,6 +196,7 @@ export default function CompMatrixImportPage() {
     try {
       setIsLoading(true);
       setTerminalOutput([]);
+      setSavedLevelAssessments([]);
 
       const formData = new FormData();
       Object.entries(data).forEach(([key, value]) => {
@@ -161,8 +206,10 @@ export default function CompMatrixImportPage() {
       const fileInput = document.getElementById("file") as HTMLInputElement;
       if (!fileInput?.files?.[0]) {
         toast.error("Please select a file to upload");
+        setIsLoading(false);
         return;
       }
+
       formData.append("file", fileInput.files[0]);
 
       const response = await fetch("/api/comp-matrices/import", {
@@ -178,6 +225,23 @@ export default function CompMatrixImportPage() {
       setTerminalOutput(result.messages);
       setSavedLevelAssessments(result.savedLevelAssessments || []);
       toast.success("File imported successfully");
+
+      // Reset only employee-specific fields but keep team, manager, function, and archetype settings
+      // This allows for faster entry of multiple users with similar settings
+      form.setValue("employeeName", "");
+      form.setValue("employeeEmail", "");
+
+      // Update localStorage with the new form state (employee fields cleared, other settings preserved)
+      const currentFormValues = form.getValues();
+      localStorage.setItem(
+        "compMatrixImportFormData",
+        JSON.stringify(currentFormValues),
+      );
+
+      // Set focus back to the employee name field for the next entry
+      if (employeeNameRef.current) {
+        employeeNameRef.current.focus();
+      }
     } catch (error) {
       console.error("Error importing file:", error);
       toast.error("Failed to import file");
@@ -259,10 +323,12 @@ export default function CompMatrixImportPage() {
                 <Label htmlFor="managerId">Manager</Label>
                 <Combobox
                   id="manager-select"
-                  items={allUsers?.map((user: UserWithArchetype) => ({
-                    label: user.fullName,
-                    value: user.id.toString(),
-                  })) || []}
+                  items={
+                    allUsers?.map((user: UserWithArchetype) => ({
+                      label: user.fullName,
+                      value: user.id.toString(),
+                    })) || []
+                  }
                   placeholder="Select manager"
                   value={form.watch("managerId")}
                   onChange={(value) => form.setValue("managerId", value)}
