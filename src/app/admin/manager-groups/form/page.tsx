@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "~/components/ui/button";
@@ -26,7 +28,16 @@ import { z } from "zod";
 import { ArrowLeft, Users, Filter } from "lucide-react";
 import { toast } from "sonner";
 import Breadcrumbs from "~/app/admin/_components/breadcrumbs";
-import { users, orgUnits, getOrgUnitName } from "~/data/mockData";
+import useSWR from "swr";
+import { fetchUsers, fetchOrgUnits } from "~/lib/client-api";
+import type { UserWithArchetype } from "~/server/queries/user";
+import type { OrgUnit } from "~/server/queries/org-unit";
+
+function getOrgUnitName(orgUnitId: number | null, orgUnits: OrgUnit[]) {
+  if (!orgUnitId) return "Not assigned";
+  const orgUnit = orgUnits.find((ou) => ou.id === orgUnitId);
+  return orgUnit ? orgUnit.name : "Unknown";
+}
 
 const formSchema = z.object({
   name: z
@@ -48,6 +59,16 @@ const CreateManagerGroup = () => {
   const [orgUnitFilter, setOrgUnitFilter] = useState<string>("all");
   const [userTypeFilter, setUserTypeFilter] = useState<string>("all");
 
+  const { data: users = [], isLoading: isLoadingUsers } = useSWR<
+    UserWithArchetype[]
+  >("/users", fetchUsers);
+
+  const { data: orgUnits = [], isLoading: isLoadingOrgUnits } = useSWR<
+    OrgUnit[]
+  >("/org-units", fetchOrgUnits);
+
+  const isLoading = isLoadingUsers || isLoadingOrgUnits;
+
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -57,43 +78,51 @@ const CreateManagerGroup = () => {
     },
   });
 
+  const selectedMembers = form.watch("members") || [];
+
+  const selectedMembersAsNumbers = selectedMembers.map((id) =>
+    typeof id === "string" ? parseInt(id, 10) : id,
+  );
+
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
 
     try {
-      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      toast(`Manager group "${data.name}" has been created successfully.`);
-
+      toast.success("Manager group created successfully");
       router.push("/admin/manager-groups");
     } catch (error) {
-      toast.error("Failed to create manager group. Please try again.");
+      console.error("Error creating manager group:", error);
+      toast.error("Failed to create manager group");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const selectedMembers = form.watch("members");
-
-  // Filter users based on selected criteria, but always include already selected users
   const filteredUsers = users.filter((user) => {
-    const isSelected = selectedMembers.includes(user.id);
+    const isSelected = selectedMembersAsNumbers.includes(user.id);
 
-    // Always show selected users
     if (isSelected) return true;
 
-    // Apply filters for non-selected users
     const matchesOrgUnit =
-      orgUnitFilter === "all" || user.orgUnit === orgUnitFilter;
+      orgUnitFilter === "all" || user.orgUnitId?.toString() === orgUnitFilter;
     const matchesUserType =
       userTypeFilter === "all" ||
       (userTypeFilter === "Manager" &&
-        (user.role === "Manager" || user.role === "Admin")) ||
-      (userTypeFilter === "User" && user.role === "User");
+        (user.archetype?.name === "Manager" ||
+          user.archetype?.name === "Admin")) ||
+      (userTypeFilter === "User" && user.archetype?.name === "User");
 
     return matchesOrgUnit && matchesUserType;
   });
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <div className="animate-fade-in space-y-6">
@@ -193,16 +222,20 @@ const CreateManagerGroup = () => {
                                   <FormItem className="flex flex-row items-start space-y-0 space-x-3">
                                     <FormControl>
                                       <Checkbox
-                                        checked={field.value?.includes(user.id)}
+                                        checked={field.value?.includes(
+                                          user.id.toString(),
+                                        )}
                                         onCheckedChange={(checked) => {
                                           return checked
                                             ? field.onChange([
                                                 ...field.value,
-                                                user.id,
+                                                user.id.toString(),
                                               ])
                                             : field.onChange(
                                                 field.value?.filter(
-                                                  (value) => value !== user.id,
+                                                  (value) =>
+                                                    value !==
+                                                    user.id.toString(),
                                                 ),
                                               );
                                         }}
@@ -210,14 +243,17 @@ const CreateManagerGroup = () => {
                                     </FormControl>
                                     <div className="flex-1 space-y-0">
                                       <div className="text-sm font-medium">
-                                        {user.name}
+                                        {user.fullName}
                                       </div>
                                       <div className="text-muted-foreground text-xs">
                                         {user.email}
                                       </div>
                                       <div className="text-muted-foreground text-xs">
-                                        {user.role} •{" "}
-                                        {getOrgUnitName(user.orgUnit)}
+                                        {user.archetype?.name} •{" "}
+                                        {getOrgUnitName(
+                                          user.orgUnitId || null,
+                                          orgUnits,
+                                        )}
                                       </div>
                                     </div>
                                   </FormItem>
@@ -253,7 +289,10 @@ const CreateManagerGroup = () => {
                         <SelectContent>
                           <SelectItem value="all">All Units</SelectItem>
                           {orgUnits.map((orgUnit) => (
-                            <SelectItem key={orgUnit.id} value={orgUnit.id}>
+                            <SelectItem
+                              key={orgUnit.id}
+                              value={orgUnit.id.toString()}
+                            >
                               {orgUnit.name}
                             </SelectItem>
                           ))}
