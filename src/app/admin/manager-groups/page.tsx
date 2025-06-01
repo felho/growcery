@@ -19,6 +19,8 @@ import type { ManagerGroupWithMembers } from "~/server/queries/manager-group";
 import { toast } from "sonner";
 import Breadcrumbs from "../_components/breadcrumbs";
 import { formatDate } from "~/lib/utils";
+import { PlusCircle, Search, Users, Pencil as PencilIcon } from "lucide-react";
+import { DeleteManagerGroupDialog } from "./_components/delete-manager-group-dialog";
 
 const ManagerGroups = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -43,8 +45,9 @@ const ManagerGroups = () => {
     router.push(`/admin/manager-groups/form?id=${id}`);
   };
 
-  const handleDelete = (id: number) => {
-    toast.info("Delete functionality will be implemented later");
+  const handleDelete = () => {
+    // This is handled by the DeleteManagerGroupDialog component
+    router.refresh();
   };
 
   const handleAddGroup = () => {
@@ -84,26 +87,42 @@ const ManagerGroups = () => {
             Organize managers into groups for better coordination
           </p>
         </div>
-        <Button onClick={handleAddGroup}>Add New Group</Button>
+        <Button onClick={handleAddGroup} className="shrink-0">
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Add Manager Group
+        </Button>
       </div>
 
       <div className="space-y-4">
-        <Input
-          placeholder="Search manager groups..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-md"
-        />
+        <div className="relative w-full max-w-sm">
+          <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
+          <Input
+            placeholder="Search manager groups..."
+            className="pl-8"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
 
         <div className="rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Members</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead className="w-[100px]">Actions</TableHead>
+                <TableHead className="text-muted-foreground text-xs font-medium">
+                  Name
+                </TableHead>
+                <TableHead className="text-muted-foreground text-xs font-medium">
+                  Description
+                </TableHead>
+                <TableHead className="text-muted-foreground text-xs font-medium">
+                  Members
+                </TableHead>
+                <TableHead className="text-muted-foreground text-xs font-medium">
+                  Created
+                </TableHead>
+                <TableHead className="text-muted-foreground w-[100px] text-xs font-medium">
+                  Actions
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -111,7 +130,7 @@ const ManagerGroups = () => {
                 <TableRow>
                   <TableCell
                     colSpan={5}
-                    className="text-muted-foreground h-24 text-center"
+                    className="text-muted-foreground py-8 text-center"
                   >
                     No manager groups found.
                   </TableCell>
@@ -120,25 +139,33 @@ const ManagerGroups = () => {
                 filteredGroups.map((group) => (
                   <TableRow key={group.id}>
                     <TableCell className="font-medium">{group.name}</TableCell>
-                    <TableCell>{group.description}</TableCell>
-                    <TableCell>{group.members.length} members</TableCell>
+                    <TableCell>
+                      <div className="text-muted-foreground max-w-xs truncate text-sm">
+                        {group.description}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <Users className="text-muted-foreground mr-1 h-4 w-4" />
+                        <span>{group.members.length}</span>
+                      </div>
+                    </TableCell>
                     <TableCell>{formatDate(group.createdAt)}</TableCell>
                     <TableCell>
                       <div className="flex space-x-2">
                         <Button
-                          variant="outline"
-                          size="sm"
+                          variant="ghost"
+                          size="icon"
                           onClick={() => handleEdit(group.id)}
+                          className="cursor-pointer"
                         >
-                          Edit
+                          <PencilIcon className="h-4 w-4" />
                         </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleDelete(group.id)}
-                        >
-                          Delete
-                        </Button>
+                        <DeleteManagerGroupDialog
+                          onDelete={handleDelete}
+                          managerGroupId={group.id}
+                          className="hover:bg-destructive/10"
+                        />
                       </div>
                     </TableCell>
                   </TableRow>
