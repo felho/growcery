@@ -13,6 +13,8 @@ export * from "./schema/tables/comp-matrix-rating-options";
 export * from "./schema/tables/comp-matrix-current-ratings";
 export * from "./schema/tables/user_comp_matrix_assignments";
 export * from "./schema/tables/comp-matrix-level-assessments";
+export * from "./schema/tables/manager-groups";
+export * from "./schema/tables/manager-group-members";
 
 export * from "./schema/relations/users";
 export * from "./schema/relations/functions";
@@ -27,3 +29,5 @@ export * from "./schema/relations/comp-matrix-rating-options";
 export * from "./schema/relations/comp-matrix-current-ratings";
 export * from "./schema/relations/user_comp_matrix_assignments";
 export * from "./schema/relations/comp-matrix-level-assessments";
+export * from "./schema/relations/manager-groups";
+export * from "./schema/relations/manager-group-members";
