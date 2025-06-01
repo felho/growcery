@@ -11,6 +11,7 @@
 # Project Structure & Architecture
 
 - Follow Next.js patterns and use the App Router.
+- The project uses pnpm as the package manager.
 - Correctly determine when to use server vs. client components in Next.js.
 - Use "use client" directive only when necessary for client components.
 - Organize components by feature/domain in the app directory.
