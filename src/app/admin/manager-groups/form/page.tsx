@@ -152,10 +152,8 @@ const CreateManagerGroup = () => {
     
     const matchesUserType =
       userTypeFilter === "all" ||
-      (userTypeFilter === "Manager" &&
-        (user.archetype?.name === "Manager" ||
-          user.archetype?.name === "Admin")) ||
-      (userTypeFilter === "User" && user.archetype?.name === "User");
+      (userTypeFilter === "Manager" && user.isManager) ||
+      (userTypeFilter === "User" && !user.isManager);
 
     return orgUnitMatches && matchesUserType;
   });
@@ -359,8 +357,8 @@ const CreateManagerGroup = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="all">All Types</SelectItem>
-                          <SelectItem value="Manager">Manager</SelectItem>
-                          <SelectItem value="User">User</SelectItem>
+                          <SelectItem value="Manager">Managers</SelectItem>
+                          <SelectItem value="User">Regular Users</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
