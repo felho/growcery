@@ -31,7 +31,10 @@ import { fetchUsers, fetchOrgUnits } from "~/lib/client-api";
 import type { UserWithArchetype } from "~/server/queries/user";
 import type { OrgUnit } from "~/server/queries/org-unit";
 import { useAction } from "next-safe-action/hooks";
-import { createManagerGroupAction, updateManagerGroupAction } from "~/server/actions/manager-group";
+import {
+  createManagerGroupAction,
+  updateManagerGroupAction,
+} from "~/server/actions/manager-group";
 import {
   insertManagerGroupSchemaFromForm,
   type InsertManagerGroupInputFromForm,
@@ -48,7 +51,7 @@ function getOrgUnitName(orgUnitId: number | null, orgUnits: OrgUnit[]) {
 function buildHierarchicalOptions(
   units: OrgUnit[],
   parentId: number | null = null,
-  level = 0
+  level = 0,
 ): { id: number; name: string; description: string }[] {
   return units
     .filter((u) => u.parentId === parentId)
@@ -74,7 +77,7 @@ function getAllChildOrgUnits(orgUnits: OrgUnit[], parentId: number): number[] {
     .map((unit) => unit.id);
 
   const childrenOfChildren = directChildren.flatMap((childId) =>
-    getAllChildOrgUnits(orgUnits, childId)
+    getAllChildOrgUnits(orgUnits, childId),
   );
 
   return [...directChildren, ...childrenOfChildren];
@@ -90,7 +93,10 @@ interface ManagerGroupFormProps {
   };
 }
 
-export function ManagerGroupForm({ mode, managerGroup }: ManagerGroupFormProps) {
+export function ManagerGroupForm({
+  mode,
+  managerGroup,
+}: ManagerGroupFormProps) {
   const router = useRouter();
   const [orgUnitFilter, setOrgUnitFilter] = useState<string>("all");
   const [userTypeFilter, setUserTypeFilter] = useState<string>("all");
@@ -154,7 +160,7 @@ export function ManagerGroupForm({ mode, managerGroup }: ManagerGroupFormProps) 
       createManagerGroup({ ...values });
     }
   }
-  
+
   const isPending = isCreating || isUpdating;
 
   // Filter users based on selected filters
@@ -164,11 +170,8 @@ export function ManagerGroupForm({ mode, managerGroup }: ManagerGroupFormProps) 
       const selectedOrgUnitId = parseInt(orgUnitFilter, 10);
       const childOrgUnits = getAllChildOrgUnits(orgUnits, selectedOrgUnitId);
       const relevantOrgUnits = [selectedOrgUnitId, ...childOrgUnits];
-      
-      if (
-        !user.orgUnitId ||
-        !relevantOrgUnits.includes(user.orgUnitId)
-      ) {
+
+      if (!user.orgUnitId || !relevantOrgUnits.includes(user.orgUnitId)) {
         return false;
       }
     }
@@ -197,7 +200,7 @@ export function ManagerGroupForm({ mode, managerGroup }: ManagerGroupFormProps) 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid gap-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* Basic Information */}
           <Card>
             <CardHeader>
@@ -256,7 +259,6 @@ export function ManagerGroupForm({ mode, managerGroup }: ManagerGroupFormProps) 
             </CardHeader>
             <CardContent>
               <div className="flex gap-6">
-                {/* User List - Left Side */}
                 <div className="flex-1">
                   <FormField
                     control={form.control}
@@ -272,12 +274,12 @@ export function ManagerGroupForm({ mode, managerGroup }: ManagerGroupFormProps) 
                               render={({ field }) => (
                                 <FormItem
                                   key={user.id}
-                                  className="flex flex-row items-start space-x-3 space-y-0 rounded-md p-2 hover:bg-muted"
+                                  className="hover:bg-muted flex flex-row items-start space-y-0 space-x-3 rounded-md p-2"
                                 >
                                   <FormControl>
                                     <Checkbox
                                       checked={field.value?.includes(
-                                        user.id.toString()
+                                        user.id.toString(),
                                       )}
                                       onCheckedChange={(checked) => {
                                         const userId = user.id.toString();
@@ -288,8 +290,8 @@ export function ManagerGroupForm({ mode, managerGroup }: ManagerGroupFormProps) 
                                             ])
                                           : field.onChange(
                                               field.value?.filter(
-                                                (value) => value !== userId
-                                              )
+                                                (value) => value !== userId,
+                                              ),
                                             );
                                       }}
                                     />
@@ -325,7 +327,6 @@ export function ManagerGroupForm({ mode, managerGroup }: ManagerGroupFormProps) 
                   />
                 </div>
 
-                {/* Filters - Right Side */}
                 <div className="w-64 space-y-4">
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
@@ -341,15 +342,17 @@ export function ManagerGroupForm({ mode, managerGroup }: ManagerGroupFormProps) 
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Units</SelectItem>
-                        {getHierarchicalOrgUnitOptions(orgUnits).map((orgUnit) => (
-                          <SelectItem
-                            key={orgUnit.id}
-                            value={orgUnit.id.toString()}
-                            textValue={orgUnit.name}
-                          >
-                            {orgUnit.description}
-                          </SelectItem>
-                        ))}
+                        {getHierarchicalOrgUnitOptions(orgUnits).map(
+                          (orgUnit) => (
+                            <SelectItem
+                              key={orgUnit.id}
+                              value={orgUnit.id.toString()}
+                              textValue={orgUnit.name}
+                            >
+                              {orgUnit.description}
+                            </SelectItem>
+                          ),
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
