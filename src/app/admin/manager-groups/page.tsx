@@ -40,7 +40,7 @@ const ManagerGroups = () => {
     ) || [];
 
   const handleEdit = (id: number) => {
-    router.push(`/admin/manager-groups/edit/${id}`);
+    router.push(`/admin/manager-groups/form?id=${id}`);
   };
 
   const handleDelete = (id: number) => {
@@ -48,7 +48,7 @@ const ManagerGroups = () => {
   };
 
   const handleAddGroup = () => {
-    router.push("/admin/manager-groups/create");
+    router.push("/admin/manager-groups/form");
   };
 
   if (isLoading) {

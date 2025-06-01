@@ -13,3 +13,4 @@ export type ManagerGroupWithMembers = ManagerGroup & {
 
 // Query exports
 export * from "./get-all-by-org";
+export * from "./get-by-id";
