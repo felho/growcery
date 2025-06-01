@@ -49,6 +49,8 @@
 - Use Drizzle for database access.
 - Follow the established schema organization in server/db/schema.
 - Implement server actions in the server/actions directory.
+- Server action shouldn't include DB managing code directly. Use queries and mutations from server/db/queries.
+- Queries and mutations under server/db/queries should be organized into one file per query or mutation unser the entity folder they belong to.
 - Use consistent naming for database tables with the "growcery\_" prefix.
 - Implement proper error handling for database operations.
 - Use plural names for API endpoints (e.g., /api/users).
