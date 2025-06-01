@@ -42,6 +42,7 @@
 
 - Use React's built-in state management where appropriate.
 - Consider SWR for data fetching and caching.
+- In the case of loading data from the database for the UI, use SWR.
 - Keep business logic separate from UI components.
 
 # Backend & Database
