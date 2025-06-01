@@ -87,7 +87,7 @@ const ManagerGroups = () => {
             Organize managers into groups for better coordination
           </p>
         </div>
-        <Button onClick={handleAddGroup} className="shrink-0">
+        <Button onClick={handleAddGroup} className="shrink-0 cursor-pointer">
           <PlusCircle className="mr-2 h-4 w-4" />
           Add Manager Group
         </Button>

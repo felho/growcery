@@ -258,14 +258,15 @@ export function ManagerGroupForm({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex gap-6">
-                <div className="flex-1">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-[250px_1fr]">
+                {/* Member list column */}
+                <div className="flex-[2]">
                   <FormField
                     control={form.control}
                     name="members"
                     render={({ field }) => (
                       <FormItem>
-                        <div className="h-[400px] overflow-y-auto rounded-md border p-2">
+                        <div className="bg-muted/5 h-[400px] overflow-y-auto rounded-md border p-2">
                           {filteredUsers.map((user) => (
                             <FormField
                               key={user.id}
@@ -317,7 +318,7 @@ export function ManagerGroupForm({
                           ))}
                           {filteredUsers.length === 0 && (
                             <div className="text-muted-foreground py-4 text-center">
-                              No users match the selected filters
+                              No users found. Try adjusting your filters.
                             </div>
                           )}
                         </div>
@@ -327,54 +328,57 @@ export function ManagerGroupForm({
                   />
                 </div>
 
-                <div className="w-64 space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Filter className="text-muted-foreground h-4 w-4" />
-                      <label className="text-sm font-medium">Org Unit</label>
+                {/* Filters column */}
+                <div className="w-full max-w-[250px]">
+                  <div className="bg-muted/5 space-y-6 rounded-md border p-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm font-semibold">
+                        <Filter className="text-muted-foreground h-4 w-4" />
+                        Org Unit
+                      </div>
+                      <Select
+                        value={orgUnitFilter}
+                        onValueChange={setOrgUnitFilter}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="All units" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Units</SelectItem>
+                          {getHierarchicalOrgUnitOptions(orgUnits).map(
+                            (orgUnit) => (
+                              <SelectItem
+                                key={orgUnit.id}
+                                value={orgUnit.id.toString()}
+                                textValue={orgUnit.name}
+                              >
+                                {orgUnit.description}
+                              </SelectItem>
+                            ),
+                          )}
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <Select
-                      value={orgUnitFilter}
-                      onValueChange={setOrgUnitFilter}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="All units" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Units</SelectItem>
-                        {getHierarchicalOrgUnitOptions(orgUnits).map(
-                          (orgUnit) => (
-                            <SelectItem
-                              key={orgUnit.id}
-                              value={orgUnit.id.toString()}
-                              textValue={orgUnit.name}
-                            >
-                              {orgUnit.description}
-                            </SelectItem>
-                          ),
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </div>
 
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Filter className="text-muted-foreground h-4 w-4" />
-                      <label className="text-sm font-medium">User Type</label>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm font-semibold">
+                        <Filter className="text-muted-foreground h-4 w-4" />
+                        User Type
+                      </div>
+                      <Select
+                        value={userTypeFilter}
+                        onValueChange={setUserTypeFilter}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="All types" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Types</SelectItem>
+                          <SelectItem value="Manager">Managers</SelectItem>
+                          <SelectItem value="User">Regular Users</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <Select
-                      value={userTypeFilter}
-                      onValueChange={setUserTypeFilter}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="All types" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Types</SelectItem>
-                        <SelectItem value="Manager">Managers</SelectItem>
-                        <SelectItem value="User">Regular Users</SelectItem>
-                      </SelectContent>
-                    </Select>
                   </div>
                 </div>
               </div>
