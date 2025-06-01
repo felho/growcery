@@ -33,10 +33,47 @@ import { fetchUsers, fetchOrgUnits } from "~/lib/client-api";
 import type { UserWithArchetype } from "~/server/queries/user";
 import type { OrgUnit } from "~/server/queries/org-unit";
 
+// Segédfüggvény a szervezeti egység nevének lekéréséhez
 function getOrgUnitName(orgUnitId: number | null, orgUnits: OrgUnit[]) {
   if (!orgUnitId) return "Not assigned";
   const orgUnit = orgUnits.find((ou) => ou.id === orgUnitId);
   return orgUnit ? orgUnit.name : "Unknown";
+}
+
+// Hierarchikus opciók építése a szervezeti egységekhez
+function buildHierarchicalOptions(
+  units: OrgUnit[],
+  parentId: number | null = null,
+  level = 0
+): { id: number; name: string; description: string }[] {
+  return units
+    .filter((u) => u.parentId === parentId)
+    .flatMap((u) => [
+      {
+        id: u.id,
+        name: u.name, // Az eredeti név tárolása a kereséshez
+        description: `${level === 0 ? "" : "└"}${"— ".repeat(level)}${u.name}`,
+      },
+      ...buildHierarchicalOptions(units, u.id, level + 1),
+    ]);
+}
+
+// Hierarchikus opciók lekérése a szervezeti egységekhez
+function getHierarchicalOrgUnitOptions(orgUnits: OrgUnit[]) {
+  return buildHierarchicalOptions(orgUnits);
+}
+
+// Rekurzívan lekérjük az összes gyermek szervezeti egységet
+function getAllChildOrgUnits(orgUnits: OrgUnit[], parentId: number): number[] {
+  const directChildren = orgUnits
+    .filter((unit) => unit.parentId === parentId)
+    .map((unit) => unit.id);
+
+  const childrenOfChildren = directChildren.flatMap((childId) =>
+    getAllChildOrgUnits(orgUnits, childId)
+  );
+
+  return [...directChildren, ...childrenOfChildren];
 }
 
 const formSchema = z.object({
@@ -104,8 +141,15 @@ const CreateManagerGroup = () => {
 
     if (isSelected) return true;
 
-    const matchesOrgUnit =
-      orgUnitFilter === "all" || user.orgUnitId?.toString() === orgUnitFilter;
+    // Ha van kiválasztott szervezeti egység, akkor annak és az összes gyermekének a felhasználóit mutatjuk
+    let orgUnitMatches = orgUnitFilter === "all";
+    
+    if (!orgUnitMatches && orgUnitFilter !== "all" && user.orgUnitId) {
+      const selectedOrgUnitId = parseInt(orgUnitFilter, 10);
+      const childOrgUnits = [selectedOrgUnitId, ...getAllChildOrgUnits(orgUnits, selectedOrgUnitId)];
+      orgUnitMatches = childOrgUnits.includes(user.orgUnitId);
+    }
+    
     const matchesUserType =
       userTypeFilter === "all" ||
       (userTypeFilter === "Manager" &&
@@ -113,7 +157,7 @@ const CreateManagerGroup = () => {
           user.archetype?.name === "Admin")) ||
       (userTypeFilter === "User" && user.archetype?.name === "User");
 
-    return matchesOrgUnit && matchesUserType;
+    return orgUnitMatches && matchesUserType;
   });
 
   if (isLoading) {
@@ -288,12 +332,13 @@ const CreateManagerGroup = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="all">All Units</SelectItem>
-                          {orgUnits.map((orgUnit) => (
+                          {getHierarchicalOrgUnitOptions(orgUnits).map((orgUnit) => (
                             <SelectItem
                               key={orgUnit.id}
                               value={orgUnit.id.toString()}
+                              textValue={orgUnit.name} // Hozzáadjuk a textValue-t a billentyűzetes navigációhoz
                             >
-                              {orgUnit.name}
+                              {orgUnit.description}
                             </SelectItem>
                           ))}
                         </SelectContent>
