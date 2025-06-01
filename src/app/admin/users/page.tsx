@@ -185,7 +185,7 @@ export default function UsersPage() {
                     </div>
                   </div>
                 </TableCell>
-                <TableCell>User</TableCell>
+                <TableCell>{user.isManager ? "Manager" : "User"}</TableCell>
                 <TableCell>{getOrgUnitName(user.orgUnitId ?? 0)}</TableCell>
                 <TableCell>{user.archetype?.name ?? "-"}</TableCell>
                 <TableCell>

@@ -3,6 +3,7 @@ import { z } from "zod";
 const baseUserFields = {
   fullName: z.string().min(1, "Full name cannot be empty").max(250),
   email: z.string().email("Invalid email address").max(500),
+  isManager: z.boolean().default(false),
   functionId: z.number().optional().nullable(),
   managerId: z.number().optional().nullable(),
   orgUnitId: z.number().optional().nullable(),

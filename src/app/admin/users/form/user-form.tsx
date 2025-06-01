@@ -15,6 +15,8 @@ import { LoaderCircle as LoaderCircleIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { SelectWithLabel } from "~/app/_components/form/select-with-label";
 import { Combobox } from "~/components/ui/combobox";
+import { Checkbox } from "~/components/ui/checkbox";
+import { FormField, FormItem, FormLabel, FormControl } from "~/components/ui/form";
 
 interface UserFormProps {
   mode: "create" | "edit";
@@ -54,10 +56,11 @@ export function UserForm({
   const hierarchicalOptions = buildHierarchicalOptions(orgUnits);
 
   const form = useForm<InsertUserInputFromForm>({
-    resolver: zodResolver(insertUserSchemaFromForm),
+    resolver: zodResolver(insertUserSchemaFromForm) as any,
     defaultValues: {
       fullName: user?.fullName ?? "",
       email: user?.email ?? "",
+      isManager: user?.isManager ?? false,
       functionId: user?.functionId ?? undefined,
       managerId: user?.managerId ?? undefined,
       orgUnitId: user?.orgUnitId ?? undefined,
@@ -120,6 +123,25 @@ export function UserForm({
             nameInSchema="email"
             placeholder="Enter email address"
             type="email"
+          />
+          
+          <FormField
+            control={form.control}
+            name="isManager"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>Manager Role</FormLabel>
+                  <p className="text-muted-foreground text-sm">User has manager privileges</p>
+                </div>
+              </FormItem>
+            )}
           />
 
           <SelectWithLabel<

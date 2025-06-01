@@ -37,6 +37,7 @@ export default async function UserFormPage({ searchParams }: PageProps) {
 
     user = {
       ...found,
+      isManager: found.isManager ?? false,
       functionId: found.functionId ?? undefined,
       managerId: found.managerId ?? undefined,
       orgUnitId: found.orgUnitId ?? undefined,
