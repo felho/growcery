@@ -14,6 +14,11 @@ interface RatingSelectorProps {
 const RatingSelector = ({ value, onChange }: RatingSelectorProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
+  const valueRegex = /^\d+\.\d+$/;
+  if (!valueRegex.test(value)) {
+    return;
+  }
+
   const mainLevel = parseInt(value.split(".")[0]);
   const subLevel = parseInt(value.split(".")[1]);
 

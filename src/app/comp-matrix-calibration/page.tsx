@@ -23,41 +23,13 @@ import { Badge } from "~/components/ui/badge";
 import { Input } from "~/components/ui/input";
 import { ArrowUpDown, Filter, ExternalLink } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { users, orgUnits, getOrgUnitName } from "~/data/mockData";
+import { users, orgUnits, getOrgUnitName } from "~/server/db/data/mockData";
 import RatingSelector from "./_components/rating-selector";
-
-// Mock data for manager groups and competency matrices
-const managerGroups = [
-  {
-    id: "mg1",
-    name: "Engineering Leadership",
-    description: "Tech team managers",
-  },
-  { id: "mg2", name: "Sales Leadership", description: "Sales team managers" },
-  {
-    id: "mg3",
-    name: "Product Leadership",
-    description: "Product team managers",
-  },
-];
-
-const competencyMatrices = [
-  {
-    id: "cm1",
-    name: "Engineering Matrix",
-    competencyAreas: ["Craftsmanship", "Collaboration", "Leadership", "Impact"],
-  },
-  {
-    id: "cm2",
-    name: "Sales Matrix",
-    competencyAreas: [
-      "Sales Skills",
-      "Customer Focus",
-      "Leadership",
-      "Results",
-    ],
-  },
-];
+import useSWR from "swr";
+import { fetchManagerGroups } from "~/lib/client-api/manager-groups";
+import { fetchCompMatrices } from "~/lib/client-api/comp-matrix";
+import type { ManagerGroupWithMembers } from "~/server/queries/manager-group";
+import type { CompMatrix } from "~/server/queries/comp-matrix";
 
 const archetypes = [
   "Senior Engineer",
@@ -98,9 +70,37 @@ const CalibrationMeeting = () => {
     direction: "asc" | "desc";
   } | null>(null);
 
-  const selectedMatrixData = competencyMatrices.find(
-    (m) => m.id === selectedMatrix,
+  // Fetch manager groups and competency matrices from the database
+  const { data: managerGroups = [], isLoading: isLoadingManagerGroups } =
+    useSWR<ManagerGroupWithMembers[]>("/manager-groups", fetchManagerGroups);
+
+  const { data: competencyMatrices = [], isLoading: isLoadingMatrices } =
+    useSWR<CompMatrix[]>("/comp-matrices", fetchCompMatrices);
+
+  // Define competency areas for each matrix (temporary solution until we fetch areas from DB)
+  const matrixAreasMap = {
+    // Default areas for engineering matrices
+    engineering: ["Craftsmanship", "Collaboration", "Leadership", "Impact"],
+    // Default areas for sales matrices
+    sales: ["Sales Skills", "Customer Focus", "Leadership", "Results"],
+    // Default fallback
+    default: ["Technical Skills", "Collaboration", "Leadership", "Impact"],
+  };
+
+  // Find the selected matrix and determine its areas
+  const selectedMatrixObj = competencyMatrices.find(
+    (m) => m.id.toString() === selectedMatrix,
   );
+
+  // Temporary solution to provide competency areas until we fetch them from DB
+  const selectedMatrixData = selectedMatrixObj
+    ? {
+        ...selectedMatrixObj,
+        competencyAreas: matrixAreasMap.default,
+      }
+    : null;
+
+  const isLoading = isLoadingManagerGroups || isLoadingMatrices;
   const isSetupComplete = selectedManagerGroup && selectedMatrix;
 
   const handleSort = (key: string) => {
@@ -206,50 +206,59 @@ const CalibrationMeeting = () => {
           </p>
         </div>
 
-        <div className="grid max-w-4xl grid-cols-1 gap-6 lg:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Select Manager Group</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Select
-                value={selectedManagerGroup}
-                onValueChange={setSelectedManagerGroup}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose a manager group" />
-                </SelectTrigger>
-                <SelectContent>
-                  {managerGroups.map((group) => (
-                    <SelectItem key={group.id} value={group.id}>
-                      {group.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </CardContent>
-          </Card>
+        {isLoading ? (
+          <div className="text-muted-foreground py-8 text-center">
+            Loading data...
+          </div>
+        ) : (
+          <div className="grid max-w-4xl grid-cols-1 gap-6 lg:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Select Manager Group</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Select
+                  value={selectedManagerGroup}
+                  onValueChange={setSelectedManagerGroup}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a manager group" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {managerGroups.map((group) => (
+                      <SelectItem key={group.id} value={group.id.toString()}>
+                        {group.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Select Competency Matrix</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Select value={selectedMatrix} onValueChange={setSelectedMatrix}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose a competency matrix" />
-                </SelectTrigger>
-                <SelectContent>
-                  {competencyMatrices.map((matrix) => (
-                    <SelectItem key={matrix.id} value={matrix.id}>
-                      {matrix.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </CardContent>
-          </Card>
-        </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Select Competency Matrix</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Select
+                  value={selectedMatrix}
+                  onValueChange={setSelectedMatrix}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a competency matrix" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {competencyMatrices.map((matrix) => (
+                      <SelectItem key={matrix.id} value={matrix.id.toString()}>
+                        {matrix.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {selectedManagerGroup && selectedMatrix && (
           <Card className="max-w-4xl">
@@ -277,8 +286,12 @@ const CalibrationMeeting = () => {
         <div>
           <h1 className="text-3xl font-bold">Calibration Session</h1>
           <p className="text-muted-foreground mt-1">
-            {managerGroups.find((g) => g.id === selectedManagerGroup)?.name} •{" "}
-            {selectedMatrixData?.name}
+            {
+              managerGroups.find(
+                (g) => g.id.toString() === selectedManagerGroup,
+              )?.name
+            }{" "}
+            • {selectedMatrixData?.title}
           </p>
         </div>
         <Button
