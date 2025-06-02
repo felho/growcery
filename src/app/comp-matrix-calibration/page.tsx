@@ -159,6 +159,9 @@ const CalibrationMeeting = () => {
   useEffect(() => {
     const managerGroupId = searchParams.get("managerGroupId");
     const matrixId = searchParams.get("matrixId");
+    const orgUnitFilter = searchParams.get("orgUnit");
+    const archetypeFilter = searchParams.get("archetype");
+    const overallRatingFilter = searchParams.get("overallRating");
     
     if (managerGroupId) {
       setSelectedManagerGroup(managerGroupId);
@@ -167,25 +170,44 @@ const CalibrationMeeting = () => {
     if (matrixId) {
       setSelectedMatrix(matrixId);
     }
+    
+    // Apply filter values from URL parameters
+    setFilters(prev => ({
+      ...prev,
+      orgUnit: orgUnitFilter || "all",
+      archetype: archetypeFilter || "all",
+      overallRating: overallRatingFilter || "all"
+    }));
   }, [searchParams]);
 
-  // Update URL when selections change
+  // Update URL when selections or filters change
   useEffect(() => {
-    if (selectedManagerGroup || selectedMatrix) {
-      const params = new URLSearchParams();
-      
-      if (selectedManagerGroup) {
-        params.set("managerGroupId", selectedManagerGroup);
-      }
-      
-      if (selectedMatrix) {
-        params.set("matrixId", selectedMatrix);
-      }
-      
-      const url = `${window.location.pathname}?${params.toString()}`;
-      window.history.replaceState({}, "", url);
+    const params = new URLSearchParams();
+    
+    if (selectedManagerGroup) {
+      params.set("managerGroupId", selectedManagerGroup);
     }
-  }, [selectedManagerGroup, selectedMatrix]);
+    
+    if (selectedMatrix) {
+      params.set("matrixId", selectedMatrix);
+    }
+    
+    // Add filter parameters to URL if they're not set to "all"
+    if (filters.orgUnit !== "all") {
+      params.set("orgUnit", filters.orgUnit);
+    }
+    
+    if (filters.archetype !== "all") {
+      params.set("archetype", filters.archetype);
+    }
+    
+    if (filters.overallRating !== "all") {
+      params.set("overallRating", filters.overallRating);
+    }
+    
+    const url = `${window.location.pathname}?${params.toString()}`;
+    window.history.replaceState({}, "", url);
+  }, [selectedManagerGroup, selectedMatrix, filters]);
 
   // Update calibrationUsers state when fetchedCalibrationUsers changes
   React.useEffect(() => {
@@ -581,7 +603,7 @@ const CalibrationMeeting = () => {
               <label className="text-sm font-medium">Org Unit</label>
               <Select
                 value={filters.orgUnit}
-                onValueChange={(value) =>
+                onValueChange={(value) => 
                   setFilters((prev) => ({ ...prev, orgUnit: value }))
                 }
               >
