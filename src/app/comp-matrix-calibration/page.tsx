@@ -30,16 +30,14 @@ import {
   fetchManagerGroups,
   fetchManagerGroupById,
 } from "~/lib/client-api/manager-groups";
-import {
-  fetchCompMatrices,
-  fetchCompMatrix,
-} from "~/lib/client-api/comp-matrix";
+import { fetchCompMatrices, fetchCompMatrix } from "~/lib/client-api/comp-matrix";
+import { fetchCalibrationUsers } from "~/lib/client-api/calibration";
 import type { ManagerGroupWithMembers } from "~/server/queries/manager-group";
 import type {
   CompMatrix,
   CompMatrixWithFullRelations,
 } from "~/server/queries/comp-matrix";
-import type { User } from "~/server/queries/user";
+import type { User, UserWithCalibrationData } from "~/server/queries/user";
 
 const archetypes = [
   "Senior Engineer",
@@ -83,6 +81,9 @@ const CalibrationMeeting = () => {
   // State for storing the fetched matrix data
   const [matrixData, setMatrixData] =
     useState<CompMatrixWithFullRelations | null>(null);
+    
+  // State for storing calibration users (employees of managers with active matrix assignments)
+  const [calibrationUsers, setCalibrationUsers] = useState<UserWithCalibrationData[]>([]);
 
   // Fetch manager groups and competency matrices from the database
   const { data: managerGroups = [], isLoading: isLoadingManagerGroups } =
@@ -132,6 +133,27 @@ const CalibrationMeeting = () => {
       setMatrixData(fetchedMatrixData);
     }
   }, [fetchedMatrixData]);
+  
+  // Fetch calibration users when both manager group and matrix are selected
+  const { data: fetchedCalibrationUsers } = useSWR(
+    selectedManagerGroup && selectedMatrix
+      ? `/api/calibration/users?managerGroupId=${selectedManagerGroup}&matrixId=${selectedMatrix}`
+      : null,
+    selectedManagerGroup && selectedMatrix
+      ? () => fetchCalibrationUsers(
+          parseInt(selectedManagerGroup, 10),
+          parseInt(selectedMatrix, 10)
+        )
+      : null
+  );
+  
+  // Update calibrationUsers state when fetchedCalibrationUsers changes
+  React.useEffect(() => {
+    if (fetchedCalibrationUsers) {
+      setCalibrationUsers(fetchedCalibrationUsers);
+      console.log('Fetched calibration users:', fetchedCalibrationUsers);
+    }
+  }, [fetchedCalibrationUsers]);
 
   // Temporary solution to provide competency areas until we fetch them from DB
   const selectedMatrixData = selectedMatrixObj
@@ -348,7 +370,8 @@ const CalibrationMeeting = () => {
     );
   }
 
-  console.log(matrixData);
+  console.log('Matrix data:', matrixData);
+  console.log('Calibration users:', calibrationUsers);
 
   return (
     <div className="animate-fade-in space-y-6">
