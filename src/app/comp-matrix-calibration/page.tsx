@@ -313,6 +313,12 @@ const CalibrationMeeting = () => {
         if (sortConfig.key === "name") {
           aValue = a.fullName?.toLowerCase() ?? "";
           bValue = b.fullName?.toLowerCase() ?? "";
+        } else if (sortConfig.key === "orgUnit") {
+          aValue = a.orgUnit?.name?.toLowerCase() ?? "";
+          bValue = b.orgUnit?.name?.toLowerCase() ?? "";
+        } else if (sortConfig.key === "archetype") {
+          aValue = a.archetype?.name?.toLowerCase() ?? "";
+          bValue = b.archetype?.name?.toLowerCase() ?? "";
         } else if (sortConfig.key === "overallRating") {
           aValue = getOverall(a);
           bValue = getOverall(b);
