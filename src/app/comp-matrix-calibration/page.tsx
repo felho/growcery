@@ -310,7 +310,10 @@ const CalibrationMeeting = () => {
         let aValue: any;
         let bValue: any;
 
-        if (sortConfig.key === "overallRating") {
+        if (sortConfig.key === "name") {
+          aValue = a.fullName?.toLowerCase() ?? "";
+          bValue = b.fullName?.toLowerCase() ?? "";
+        } else if (sortConfig.key === "overallRating") {
           aValue = getOverall(a);
           bValue = getOverall(b);
         } else if (
