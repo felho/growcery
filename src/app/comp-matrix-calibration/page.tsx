@@ -557,7 +557,7 @@ const CalibrationMeeting = () => {
                     <Button
                       variant="ghost"
                       onClick={() => handleSort("name")}
-                      className="h-auto p-0 hover:bg-transparent"
+                      className="h-auto cursor-pointer p-0 hover:bg-transparent"
                     >
                       Name
                       <ArrowUpDown className="ml-0 h-4 w-4" />
@@ -567,7 +567,7 @@ const CalibrationMeeting = () => {
                     <Button
                       variant="ghost"
                       onClick={() => handleSort("orgUnit")}
-                      className="h-auto p-0 hover:bg-transparent"
+                      className="h-auto cursor-pointer p-0 hover:bg-transparent"
                     >
                       Org Unit
                       <ArrowUpDown className="ml-0 h-4 w-4" />
@@ -577,7 +577,7 @@ const CalibrationMeeting = () => {
                     <Button
                       variant="ghost"
                       onClick={() => handleSort("archetype")}
-                      className="h-auto p-0 hover:bg-transparent"
+                      className="h-auto cursor-pointer p-0 hover:bg-transparent"
                     >
                       Archetype
                       <ArrowUpDown className="ml-0 h-4 w-4" />
@@ -587,7 +587,7 @@ const CalibrationMeeting = () => {
                     <Button
                       variant="ghost"
                       onClick={() => handleSort("overallRating")}
-                      className="h-auto p-0 hover:bg-transparent"
+                      className="h-auto cursor-pointer p-0 hover:bg-transparent"
                     >
                       Overall
                       <ArrowUpDown className="ml-0 h-4 w-4" />
@@ -602,7 +602,7 @@ const CalibrationMeeting = () => {
                       <Button
                         variant="ghost"
                         onClick={() => handleSort(area.id.toString())}
-                        className="h-auto p-0 hover:bg-transparent"
+                        className="h-auto cursor-pointer p-0 hover:bg-transparent"
                       >
                         {area.title.length > 6
                           ? `${area.title.slice(0, 6)}...`
