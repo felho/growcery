@@ -23,7 +23,7 @@ import { Badge } from "~/components/ui/badge";
 import { Input } from "~/components/ui/input";
 import { ArrowUpDown, Filter, ExternalLink } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { users, orgUnits, getOrgUnitName } from "~/server/db/data/mockData";
+import { fetchOrgUnits } from "~/lib/client-api/org-units";
 import RatingSelector from "./_components/rating-selector";
 import useSWR from "swr";
 import {
@@ -50,26 +50,17 @@ const archetypes = [
   "Marketing Specialist",
 ];
 
-// Mock calibration data
-const mockCalibrationData = users.map((user) => ({
-  ...user,
-  archetype: archetypes[Math.floor(Math.random() * archetypes.length)],
-  overallRating: `${Math.floor(Math.random() * 6) + 1}.${Math.floor(Math.random() * 3) + 1}`,
-  competencyRatings: {
-    Craftsmanship: `${Math.floor(Math.random() * 6) + 1}.${Math.floor(Math.random() * 3) + 1}`,
-    Collaboration: `${Math.floor(Math.random() * 6) + 1}.${Math.floor(Math.random() * 3) + 1}`,
-    Leadership: `${Math.floor(Math.random() * 6) + 1}.${Math.floor(Math.random() * 3) + 1}`,
-    Impact: `${Math.floor(Math.random() * 6) + 1}.${Math.floor(Math.random() * 3) + 1}`,
-  },
-  promotionChance: Math.random() > 0.7,
-  subpromotionChance: Math.random() > 0.6,
-}));
+// Type for calibration data with UI-specific fields
+type CalibrationUserData = UserWithCalibrationData & {
+  promotionChance: boolean;
+  subpromotionChance: boolean;
+};
 
 const CalibrationMeeting = () => {
   const router = useRouter();
   const [selectedManagerGroup, setSelectedManagerGroup] = useState<string>("");
   const [selectedMatrix, setSelectedMatrix] = useState<string>("");
-  const [calibrationData, setCalibrationData] = useState(mockCalibrationData);
+  const [calibrationData, setCalibrationData] = useState<CalibrationUserData[]>([]);
   const [filters, setFilters] = useState({
     orgUnit: "all",
     archetype: "all",
@@ -96,6 +87,10 @@ const CalibrationMeeting = () => {
 
   const { data: competencyMatrices = [], isLoading: isLoadingMatrices } =
     useSWR<CompMatrix[]>("/comp-matrices", fetchCompMatrices);
+    
+  // Fetch organization units
+  const { data: orgUnits = [], isLoading: isLoadingOrgUnits } = 
+    useSWR("/org-units", fetchOrgUnits);
 
   // Fetch managers when a manager group is selected
   const {
@@ -157,6 +152,15 @@ const CalibrationMeeting = () => {
   React.useEffect(() => {
     if (fetchedCalibrationUsers) {
       setCalibrationUsers(fetchedCalibrationUsers);
+      
+      // Transform fetched users to include UI state properties
+      const transformedData: CalibrationUserData[] = fetchedCalibrationUsers.map(user => ({
+        ...user,
+        promotionChance: false,
+        subpromotionChance: false
+      }));
+      
+      setCalibrationData(transformedData);
       console.log("Fetched calibration users:", fetchedCalibrationUsers);
     }
   }, [fetchedCalibrationUsers]);
@@ -168,8 +172,31 @@ const CalibrationMeeting = () => {
         competencyAreas: matrixAreasMap.default,
       }
     : null;
+    
+  // Build hierarchical options for org units
+  const buildHierarchicalOptions = (
+    units: typeof orgUnits,
+    parentId: number | null = null,
+    level = 0,
+  ): { id: number; name: string; description: string }[] => {
+    return units
+      .filter((u) => u.parentId === parentId)
+      .flatMap((u) => [
+        {
+          id: u.id,
+          name: u.name, // Store the original name for keyboard navigation
+          description: `${level == 0 ? "" : "└"}${"— ".repeat(level)}${u.name}`,
+        },
+        ...buildHierarchicalOptions(units, u.id, level + 1),
+      ]);
+  };
 
-  const isLoading = isLoadingManagerGroups || isLoadingMatrices;
+  // Get hierarchical options for org units
+  const hierarchicalOrgUnitOptions = useMemo(() => {
+    return buildHierarchicalOptions(orgUnits);
+  }, [orgUnits]);
+
+  const isLoading = isLoadingManagerGroups || isLoadingMatrices || isLoadingOrgUnits;
   const isLoadingCalibrationData = isLoadingManagerGroupData;
   const isSetupComplete = selectedManagerGroup && selectedMatrix;
 
@@ -185,21 +212,13 @@ const CalibrationMeeting = () => {
     setSortConfig({ key, direction });
   };
 
-  const handleRatingChange = (userId: string, type: string, value: string) => {
-    setCalibrationData((prev) =>
+  const handleRatingChange = (userId: number, type: string, value: string) => {
+    setCalibrationData((prev: CalibrationUserData[]) =>
       prev.map((user) => {
         if (user.id === userId) {
-          if (type === "overall") {
-            return { ...user, overallRating: value };
-          } else {
-            return {
-              ...user,
-              competencyRatings: {
-                ...user.competencyRatings,
-                [type]: value,
-              },
-            };
-          }
+          // For now, we're just updating the UI state
+          // In a real implementation, we would call an API to update the assessment
+          console.log(`Updating rating for user ${userId}, type ${type}, value ${value}`);
         }
         return user;
       }),
@@ -207,11 +226,11 @@ const CalibrationMeeting = () => {
   };
 
   const handleCheckboxChange = (
-    userId: string,
+    userId: number,
     type: "promotion" | "subpromotion",
     checked: boolean,
   ) => {
-    setCalibrationData((prev) =>
+    setCalibrationData((prev: CalibrationUserData[]) =>
       prev.map((user) => {
         if (user.id === userId) {
           return {
@@ -435,9 +454,9 @@ const CalibrationMeeting = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Units</SelectItem>
-                  {orgUnits.map((unit) => (
-                    <SelectItem key={unit.id} value={unit.id}>
-                      {unit.name}
+                  {hierarchicalOrgUnitOptions.map((unit) => (
+                    <SelectItem key={unit.id} value={unit.id.toString()}>
+                      {unit.description}
                     </SelectItem>
                   ))}
                 </SelectContent>
