@@ -30,7 +30,10 @@ import {
   fetchManagerGroups,
   fetchManagerGroupById,
 } from "~/lib/client-api/manager-groups";
-import { fetchCompMatrices, fetchCompMatrix } from "~/lib/client-api/comp-matrix";
+import {
+  fetchCompMatrices,
+  fetchCompMatrix,
+} from "~/lib/client-api/comp-matrix";
 import { fetchCalibrationUsers } from "~/lib/client-api/calibration";
 import type { ManagerGroupWithMembers } from "~/server/queries/manager-group";
 import type {
@@ -81,9 +84,11 @@ const CalibrationMeeting = () => {
   // State for storing the fetched matrix data
   const [matrixData, setMatrixData] =
     useState<CompMatrixWithFullRelations | null>(null);
-    
+
   // State for storing calibration users (employees of managers with active matrix assignments)
-  const [calibrationUsers, setCalibrationUsers] = useState<UserWithCalibrationData[]>([]);
+  const [calibrationUsers, setCalibrationUsers] = useState<
+    UserWithCalibrationData[]
+  >([]);
 
   // Fetch manager groups and competency matrices from the database
   const { data: managerGroups = [], isLoading: isLoadingManagerGroups } =
@@ -133,25 +138,26 @@ const CalibrationMeeting = () => {
       setMatrixData(fetchedMatrixData);
     }
   }, [fetchedMatrixData]);
-  
+
   // Fetch calibration users when both manager group and matrix are selected
   const { data: fetchedCalibrationUsers } = useSWR(
     selectedManagerGroup && selectedMatrix
       ? `/api/calibration/users?managerGroupId=${selectedManagerGroup}&matrixId=${selectedMatrix}`
       : null,
     selectedManagerGroup && selectedMatrix
-      ? () => fetchCalibrationUsers(
-          parseInt(selectedManagerGroup, 10),
-          parseInt(selectedMatrix, 10)
-        )
-      : null
+      ? () =>
+          fetchCalibrationUsers(
+            parseInt(selectedManagerGroup, 10),
+            parseInt(selectedMatrix, 10),
+          )
+      : null,
   );
-  
+
   // Update calibrationUsers state when fetchedCalibrationUsers changes
   React.useEffect(() => {
     if (fetchedCalibrationUsers) {
       setCalibrationUsers(fetchedCalibrationUsers);
-      console.log('Fetched calibration users:', fetchedCalibrationUsers);
+      console.log("Fetched calibration users:", fetchedCalibrationUsers);
     }
   }, [fetchedCalibrationUsers]);
 
@@ -220,39 +226,46 @@ const CalibrationMeeting = () => {
   };
 
   const filteredAndSortedData = useMemo(() => {
-    let filtered = calibrationData.filter((user) => {
+    let filtered = calibrationUsers.filter((user) => {
       const matchesOrgUnit =
-        filters.orgUnit === "all" || user.orgUnit === filters.orgUnit;
+        filters.orgUnit === "all" ||
+        user.orgUnitId?.toString() === filters.orgUnit;
       const matchesArchetype =
-        filters.archetype === "all" || user.archetype === filters.archetype;
+        filters.archetype === "all" ||
+        user.archetype?.name === filters.archetype;
       const matchesOverallRating =
         filters.overallRating === "all" ||
-        user.overallRating.startsWith(filters.overallRating);
+        user.levelAssessments
+          ?.find((la) => la.isGeneral)
+          ?.mainLevel.toString() === filters.overallRating;
 
       return matchesOrgUnit && matchesArchetype && matchesOverallRating;
     });
 
     if (sortConfig) {
       filtered.sort((a, b) => {
+        const getOverall = (u: UserWithCalibrationData) =>
+          u.levelAssessments?.find((la) => la.isGeneral)?.mainLevel ?? 0;
+
+        const getAreaRating = (u: UserWithCalibrationData, areaId: number) =>
+          u.levelAssessments?.find(
+            (la) => la.compMatrixAreaId === areaId && !la.isGeneral,
+          )?.mainLevel ?? 0;
+
         let aValue: any;
         let bValue: any;
 
         if (sortConfig.key === "overallRating") {
-          aValue = parseFloat(a.overallRating);
-          bValue = parseFloat(b.overallRating);
+          aValue = getOverall(a);
+          bValue = getOverall(b);
         } else if (
-          selectedMatrixData?.competencyAreas.includes(sortConfig.key)
+          matrixData?.areas.some(
+            (area) => area.id.toString() === sortConfig.key,
+          )
         ) {
-          aValue = parseFloat(
-            a.competencyRatings[
-              sortConfig.key as keyof typeof a.competencyRatings
-            ] || "0",
-          );
-          bValue = parseFloat(
-            b.competencyRatings[
-              sortConfig.key as keyof typeof b.competencyRatings
-            ] || "0",
-          );
+          const areaId = parseInt(sortConfig.key);
+          aValue = getAreaRating(a, areaId);
+          bValue = getAreaRating(b, areaId);
         } else {
           aValue = a[sortConfig.key as keyof typeof a];
           bValue = b[sortConfig.key as keyof typeof b];
@@ -265,7 +278,7 @@ const CalibrationMeeting = () => {
     }
 
     return filtered;
-  }, [calibrationData, filters, sortConfig, selectedMatrixData]);
+  }, [calibrationUsers, filters, sortConfig, matrixData]);
 
   if (!isSetupComplete) {
     return (
@@ -370,8 +383,8 @@ const CalibrationMeeting = () => {
     );
   }
 
-  console.log('Matrix data:', matrixData);
-  console.log('Calibration users:', calibrationUsers);
+  console.log("Matrix data:", matrixData);
+  console.log("Calibration users:", calibrationUsers);
 
   return (
     <div className="animate-fade-in space-y-6">
@@ -544,31 +557,41 @@ const CalibrationMeeting = () => {
               <TableBody>
                 {filteredAndSortedData.map((person) => (
                   <TableRow key={person.id}>
-                    <TableCell className="font-medium">{person.name}</TableCell>
+                    <TableCell className="font-medium">
+                      {person.fullName}
+                    </TableCell>
                     <TableCell>
-                      <Badge variant="outline">
-                        {getOrgUnitName(person.orgUnit)}
+                      <Badge variant="outline">{person.orgUnit?.name}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">
+                        {person.archetype?.name}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="secondary">{person.archetype}</Badge>
+                      {person.levelAssessments &&
+                        (person.levelAssessments.find((la) => la.isGeneral)
+                          ?.mainLevel !== undefined
+                          ? person.levelAssessments
+                              .find((la) => la.isGeneral)
+                              ?.mainLevel.toString() || ""
+                          : "")}
                     </TableCell>
-                    <TableCell>
-                      <RatingSelector
-                        value={person.overallRating}
-                        onChange={(value) =>
-                          handleRatingChange(person.id, "overall", value)
-                        }
-                      />
-                    </TableCell>
-                    {selectedMatrixData?.competencyAreas.map((area) => (
-                      <TableCell key={area}>
-                        <RatingSelector
-                          value={person.competencyRatings[area.id]}
-                          onChange={(value) =>
-                            handleRatingChange(person.id, area.id, value)
-                          }
-                        />
+                    {matrixData?.areas.map((area) => (
+                      <TableCell key={area.id}>
+                        {person.levelAssessments &&
+                          (person.levelAssessments.find(
+                            (la) =>
+                              la.compMatrixAreaId === area.id && !la.isGeneral,
+                          )?.mainLevel !== undefined
+                            ? person.levelAssessments
+                                .find(
+                                  (la) =>
+                                    la.compMatrixAreaId === area.id &&
+                                    !la.isGeneral,
+                                )
+                                ?.mainLevel.toString() || ""
+                            : "")}
                       </TableCell>
                     ))}
                     <TableCell className="text-center">
