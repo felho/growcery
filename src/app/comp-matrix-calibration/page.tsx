@@ -26,10 +26,14 @@ import { useRouter } from "next/navigation";
 import { users, orgUnits, getOrgUnitName } from "~/server/db/data/mockData";
 import RatingSelector from "./_components/rating-selector";
 import useSWR from "swr";
-import { fetchManagerGroups } from "~/lib/client-api/manager-groups";
+import {
+  fetchManagerGroups,
+  fetchManagerGroupById,
+} from "~/lib/client-api/manager-groups";
 import { fetchCompMatrices } from "~/lib/client-api/comp-matrix";
 import type { ManagerGroupWithMembers } from "~/server/queries/manager-group";
 import type { CompMatrix } from "~/server/queries/comp-matrix";
+import type { User } from "~/server/queries/user";
 
 const archetypes = [
   "Senior Engineer",
@@ -77,6 +81,20 @@ const CalibrationMeeting = () => {
   const { data: competencyMatrices = [], isLoading: isLoadingMatrices } =
     useSWR<CompMatrix[]>("/comp-matrices", fetchCompMatrices);
 
+  // Fetch managers when a manager group is selected
+  const {
+    data: selectedManagerGroupData,
+    isLoading: isLoadingManagerGroupData,
+  } = useSWR<ManagerGroupWithMembers>(
+    selectedManagerGroup ? `/manager-groups/${selectedManagerGroup}` : null,
+    selectedManagerGroup
+      ? () => fetchManagerGroupById(parseInt(selectedManagerGroup, 10))
+      : null,
+  );
+
+  // Extract managers from the selected manager group
+  const managers = selectedManagerGroupData?.members || [];
+
   // Define competency areas for each matrix (temporary solution until we fetch areas from DB)
   const matrixAreasMap = {
     // Default areas for engineering matrices
@@ -101,6 +119,7 @@ const CalibrationMeeting = () => {
     : null;
 
   const isLoading = isLoadingManagerGroups || isLoadingMatrices;
+  const isLoadingCalibrationData = isLoadingManagerGroupData;
   const isSetupComplete = selectedManagerGroup && selectedMatrix;
 
   const handleSort = (key: string) => {
@@ -267,11 +286,29 @@ const CalibrationMeeting = () => {
                 <p className="mb-4 text-lg">
                   Ready to start calibration session
                 </p>
-                <Button
-                  onClick={() => setSelectedManagerGroup(selectedManagerGroup)}
-                >
-                  Start Calibration
-                </Button>
+                {isLoadingCalibrationData ? (
+                  <p className="text-muted-foreground">
+                    Loading managers data...
+                  </p>
+                ) : managers.length === 0 ? (
+                  <p className="text-muted-foreground">
+                    No managers found in this group
+                  </p>
+                ) : (
+                  <div>
+                    <p className="text-muted-foreground mb-4">
+                      {managers.length} managers will participate in this
+                      calibration
+                    </p>
+                    <Button
+                      onClick={() =>
+                        setSelectedManagerGroup(selectedManagerGroup)
+                      }
+                    >
+                      Start Calibration
+                    </Button>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -292,6 +329,7 @@ const CalibrationMeeting = () => {
               )?.name
             }{" "}
             • {selectedMatrixData?.title}
+            {managers.length > 0 && ` • ${managers.length} managers`}
           </p>
         </div>
         <Button
