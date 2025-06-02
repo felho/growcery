@@ -528,7 +528,7 @@ const CalibrationMeeting = () => {
                       <ArrowUpDown className="ml-0 h-4 w-4" />
                     </Button>
                   </TableHead>
-                  <TableHead className="text-muted-foreground text-xs font-medium">
+                  <TableHead className="text-muted-foreground min-w-[113px] text-xs font-medium">
                     <Button
                       variant="ghost"
                       onClick={() => handleSort("overallRating")}
@@ -542,14 +542,16 @@ const CalibrationMeeting = () => {
                   {matrixData?.areas.map((area) => (
                     <TableHead
                       key={`${matrixData?.id}-area-${area.id}`}
-                      className="text-muted-foreground min-w-[120px] text-xs font-medium"
+                      className="text-muted-foreground min-w-[113px] text-xs font-medium"
                     >
                       <Button
                         variant="ghost"
                         onClick={() => handleSort(area.id.toString())}
                         className="h-auto p-0 hover:bg-transparent"
                       >
-                        {area.title}
+                        {area.title.length > 6
+                          ? `${area.title.slice(0, 6)}...`
+                          : area.title}
                         <ArrowUpDown className="ml-0 h-4 w-4" />
                       </Button>
                     </TableHead>
