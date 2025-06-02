@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import {
   Select,
@@ -40,8 +41,25 @@ import { fetchCompMatrixLevelAssessments } from "~/lib/client-api/comp-matrix-le
 import type { CompMatrixLevelAssessment } from "~/zod-schemas/comp-matrix-level-assessment";
 
 const CompMatrixPage = () => {
-  const [phase, setPhase] = useState<Phase>("assessment");
-  const [viewMode, setViewMode] = useState<ViewMode>("employee");
+  const searchParams = useSearchParams();
+  
+  // Get URL parameters
+  const userIdParam = searchParams.get('userId');
+  const viewModeParam = searchParams.get('viewMode') as ViewMode | null;
+  const phaseParam = searchParams.get('phase') as Phase | null;
+  const orgUnitIdParam = searchParams.get('orgUnitId');
+  const archetypeIdParam = searchParams.get('archetypeId');
+  
+  // Validate viewMode parameter
+  const isValidViewMode = (mode: string | null): mode is ViewMode => 
+    mode === 'employee' || mode === 'manager';
+  
+  // Validate phase parameter
+  const isValidPhase = (p: string | null): p is Phase => 
+    p === 'assessment' || p === 'joint-discussion' || p === 'calibration';
+  
+  const [phase, setPhase] = useState<Phase>(isValidPhase(phaseParam) ? phaseParam : "assessment");
+  const [viewMode, setViewMode] = useState<ViewMode>(isValidViewMode(viewModeParam) ? viewModeParam : "employee");
   const [isMatrixLoaded, setIsMatrixLoaded] = useState(false);
 
   // Selection state
@@ -70,14 +88,54 @@ const CompMatrixPage = () => {
     fetchUserArchetypes,
   );
 
-  // Initialize default selections when component mounts
+  // Initialize selections based on URL parameters when component mounts
   useEffect(() => {
-    // All selects start with "No filter" selected
+    // Default: all selects start with "No filter" selected
     setSelectedFunction(null);
-    setSelectedOrgUnit(null);
-    setSelectedEmployee(null);
-    setSelectedArchetype(null);
-  }, []);
+    
+    // If orgUnitId parameter is provided, set the selected org unit
+    if (orgUnitIdParam && !isNaN(parseInt(orgUnitIdParam))) {
+      setSelectedOrgUnit(parseInt(orgUnitIdParam));
+    } else {
+      setSelectedOrgUnit(null);
+    }
+    
+    // If archetypeId parameter is provided, set the selected archetype
+    if (archetypeIdParam && !isNaN(parseInt(archetypeIdParam))) {
+      setSelectedArchetype(parseInt(archetypeIdParam));
+    } else {
+      setSelectedArchetype(null);
+    }
+    
+    // If userId parameter is provided, set the selected employee
+    if (userIdParam && !isNaN(parseInt(userIdParam))) {
+      const userId = parseInt(userIdParam);
+      setSelectedEmployee(userId);
+    } else {
+      setSelectedEmployee(null);
+    }
+  }, [userIdParam, orgUnitIdParam, archetypeIdParam]);
+  
+  // Auto-load matrix when userId is provided via URL parameter
+  useEffect(() => {
+    // Only auto-load if we have a valid userId and the data is loaded (users array is populated)
+    if (userIdParam && users.length > 0 && selectedEmployee) {
+      const userExists = users.some(user => user.id === selectedEmployee);
+      if (userExists) {
+        handleLoadMatrix();
+      }
+    }
+  }, [users, selectedEmployee, userIdParam]);
+  
+  // Update function filter when employee is selected and has data
+  useEffect(() => {
+    if (selectedEmployee && users.length > 0) {
+      const employee = users.find(user => user.id === selectedEmployee);
+      if (employee?.functionId) {
+        setSelectedFunction(employee.functionId);
+      }
+    }
+  }, [selectedEmployee, users]);
 
   const switchPhase = (newPhase: Phase) => {
     setPhase(newPhase);
