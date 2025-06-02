@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import {
@@ -22,7 +22,7 @@ import { Checkbox } from "~/components/ui/checkbox";
 import { Badge } from "~/components/ui/badge";
 import { Input } from "~/components/ui/input";
 import { ArrowUpDown, Filter, ExternalLink } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { fetchOrgUnits } from "~/lib/client-api/org-units";
 import { fetchUserArchetypes } from "~/lib/client-api/user-archetypes";
 import RatingSelector from "./_components/rating-selector";
@@ -54,6 +54,7 @@ type CalibrationUserData = UserWithCalibrationData & {
 
 const CalibrationMeeting = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [selectedManagerGroup, setSelectedManagerGroup] = useState<string>("");
   const [selectedMatrix, setSelectedMatrix] = useState<string>("");
   const [calibrationData, setCalibrationData] = useState<CalibrationUserData[]>(
@@ -153,6 +154,38 @@ const CalibrationMeeting = () => {
           )
       : null,
   );
+
+  // Read URL parameters on component mount
+  useEffect(() => {
+    const managerGroupId = searchParams.get("managerGroupId");
+    const matrixId = searchParams.get("matrixId");
+    
+    if (managerGroupId) {
+      setSelectedManagerGroup(managerGroupId);
+    }
+    
+    if (matrixId) {
+      setSelectedMatrix(matrixId);
+    }
+  }, [searchParams]);
+
+  // Update URL when selections change
+  useEffect(() => {
+    if (selectedManagerGroup || selectedMatrix) {
+      const params = new URLSearchParams();
+      
+      if (selectedManagerGroup) {
+        params.set("managerGroupId", selectedManagerGroup);
+      }
+      
+      if (selectedMatrix) {
+        params.set("matrixId", selectedMatrix);
+      }
+      
+      const url = `${window.location.pathname}?${params.toString()}`;
+      window.history.replaceState({}, "", url);
+    }
+  }, [selectedManagerGroup, selectedMatrix]);
 
   // Update calibrationUsers state when fetchedCalibrationUsers changes
   React.useEffect(() => {
@@ -421,7 +454,9 @@ const CalibrationMeeting = () => {
               <CardContent>
                 <Select
                   value={selectedManagerGroup}
-                  onValueChange={setSelectedManagerGroup}
+                  onValueChange={(value) => {
+                    setSelectedManagerGroup(value);
+                  }}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Choose a manager group" />
@@ -444,7 +479,9 @@ const CalibrationMeeting = () => {
               <CardContent>
                 <Select
                   value={selectedMatrix}
-                  onValueChange={setSelectedMatrix}
+                  onValueChange={(value) => {
+                    setSelectedMatrix(value);
+                  }}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Choose a competency matrix" />
