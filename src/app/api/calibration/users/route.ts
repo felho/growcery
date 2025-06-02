@@ -125,6 +125,7 @@ export async function GET(request: NextRequest) {
       .map((user) => ({
         ...user,
         levelAssessments: assessmentsByUser[user.id] || [],
+        activeCompMatrixAssignmentId: userToAssignmentMap.get(user.id) || 0,
       }));
 
     return NextResponse.json(usersWithActiveAssignments);

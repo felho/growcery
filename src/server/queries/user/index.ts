@@ -21,6 +21,7 @@ export type UserWithCalibrationData = User & {
   archetype: InferSelectModel<typeof userArchetypes> | null;
   orgUnit: InferSelectModel<typeof orgUnits> | null;
   levelAssessments: InferSelectModel<typeof compMatrixLevelAssessments>[];
+  activeCompMatrixAssignmentId: number;
 };
 
 // Query exports

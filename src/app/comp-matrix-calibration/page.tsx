@@ -36,6 +36,9 @@ import {
   fetchCompMatrix,
 } from "~/lib/client-api/comp-matrix";
 import { fetchCalibrationUsers } from "~/lib/client-api/calibration";
+import { createLevelAssessmentAction } from "~/server/actions/comp-matrix-level-assessment/create";
+import { updateLevelAssessmentAction } from "~/server/actions/comp-matrix-level-assessment/update";
+import { toast } from "sonner";
 import type { ManagerGroupWithMembers } from "~/server/queries/manager-group";
 import type {
   CompMatrix,
@@ -233,19 +236,69 @@ const CalibrationMeeting = () => {
     setSortConfig({ key, direction });
   };
 
-  const handleRatingChange = (userId: number, type: string, value: string) => {
-    setCalibrationData((prev: CalibrationUserData[]) =>
-      prev.map((user) => {
-        if (user.id === userId) {
-          // For now, we're just updating the UI state
-          // In a real implementation, we would call an API to update the assessment
-          console.log(
-            `Updating rating for user ${userId}, type ${type}, value ${value}`,
-          );
-        }
-        return user;
-      }),
+  const handleRatingChange = async (
+    userId: number,
+    type: string,
+    value: string,
+  ) => {
+    const [mainLevel, subLevel] = value.split(".").map(Number);
+    if (!mainLevel || !subLevel) return;
+
+    const user = calibrationUsers.find((u) => u.id === userId);
+    if (!user || !matrixData) return;
+
+    const isGeneral = type === "overall";
+    const compMatrixAreaId = isGeneral ? undefined : parseInt(type);
+    const existing = user.levelAssessments?.find((la) =>
+      isGeneral
+        ? la.isGeneral
+        : la.compMatrixAreaId === compMatrixAreaId && !la.isGeneral,
     );
+
+    const data = {
+      userCompMatrixAssignmentId: user.activeCompMatrixAssignmentId,
+      compMatrixId: matrixData.id,
+      isGeneral,
+      compMatrixAreaId: compMatrixAreaId,
+      mainLevel,
+      subLevel,
+    };
+
+    try {
+      if (existing?.mainLevel && existing?.subLevel) {
+        await updateLevelAssessmentAction(data);
+        toast.success("Assessment updated successfully");
+      } else {
+        await createLevelAssessmentAction(data);
+        toast.success("Assessment created successfully");
+      }
+
+      setCalibrationUsers((prev) =>
+        prev.map((u) => {
+          if (u.id !== userId) return u;
+          const newAssessment = {
+            ...data,
+            id: existing?.id ?? Math.random(),
+            createdAt: existing?.createdAt ?? new Date(),
+            updatedAt: new Date(),
+            compMatrixAreaId: data.compMatrixAreaId ?? null,
+          };
+          const rest =
+            u.levelAssessments?.filter((la) =>
+              isGeneral
+                ? !la.isGeneral
+                : la.compMatrixAreaId !== compMatrixAreaId,
+            ) ?? [];
+          return {
+            ...u,
+            levelAssessments: [...rest, newAssessment],
+          };
+        }),
+      );
+    } catch (e) {
+      console.error("Failed to save assessment", e);
+      toast.error("Failed to save assessment");
+    }
   };
 
   const handleCheckboxChange = (
