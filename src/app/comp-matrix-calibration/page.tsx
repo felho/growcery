@@ -715,13 +715,32 @@ const CalibrationMeeting = () => {
                     </TableCell>
                     <TableCell className="text-center">
                       <Button
+                        className="cursor-pointer"
                         variant="ghost"
                         size="sm"
-                        onClick={() =>
-                          router.push(
-                            `/admin/competency-matrices/${selectedMatrix}`,
-                          )
-                        }
+                        onClick={(e) => {
+                          // Build URL with parameters
+                          let matrixUrl = `/comp-matrix?userId=${person.id}&viewMode=manager&phase=calibration`;
+
+                          // Add orgUnitId if available
+                          if (person.orgUnitId) {
+                            matrixUrl += `&orgUnitId=${person.orgUnitId}`;
+                          }
+
+                          // Add archetypeId if available
+                          if (person.archetype?.id) {
+                            matrixUrl += `&archetypeId=${person.archetype.id}`;
+                          }
+                          
+                          // Check if command (Mac) or control (Windows) key is pressed
+                          if (e.metaKey || e.ctrlKey) {
+                            // Open in new tab
+                            window.open(matrixUrl, '_blank');
+                          } else {
+                            // Open in same tab
+                            router.push(matrixUrl);
+                          }
+                        }}
                       >
                         <ExternalLink className="h-4 w-4" />
                       </Button>
