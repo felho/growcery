@@ -30,9 +30,9 @@ import {
   fetchManagerGroups,
   fetchManagerGroupById,
 } from "~/lib/client-api/manager-groups";
-import { fetchCompMatrices } from "~/lib/client-api/comp-matrix";
+import { fetchCompMatrices, fetchCompMatrix } from "~/lib/client-api/comp-matrix";
 import type { ManagerGroupWithMembers } from "~/server/queries/manager-group";
-import type { CompMatrix } from "~/server/queries/comp-matrix";
+import type { CompMatrix, CompMatrixWithFullRelations } from "~/server/queries/comp-matrix";
 import type { User } from "~/server/queries/user";
 
 const archetypes = [
@@ -73,6 +73,9 @@ const CalibrationMeeting = () => {
     key: string;
     direction: "asc" | "desc";
   } | null>(null);
+  
+  // State for storing the fetched matrix data
+  const [matrixData, setMatrixData] = useState<CompMatrixWithFullRelations | null>(null);
 
   // Fetch manager groups and competency matrices from the database
   const { data: managerGroups = [], isLoading: isLoadingManagerGroups } =
@@ -109,6 +112,21 @@ const CalibrationMeeting = () => {
   const selectedMatrixObj = competencyMatrices.find(
     (m) => m.id.toString() === selectedMatrix,
   );
+
+  // Fetch detailed competency matrix data when a matrix is selected
+  const { data: fetchedMatrixData } = useSWR<CompMatrixWithFullRelations>(
+    selectedMatrix ? `/comp-matrices/${selectedMatrix}` : null,
+    selectedMatrix
+      ? () => fetchCompMatrix(parseInt(selectedMatrix, 10))
+      : null,
+  );
+
+  // Update matrixData state when fetchedMatrixData changes
+  React.useEffect(() => {
+    if (fetchedMatrixData) {
+      setMatrixData(fetchedMatrixData);
+    }
+  }, [fetchedMatrixData]);
 
   // Temporary solution to provide competency areas until we fetch them from DB
   const selectedMatrixData = selectedMatrixObj
