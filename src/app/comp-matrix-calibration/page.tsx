@@ -504,7 +504,8 @@ const CalibrationMeeting = () => {
                       onClick={() => handleSort("name")}
                       className="h-auto p-0 hover:bg-transparent"
                     >
-                      Name <ArrowUpDown className="ml-2 h-4 w-4" />
+                      Name
+                      <ArrowUpDown className="ml-0 h-4 w-4" />
                     </Button>
                   </TableHead>
                   <TableHead>
@@ -513,7 +514,8 @@ const CalibrationMeeting = () => {
                       onClick={() => handleSort("orgUnit")}
                       className="h-auto p-0 hover:bg-transparent"
                     >
-                      Org Unit <ArrowUpDown className="ml-2 h-4 w-4" />
+                      Org Unit
+                      <ArrowUpDown className="ml-0 h-4 w-4" />
                     </Button>
                   </TableHead>
                   <TableHead>
@@ -522,7 +524,8 @@ const CalibrationMeeting = () => {
                       onClick={() => handleSort("archetype")}
                       className="h-auto p-0 hover:bg-transparent"
                     >
-                      Archetype <ArrowUpDown className="ml-2 h-4 w-4" />
+                      Archetype
+                      <ArrowUpDown className="ml-0 h-4 w-4" />
                     </Button>
                   </TableHead>
                   <TableHead>
@@ -531,7 +534,8 @@ const CalibrationMeeting = () => {
                       onClick={() => handleSort("overallRating")}
                       className="h-auto p-0 hover:bg-transparent"
                     >
-                      Overall <ArrowUpDown className="ml-2 h-4 w-4" />
+                      Overall
+                      <ArrowUpDown className="ml-0 h-4 w-4" />
                     </Button>
                   </TableHead>
 
@@ -545,7 +549,8 @@ const CalibrationMeeting = () => {
                         onClick={() => handleSort(area.id.toString())}
                         className="h-auto p-0 hover:bg-transparent"
                       >
-                        {area.title} <ArrowUpDown className="ml-2 h-4 w-4" />
+                        {area.title}
+                        <ArrowUpDown className="ml-0 h-4 w-4" />
                       </Button>
                     </TableHead>
                   ))}
@@ -569,29 +574,49 @@ const CalibrationMeeting = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {person.levelAssessments &&
-                        (person.levelAssessments.find((la) => la.isGeneral)
-                          ?.mainLevel !== undefined
-                          ? person.levelAssessments
-                              .find((la) => la.isGeneral)
-                              ?.mainLevel.toString() || ""
-                          : "")}
+                      <RatingSelector
+                        value={
+                          person.levelAssessments?.find((la) => la.isGeneral)
+                            ? `${person.levelAssessments.find((la) => la.isGeneral)?.mainLevel}.${person.levelAssessments.find((la) => la.isGeneral)?.subLevel}`
+                            : ""
+                        }
+                        onChange={(newValue) =>
+                          handleRatingChange(person.id, "overall", newValue)
+                        }
+                      />
                     </TableCell>
                     {matrixData?.areas.map((area) => (
                       <TableCell key={area.id}>
-                        {person.levelAssessments &&
-                          (person.levelAssessments.find(
-                            (la) =>
-                              la.compMatrixAreaId === area.id && !la.isGeneral,
-                          )?.mainLevel !== undefined
-                            ? person.levelAssessments
-                                .find(
-                                  (la) =>
-                                    la.compMatrixAreaId === area.id &&
-                                    !la.isGeneral,
-                                )
-                                ?.mainLevel.toString() || ""
-                            : "")}
+                        <RatingSelector
+                          value={
+                            person.levelAssessments?.find(
+                              (la) =>
+                                la.compMatrixAreaId === area.id &&
+                                !la.isGeneral,
+                            )
+                              ? `${
+                                  person.levelAssessments.find(
+                                    (la) =>
+                                      la.compMatrixAreaId === area.id &&
+                                      !la.isGeneral,
+                                  )?.mainLevel
+                                }.${
+                                  person.levelAssessments.find(
+                                    (la) =>
+                                      la.compMatrixAreaId === area.id &&
+                                      !la.isGeneral,
+                                  )?.subLevel
+                                }`
+                              : ""
+                          }
+                          onChange={(newValue) =>
+                            handleRatingChange(
+                              person.id,
+                              area.id.toString(),
+                              newValue,
+                            )
+                          }
+                        />
                       </TableCell>
                     ))}
                     <TableCell className="text-center">
