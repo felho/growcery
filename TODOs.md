@@ -32,6 +32,9 @@
 - [ ] Turn off managing account option at Clerk
 - [ ] Attribute ideas for the future: geo location, office vs remote, tenure, tech stack, employee vs contractor
 - [ ] Use the level assessment component used on the calibration page for the comp matrix page as well (in calibration phase)
+- [ ] Add org unit filter to the users admin
+- [ ] Work out the detailed review cycle logic
+- [ ] Ensure that all the relevant changes are logged in the database (this includes, that all the tables should have the same audit log related fields). Figure out whether it is possible to have one audit table which stores the changes of any of the changed fields.
 
 ### Comp matrix
 
