@@ -621,13 +621,13 @@ const CalibrationMeeting = () => {
                     </TableHead>
                   ))}
                   <TableHead className="text-muted-foreground text-center text-xs font-medium">
-                    Promotion
-                  </TableHead>
-                  <TableHead className="text-muted-foreground text-center text-xs font-medium">
-                    Sub-promotion
-                  </TableHead>
-                  <TableHead className="text-muted-foreground text-center text-xs font-medium">
                     Matrix Link
+                  </TableHead>
+                  <TableHead className="text-muted-foreground text-center text-xs font-medium">
+                    Promo pot.
+                  </TableHead>
+                  <TableHead className="text-muted-foreground text-center text-xs font-medium">
+                    Sub-promo pot.
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -690,6 +690,38 @@ const CalibrationMeeting = () => {
                       </TableCell>
                     ))}
                     <TableCell className="text-center">
+                      <Button
+                        className="cursor-pointer"
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          // Build URL with parameters
+                          let matrixUrl = `/comp-matrix?userId=${person.id}&viewMode=manager&phase=calibration`;
+
+                          // Add orgUnitId if available
+                          if (person.orgUnitId) {
+                            matrixUrl += `&orgUnitId=${person.orgUnitId}`;
+                          }
+
+                          // Add archetypeId if available
+                          if (person.archetype?.id) {
+                            matrixUrl += `&archetypeId=${person.archetype.id}`;
+                          }
+
+                          // Check if command (Mac) or control (Windows) key is pressed
+                          if (e.metaKey || e.ctrlKey) {
+                            // Open in new tab
+                            window.open(matrixUrl, "_blank");
+                          } else {
+                            // Open in same tab
+                            router.push(matrixUrl);
+                          }
+                        }}
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                    <TableCell className="text-center">
                       <Checkbox
                         checked={person.promotionChance}
                         onCheckedChange={(checked) =>
@@ -712,38 +744,6 @@ const CalibrationMeeting = () => {
                           )
                         }
                       />
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Button
-                        className="cursor-pointer"
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          // Build URL with parameters
-                          let matrixUrl = `/comp-matrix?userId=${person.id}&viewMode=manager&phase=calibration`;
-
-                          // Add orgUnitId if available
-                          if (person.orgUnitId) {
-                            matrixUrl += `&orgUnitId=${person.orgUnitId}`;
-                          }
-
-                          // Add archetypeId if available
-                          if (person.archetype?.id) {
-                            matrixUrl += `&archetypeId=${person.archetype.id}`;
-                          }
-                          
-                          // Check if command (Mac) or control (Windows) key is pressed
-                          if (e.metaKey || e.ctrlKey) {
-                            // Open in new tab
-                            window.open(matrixUrl, '_blank');
-                          } else {
-                            // Open in same tab
-                            router.push(matrixUrl);
-                          }
-                        }}
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
