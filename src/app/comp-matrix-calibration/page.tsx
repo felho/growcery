@@ -568,18 +568,16 @@ const CalibrationMeeting = () => {
               <TableBody>
                 {filteredAndSortedData.map((person) => (
                   <TableRow key={person.id}>
-                    <TableCell className="font-medium">
-                      {person.fullName}
-                    </TableCell>
-                    <TableCell>
+                    <TableCell className="pl-5">{person.fullName}</TableCell>
+                    <TableCell className="pl-5">
                       <Badge variant="outline">{person.orgUnit?.name}</Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="pl-5">
                       <Badge variant="secondary">
                         {person.archetype?.name}
                       </Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="pl-5">
                       <RatingSelector
                         value={
                           person.levelAssessments?.find((la) => la.isGeneral)
@@ -592,7 +590,7 @@ const CalibrationMeeting = () => {
                       />
                     </TableCell>
                     {matrixData?.areas.map((area) => (
-                      <TableCell key={area.id}>
+                      <TableCell key={area.id} className="pl-5">
                         <RatingSelector
                           value={
                             person.levelAssessments?.find(
