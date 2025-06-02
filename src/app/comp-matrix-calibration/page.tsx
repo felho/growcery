@@ -30,9 +30,15 @@ import {
   fetchManagerGroups,
   fetchManagerGroupById,
 } from "~/lib/client-api/manager-groups";
-import { fetchCompMatrices, fetchCompMatrix } from "~/lib/client-api/comp-matrix";
+import {
+  fetchCompMatrices,
+  fetchCompMatrix,
+} from "~/lib/client-api/comp-matrix";
 import type { ManagerGroupWithMembers } from "~/server/queries/manager-group";
-import type { CompMatrix, CompMatrixWithFullRelations } from "~/server/queries/comp-matrix";
+import type {
+  CompMatrix,
+  CompMatrixWithFullRelations,
+} from "~/server/queries/comp-matrix";
 import type { User } from "~/server/queries/user";
 
 const archetypes = [
@@ -73,9 +79,10 @@ const CalibrationMeeting = () => {
     key: string;
     direction: "asc" | "desc";
   } | null>(null);
-  
+
   // State for storing the fetched matrix data
-  const [matrixData, setMatrixData] = useState<CompMatrixWithFullRelations | null>(null);
+  const [matrixData, setMatrixData] =
+    useState<CompMatrixWithFullRelations | null>(null);
 
   // Fetch manager groups and competency matrices from the database
   const { data: managerGroups = [], isLoading: isLoadingManagerGroups } =
@@ -116,9 +123,7 @@ const CalibrationMeeting = () => {
   // Fetch detailed competency matrix data when a matrix is selected
   const { data: fetchedMatrixData } = useSWR<CompMatrixWithFullRelations>(
     selectedMatrix ? `/comp-matrices/${selectedMatrix}` : null,
-    selectedMatrix
-      ? () => fetchCompMatrix(parseInt(selectedMatrix, 10))
-      : null,
+    selectedMatrix ? () => fetchCompMatrix(parseInt(selectedMatrix, 10)) : null,
   );
 
   // Update matrixData state when fetchedMatrixData changes
@@ -216,8 +221,16 @@ const CalibrationMeeting = () => {
         } else if (
           selectedMatrixData?.competencyAreas.includes(sortConfig.key)
         ) {
-          aValue = parseFloat(a.competencyRatings[sortConfig.key] || "0");
-          bValue = parseFloat(b.competencyRatings[sortConfig.key] || "0");
+          aValue = parseFloat(
+            a.competencyRatings[
+              sortConfig.key as keyof typeof a.competencyRatings
+            ] || "0",
+          );
+          bValue = parseFloat(
+            b.competencyRatings[
+              sortConfig.key as keyof typeof b.competencyRatings
+            ] || "0",
+          );
         } else {
           aValue = a[sortConfig.key as keyof typeof a];
           bValue = b[sortConfig.key as keyof typeof b];
@@ -335,6 +348,8 @@ const CalibrationMeeting = () => {
     );
   }
 
+  console.log(matrixData);
+
   return (
     <div className="animate-fade-in space-y-6">
       <div className="flex items-center justify-between">
@@ -346,7 +361,7 @@ const CalibrationMeeting = () => {
                 (g) => g.id.toString() === selectedManagerGroup,
               )?.name
             }{" "}
-            • {selectedMatrixData?.title}
+            • {matrixData?.title}
             {managers.length > 0 && ` • ${managers.length} managers`}
           </p>
         </div>
@@ -428,9 +443,9 @@ const CalibrationMeeting = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Ratings</SelectItem>
-                  {[1, 2, 3, 4, 5, 6].map((level) => (
-                    <SelectItem key={level} value={level.toString()}>
-                      {level}.x
+                  {matrixData?.levels.map((level) => (
+                    <SelectItem key={level.id} value={level.id.toString()}>
+                      {level.id}.x
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -483,14 +498,18 @@ const CalibrationMeeting = () => {
                       Overall <ArrowUpDown className="ml-2 h-4 w-4" />
                     </Button>
                   </TableHead>
-                  {selectedMatrixData?.competencyAreas.map((area) => (
-                    <TableHead key={area} className="min-w-[120px]">
+
+                  {matrixData?.areas.map((area) => (
+                    <TableHead
+                      key={`${matrixData?.id}-area-${area.id}`}
+                      className="min-w-[120px]"
+                    >
                       <Button
                         variant="ghost"
-                        onClick={() => handleSort(area)}
+                        onClick={() => handleSort(area.id.toString())}
                         className="h-auto p-0 hover:bg-transparent"
                       >
-                        {area} <ArrowUpDown className="ml-2 h-4 w-4" />
+                        {area.title} <ArrowUpDown className="ml-2 h-4 w-4" />
                       </Button>
                     </TableHead>
                   ))}
@@ -522,9 +541,9 @@ const CalibrationMeeting = () => {
                     {selectedMatrixData?.competencyAreas.map((area) => (
                       <TableCell key={area}>
                         <RatingSelector
-                          value={person.competencyRatings[area]}
+                          value={person.competencyRatings[area.id]}
                           onChange={(value) =>
-                            handleRatingChange(person.id, area, value)
+                            handleRatingChange(person.id, area.id, value)
                           }
                         />
                       </TableCell>
