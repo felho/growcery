@@ -553,7 +553,7 @@ const CalibrationMeeting = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="text-muted-foreground text-xs font-medium">
+                  <TableHead className="text-muted-foreground min-w-[170px] text-xs font-medium">
                     <Button
                       variant="ghost"
                       onClick={() => handleSort("name")}
