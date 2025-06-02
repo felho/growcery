@@ -498,7 +498,7 @@ const CalibrationMeeting = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>
+                  <TableHead className="text-muted-foreground text-xs font-medium">
                     <Button
                       variant="ghost"
                       onClick={() => handleSort("name")}
@@ -508,7 +508,7 @@ const CalibrationMeeting = () => {
                       <ArrowUpDown className="ml-0 h-4 w-4" />
                     </Button>
                   </TableHead>
-                  <TableHead>
+                  <TableHead className="text-muted-foreground text-xs font-medium">
                     <Button
                       variant="ghost"
                       onClick={() => handleSort("orgUnit")}
@@ -518,7 +518,7 @@ const CalibrationMeeting = () => {
                       <ArrowUpDown className="ml-0 h-4 w-4" />
                     </Button>
                   </TableHead>
-                  <TableHead>
+                  <TableHead className="text-muted-foreground text-xs font-medium">
                     <Button
                       variant="ghost"
                       onClick={() => handleSort("archetype")}
@@ -528,7 +528,7 @@ const CalibrationMeeting = () => {
                       <ArrowUpDown className="ml-0 h-4 w-4" />
                     </Button>
                   </TableHead>
-                  <TableHead>
+                  <TableHead className="text-muted-foreground text-xs font-medium">
                     <Button
                       variant="ghost"
                       onClick={() => handleSort("overallRating")}
@@ -542,7 +542,7 @@ const CalibrationMeeting = () => {
                   {matrixData?.areas.map((area) => (
                     <TableHead
                       key={`${matrixData?.id}-area-${area.id}`}
-                      className="min-w-[120px]"
+                      className="text-muted-foreground min-w-[120px] text-xs font-medium"
                     >
                       <Button
                         variant="ghost"
@@ -554,9 +554,15 @@ const CalibrationMeeting = () => {
                       </Button>
                     </TableHead>
                   ))}
-                  <TableHead className="text-center">Promotion</TableHead>
-                  <TableHead className="text-center">Sub-promotion</TableHead>
-                  <TableHead className="text-center">Matrix Link</TableHead>
+                  <TableHead className="text-muted-foreground text-center text-xs font-medium">
+                    Promotion
+                  </TableHead>
+                  <TableHead className="text-muted-foreground text-center text-xs font-medium">
+                    Sub-promotion
+                  </TableHead>
+                  <TableHead className="text-muted-foreground text-center text-xs font-medium">
+                    Matrix Link
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
