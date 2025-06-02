@@ -27,16 +27,12 @@ const RatingSelector = ({ value, onChange }: RatingSelectorProps) => {
     setIsOpen(false);
   };
 
-  const getRatingColor = () => {
-    return "bg-blue-100 text-blue-800 border-blue-200";
-  };
-
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className={`h-8 w-16 border p-1 text-xs font-medium ${getRatingColor()}`}
+          className="hover:!bg-secondary hover:!text-secondary-foreground hover:!border-primary h-7 w-16 cursor-pointer border !bg-green-100 p-1 text-xs font-medium text-green-800"
         >
           {value}
         </Button>
@@ -57,10 +53,10 @@ const RatingSelector = ({ value, onChange }: RatingSelectorProps) => {
                     key={`${main}.${sub}`}
                     variant="outline"
                     size="sm"
-                    className={`h-8 w-14 p-1 text-xs ${
+                    className={`h-7 w-14 cursor-pointer p-1 text-xs ${
                       mainLevel === main && subLevel === sub
-                        ? getRatingColor() + " ring-2 ring-blue-500"
-                        : "hover:border-blue-200 hover:bg-blue-50 hover:text-blue-800"
+                        ? "!bg-green-100 text-green-800 ring-2 ring-blue-500"
+                        : "hover:!bg-secondary hover:!text-secondary-foreground hover:!border-primary"
                     }`}
                     onClick={() => handleRatingSelect(main, sub)}
                   >
