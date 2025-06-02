@@ -24,6 +24,7 @@ import { Input } from "~/components/ui/input";
 import { ArrowUpDown, Filter, ExternalLink } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { fetchOrgUnits } from "~/lib/client-api/org-units";
+import { fetchUserArchetypes } from "~/lib/client-api/user-archetypes";
 import RatingSelector from "./_components/rating-selector";
 import useSWR from "swr";
 import {
@@ -42,14 +43,6 @@ import type {
 } from "~/server/queries/comp-matrix";
 import type { User, UserWithCalibrationData } from "~/server/queries/user";
 
-const archetypes = [
-  "Senior Engineer",
-  "Team Lead",
-  "Product Manager",
-  "Sales Manager",
-  "Marketing Specialist",
-];
-
 // Type for calibration data with UI-specific fields
 type CalibrationUserData = UserWithCalibrationData & {
   promotionChance: boolean;
@@ -60,7 +53,9 @@ const CalibrationMeeting = () => {
   const router = useRouter();
   const [selectedManagerGroup, setSelectedManagerGroup] = useState<string>("");
   const [selectedMatrix, setSelectedMatrix] = useState<string>("");
-  const [calibrationData, setCalibrationData] = useState<CalibrationUserData[]>([]);
+  const [calibrationData, setCalibrationData] = useState<CalibrationUserData[]>(
+    [],
+  );
   const [filters, setFilters] = useState({
     orgUnit: "all",
     archetype: "all",
@@ -87,10 +82,18 @@ const CalibrationMeeting = () => {
 
   const { data: competencyMatrices = [], isLoading: isLoadingMatrices } =
     useSWR<CompMatrix[]>("/comp-matrices", fetchCompMatrices);
-    
+
   // Fetch organization units
-  const { data: orgUnits = [], isLoading: isLoadingOrgUnits } = 
-    useSWR("/org-units", fetchOrgUnits);
+  const { data: orgUnits = [], isLoading: isLoadingOrgUnits } = useSWR(
+    "/org-units",
+    fetchOrgUnits,
+  );
+
+  // Fetch user archetypes
+  const { data: archetypes = [], isLoading: isLoadingArchetypes } = useSWR(
+    "/user-archetypes",
+    fetchUserArchetypes,
+  );
 
   // Fetch managers when a manager group is selected
   const {
@@ -152,14 +155,15 @@ const CalibrationMeeting = () => {
   React.useEffect(() => {
     if (fetchedCalibrationUsers) {
       setCalibrationUsers(fetchedCalibrationUsers);
-      
+
       // Transform fetched users to include UI state properties
-      const transformedData: CalibrationUserData[] = fetchedCalibrationUsers.map(user => ({
-        ...user,
-        promotionChance: false,
-        subpromotionChance: false
-      }));
-      
+      const transformedData: CalibrationUserData[] =
+        fetchedCalibrationUsers.map((user) => ({
+          ...user,
+          promotionChance: false,
+          subpromotionChance: false,
+        }));
+
       setCalibrationData(transformedData);
       console.log("Fetched calibration users:", fetchedCalibrationUsers);
     }
@@ -172,7 +176,7 @@ const CalibrationMeeting = () => {
         competencyAreas: matrixAreasMap.default,
       }
     : null;
-    
+
   // Build hierarchical options for org units
   const buildHierarchicalOptions = (
     units: typeof orgUnits,
@@ -190,7 +194,7 @@ const CalibrationMeeting = () => {
         ...buildHierarchicalOptions(units, u.id, level + 1),
       ]);
   };
-  
+
   // Get all child org units recursively
   const getAllChildOrgUnits = (parentId: number): number[] => {
     const directChildren = orgUnits
@@ -209,7 +213,11 @@ const CalibrationMeeting = () => {
     return buildHierarchicalOptions(orgUnits);
   }, [orgUnits]);
 
-  const isLoading = isLoadingManagerGroups || isLoadingMatrices || isLoadingOrgUnits;
+  const isLoading =
+    isLoadingManagerGroups ||
+    isLoadingMatrices ||
+    isLoadingOrgUnits ||
+    isLoadingArchetypes;
   const isLoadingCalibrationData = isLoadingManagerGroupData;
   const isSetupComplete = selectedManagerGroup && selectedMatrix;
 
@@ -231,7 +239,9 @@ const CalibrationMeeting = () => {
         if (user.id === userId) {
           // For now, we're just updating the UI state
           // In a real implementation, we would call an API to update the assessment
-          console.log(`Updating rating for user ${userId}, type ${type}, value ${value}`);
+          console.log(
+            `Updating rating for user ${userId}, type ${type}, value ${value}`,
+          );
         }
         return user;
       }),
@@ -261,7 +271,7 @@ const CalibrationMeeting = () => {
     let filtered = calibrationUsers.filter((user) => {
       // For org unit filtering, include users from child org units
       let matchesOrgUnit = filters.orgUnit === "all";
-      
+
       if (!matchesOrgUnit && user.orgUnitId) {
         // Direct match
         if (user.orgUnitId.toString() === filters.orgUnit) {
@@ -273,11 +283,11 @@ const CalibrationMeeting = () => {
           matchesOrgUnit = childOrgUnitIds.includes(user.orgUnitId);
         }
       }
-      
+
       const matchesArchetype =
         filters.archetype === "all" ||
         user.archetype?.name === filters.archetype;
-        
+
       const matchesOverallRating =
         filters.overallRating === "all" ||
         user.levelAssessments
@@ -503,8 +513,8 @@ const CalibrationMeeting = () => {
                 <SelectContent>
                   <SelectItem value="all">All Types</SelectItem>
                   {archetypes.map((archetype) => (
-                    <SelectItem key={archetype} value={archetype}>
-                      {archetype}
+                    <SelectItem key={archetype.id} value={archetype.name}>
+                      {archetype.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
