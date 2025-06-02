@@ -519,6 +519,7 @@ const CalibrationMeeting = () => {
           </p>
         </div>
         <Button
+          className="cursor-pointer"
           variant="outline"
           onClick={() => {
             setSelectedManagerGroup("");
