@@ -190,6 +190,19 @@ const CalibrationMeeting = () => {
         ...buildHierarchicalOptions(units, u.id, level + 1),
       ]);
   };
+  
+  // Get all child org units recursively
+  const getAllChildOrgUnits = (parentId: number): number[] => {
+    const directChildren = orgUnits
+      .filter((unit) => unit.parentId === parentId)
+      .map((unit) => unit.id);
+
+    const childrenOfChildren = directChildren.flatMap((childId) =>
+      getAllChildOrgUnits(childId),
+    );
+
+    return [...directChildren, ...childrenOfChildren];
+  };
 
   // Get hierarchical options for org units
   const hierarchicalOrgUnitOptions = useMemo(() => {
@@ -246,12 +259,25 @@ const CalibrationMeeting = () => {
 
   const filteredAndSortedData = useMemo(() => {
     let filtered = calibrationUsers.filter((user) => {
-      const matchesOrgUnit =
-        filters.orgUnit === "all" ||
-        user.orgUnitId?.toString() === filters.orgUnit;
+      // For org unit filtering, include users from child org units
+      let matchesOrgUnit = filters.orgUnit === "all";
+      
+      if (!matchesOrgUnit && user.orgUnitId) {
+        // Direct match
+        if (user.orgUnitId.toString() === filters.orgUnit) {
+          matchesOrgUnit = true;
+        } else if (filters.orgUnit !== "all") {
+          // Check if user's org unit is a child of the selected org unit
+          const selectedOrgUnitId = parseInt(filters.orgUnit, 10);
+          const childOrgUnitIds = getAllChildOrgUnits(selectedOrgUnitId);
+          matchesOrgUnit = childOrgUnitIds.includes(user.orgUnitId);
+        }
+      }
+      
       const matchesArchetype =
         filters.archetype === "all" ||
         user.archetype?.name === filters.archetype;
+        
       const matchesOverallRating =
         filters.overallRating === "all" ||
         user.levelAssessments
