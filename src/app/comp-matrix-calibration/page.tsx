@@ -162,49 +162,49 @@ const CalibrationMeeting = () => {
     const orgUnitFilter = searchParams.get("orgUnit");
     const archetypeFilter = searchParams.get("archetype");
     const overallRatingFilter = searchParams.get("overallRating");
-    
+
     if (managerGroupId) {
       setSelectedManagerGroup(managerGroupId);
     }
-    
+
     if (matrixId) {
       setSelectedMatrix(matrixId);
     }
-    
+
     // Apply filter values from URL parameters
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       orgUnit: orgUnitFilter || "all",
       archetype: archetypeFilter || "all",
-      overallRating: overallRatingFilter || "all"
+      overallRating: overallRatingFilter || "all",
     }));
   }, [searchParams]);
 
   // Update URL when selections or filters change
   useEffect(() => {
     const params = new URLSearchParams();
-    
+
     if (selectedManagerGroup) {
       params.set("managerGroupId", selectedManagerGroup);
     }
-    
+
     if (selectedMatrix) {
       params.set("matrixId", selectedMatrix);
     }
-    
+
     // Add filter parameters to URL if they're not set to "all"
     if (filters.orgUnit !== "all") {
       params.set("orgUnit", filters.orgUnit);
     }
-    
+
     if (filters.archetype !== "all") {
       params.set("archetype", filters.archetype);
     }
-    
+
     if (filters.overallRating !== "all") {
       params.set("overallRating", filters.overallRating);
     }
-    
+
     const url = `${window.location.pathname}?${params.toString()}`;
     window.history.replaceState({}, "", url);
   }, [selectedManagerGroup, selectedMatrix, filters]);
@@ -603,7 +603,7 @@ const CalibrationMeeting = () => {
               <label className="text-sm font-medium">Org Unit</label>
               <Select
                 value={filters.orgUnit}
-                onValueChange={(value) => 
+                onValueChange={(value) =>
                   setFilters((prev) => ({ ...prev, orgUnit: value }))
                 }
               >
@@ -736,12 +736,9 @@ const CalibrationMeeting = () => {
                   <TableHead className="text-muted-foreground text-center text-xs font-medium">
                     Matrix Link
                   </TableHead>
-                  <TableHead className="text-muted-foreground text-center text-xs font-medium">
+                  {/* <TableHead className="text-muted-foreground text-center text-xs font-medium">
                     Promo pot.
-                  </TableHead>
-                  <TableHead className="text-muted-foreground text-center text-xs font-medium">
-                    Sub-promo pot.
-                  </TableHead>
+                  </TableHead> */}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -749,7 +746,7 @@ const CalibrationMeeting = () => {
                   <TableRow key={person.id}>
                     <TableCell className="pl-5">{person.fullName}</TableCell>
                     <TableCell className="pl-5">
-                      <Badge variant="outline">{person.orgUnit?.name}</Badge>
+                      <Badge variant="secondary">{person.orgUnit?.name}</Badge>
                     </TableCell>
                     <TableCell className="pl-5">
                       <Badge variant="secondary">
@@ -834,8 +831,10 @@ const CalibrationMeeting = () => {
                         <ExternalLink className="h-4 w-4" />
                       </Button>
                     </TableCell>
-                    <TableCell className="text-center">
+                    {/* <TableCell className="justify-end text-center">
+                      M:
                       <Checkbox
+                        className="border-primary ml-2"
                         checked={person.promotionChance}
                         onCheckedChange={(checked) =>
                           handleCheckboxChange(
@@ -845,9 +844,10 @@ const CalibrationMeeting = () => {
                           )
                         }
                       />
-                    </TableCell>
-                    <TableCell className="text-center">
+                      <br />
+                      S:
                       <Checkbox
+                        className="border-primary ml-3"
                         checked={person.subpromotionChance}
                         onCheckedChange={(checked) =>
                           handleCheckboxChange(
@@ -857,7 +857,7 @@ const CalibrationMeeting = () => {
                           )
                         }
                       />
-                    </TableCell>
+                    </TableCell> */}
                   </TableRow>
                 ))}
               </TableBody>

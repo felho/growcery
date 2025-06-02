@@ -32,7 +32,7 @@ const RatingSelector = ({ value, onChange }: RatingSelectorProps) => {
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className="hover:!bg-secondary hover:!text-secondary-foreground hover:!border-primary h-7 w-16 cursor-pointer border !bg-green-100 p-1 text-xs font-medium text-green-800"
+          className="hover:!bg-secondary hover:!text-secondary-foreground hover:!border-primary h-6 w-12 cursor-pointer border !bg-green-100 p-1 text-xs font-medium text-green-800"
         >
           {value}
         </Button>
@@ -53,9 +53,9 @@ const RatingSelector = ({ value, onChange }: RatingSelectorProps) => {
                     key={`${main}.${sub}`}
                     variant="outline"
                     size="sm"
-                    className={`h-7 w-14 cursor-pointer p-1 text-xs ${
+                    className={`h-6 w-12 cursor-pointer p-1 text-xs ${
                       mainLevel === main && subLevel === sub
-                        ? "!bg-green-100 text-green-800 ring-2 ring-blue-500"
+                        ? "!bg-green-100 text-green-800"
                         : "hover:!bg-secondary hover:!text-secondary-foreground hover:!border-primary"
                     }`}
                     onClick={() => handleRatingSelect(main, sub)}
