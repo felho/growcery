@@ -2,7 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard as AdminIcon } from "lucide-react";
+import {
+  LayoutDashboard as AdminIcon,
+  Users as UsersIcon,
+  CalendarCheck as CalendarCheckIcon,
+  Grid3X3 as Grid3X3Icon,
+  Settings as SettingsIcon,
+  Import as ImportIcon,
+  ChartArea as ChartAreaIcon,
+} from "lucide-react";
 import { Home as HomeIcon } from "lucide-react";
 
 interface SidebarProps {
@@ -22,22 +30,27 @@ const Sidebar = ({ isOpen, hasBeenToggled }: SidebarProps) => {
     {
       name: "Competency Matrix",
       path: "/comp-matrix*",
-      icon: <AdminIcon className="h-5 w-5" />,
+      icon: <Grid3X3Icon className="h-5 w-5" />,
+    },
+    {
+      name: "Comp Matrix Calibration",
+      path: "/comp-matrix-calibration*",
+      icon: <CalendarCheckIcon className="h-5 w-5" />,
     },
     {
       name: "Comp Matrix Editor",
       path: "/comp-matrix-editor*",
-      icon: <AdminIcon className="h-5 w-5" />,
+      icon: <SettingsIcon className="h-5 w-5" />,
     },
     {
       name: "Comp Matrix Reports",
       path: "/comp-matrix-reports*",
-      icon: <AdminIcon className="h-5 w-5" />,
+      icon: <ChartAreaIcon className="h-5 w-5" />,
     },
     {
       name: "Comp Matrix Import",
       path: "/comp-matrix-import*",
-      icon: <AdminIcon className="h-5 w-5" />,
+      icon: <ImportIcon className="h-5 w-5" />,
     },
     {
       name: "Home",
