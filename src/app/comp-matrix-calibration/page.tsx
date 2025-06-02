@@ -575,6 +575,7 @@ const CalibrationMeeting = () => {
             }{" "}
             • {matrixData?.title}
             {managers.length > 0 && ` • ${managers.length} managers`}
+            {calibrationData.length > 0 && ` • ${calibrationData.length} calibrated users`}
           </p>
         </div>
         <Button
