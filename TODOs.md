@@ -31,6 +31,7 @@
 - [ ] IMPORTANT BUG: The reference ratings are loeded even in employee view.
 - [ ] Turn off managing account option at Clerk
 - [ ] Attribute ideas for the future: geo location, office vs remote, tenure, tech stack, employee vs contractor
+- [ ] Use the level assessment component used on the calibration page for the comp matrix page as well (in calibration phase)
 
 ### Comp matrix
 
