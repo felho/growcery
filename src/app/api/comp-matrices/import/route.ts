@@ -129,6 +129,7 @@ export async function POST(req: NextRequest) {
           return null;
         }
         // Area cell mapping
+        // TODO: make this dynamic based on the number of levels
         let areaCells;
         let generalCell;
         if (parseInt(matrixId) === 1) {
