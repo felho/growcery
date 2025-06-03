@@ -67,6 +67,7 @@ async function getOrCreateUser(
       fullName: name,
       email,
       organizationId,
+      isManager: false,
       orgUnitId: orgUnitId ?? undefined,
       functionId: functionId ?? undefined,
       archetypeId: archetypeId ?? undefined,
@@ -86,6 +87,7 @@ async function getOrCreateUser(
         id: user.id,
         fullName: user.fullName,
         email: user.email,
+        isManager: false,
         orgUnitId: orgUnitId ?? undefined,
         functionId: functionId ?? undefined,
         archetypeId: archetypeId ?? undefined,
@@ -257,16 +259,18 @@ export async function insertCurrentRatings({
     ) {
       continue;
     }
-    
+
     // Truncate comments to 1000 characters if they're longer
-    const selfComment = rating.selfComment && rating.selfComment.length > 1000 
-      ? rating.selfComment.substring(0, 1000)
-      : rating.selfComment;
-      
-    const managerComment = rating.managerComment && rating.managerComment.length > 1000
-      ? rating.managerComment.substring(0, 1000)
-      : rating.managerComment;
-    
+    const selfComment =
+      rating.selfComment && rating.selfComment.length > 1000
+        ? rating.selfComment.substring(0, 1000)
+        : rating.selfComment;
+
+    const managerComment =
+      rating.managerComment && rating.managerComment.length > 1000
+        ? rating.managerComment.substring(0, 1000)
+        : rating.managerComment;
+
     await db
       .insert(compMatrixCurrentRatings)
       .values({
@@ -334,17 +338,22 @@ export async function upsertLevelAssessments({
   const existingAssessments = await db
     .select()
     .from(compMatrixLevelAssessments)
-    .where(eq(compMatrixLevelAssessments.userCompMatrixAssignmentId, assignmentId));
-  
+    .where(
+      eq(compMatrixLevelAssessments.userCompMatrixAssignmentId, assignmentId),
+    );
+
   // Create a map for quick lookup
   const existingAssessmentsMap = new Map();
   for (const existing of existingAssessments) {
     if (existing.isGeneral) {
-      existingAssessmentsMap.set('general', existing);
+      existingAssessmentsMap.set("general", existing);
     } else if (existing.compMatrixAreaId) {
       existingAssessmentsMap.set(`area-${existing.compMatrixAreaId}`, existing);
     }
   }
+
+  // Keep track of which assessments are processed
+  const processedKeys = new Set<string>();
 
   // Process each assessment
   for (const assessment of assessments) {
@@ -357,7 +366,9 @@ export async function upsertLevelAssessments({
     }
 
     // Check if an assessment already exists
-    const key = assessment.isGeneral ? 'general' : `area-${compMatrixAreaId}`;
+    const key = assessment.isGeneral ? "general" : `area-${compMatrixAreaId}`;
+    processedKeys.add(key); // Mark this key as processed
+
     const existingAssessment = existingAssessmentsMap.get(key);
 
     if (existingAssessment) {
@@ -372,16 +383,28 @@ export async function upsertLevelAssessments({
         .where(eq(compMatrixLevelAssessments.id, existingAssessment.id));
     } else {
       // Insert new assessment
+      await db.insert(compMatrixLevelAssessments).values({
+        userCompMatrixAssignmentId: assignmentId,
+        compMatrixId: matrixId,
+        isGeneral: assessment.isGeneral,
+        compMatrixAreaId,
+        mainLevel: assessment.mainLevel,
+        subLevel: assessment.subLevel,
+      });
+    }
+  }
+
+  // Delete existing assessments that weren't in the imported file
+  for (const [key, assessment] of existingAssessmentsMap.entries()) {
+    if (!processedKeys.has(key)) {
+      // This assessment wasn't in the imported file, so delete it
       await db
-        .insert(compMatrixLevelAssessments)
-        .values({
-          userCompMatrixAssignmentId: assignmentId,
-          compMatrixId: matrixId,
-          isGeneral: assessment.isGeneral,
-          compMatrixAreaId,
-          mainLevel: assessment.mainLevel,
-          subLevel: assessment.subLevel,
-        });
+        .delete(compMatrixLevelAssessments)
+        .where(eq(compMatrixLevelAssessments.id, assessment.id));
+
+      console.log(
+        `Deleted assessment with id ${assessment.id} that wasn't in the import`,
+      );
     }
   }
 }

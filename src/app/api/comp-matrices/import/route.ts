@@ -176,19 +176,19 @@ export async function POST(req: NextRequest) {
           });
         }
         console.log("[DEBUG] Assessments to save:", assessments);
-        if (assessments.length > 0) {
-          console.log("[DEBUG] Calling upsertLevelAssessments with:", {
-            assignmentId: assignment.id,
-            matrixId: parseInt(matrixId!),
-            assessments,
-          });
-          await upsertLevelAssessments({
-            assignmentId: assignment.id,
-            matrixId: parseInt(matrixId!),
-            assessments,
-          });
-          console.log("[DEBUG] upsertLevelAssessments finished");
-        }
+        // Always call upsertLevelAssessments even if there are no assessments
+        // This ensures existing assessments are deleted if they're not in the import
+        console.log("[DEBUG] Calling upsertLevelAssessments with:", {
+          assignmentId: assignment.id,
+          matrixId: parseInt(matrixId!),
+          assessments,
+        });
+        await upsertLevelAssessments({
+          assignmentId: assignment.id,
+          matrixId: parseInt(matrixId!),
+          assessments,
+        });
+        console.log("[DEBUG] upsertLevelAssessments finished");
       }
       // --- END HEATMAP ---
 
