@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
         });
 
       // Get definition and rating option maps
-      const definitionMap = await getDefinitionMap();
+      const definitionMap = await getDefinitionMap(parseInt(matrixId!));
       const ratingOptionMap = await getRatingOptionMap(parseInt(matrixId!));
 
       // Read Excel file directly from buffer
@@ -129,13 +129,25 @@ export async function POST(req: NextRequest) {
           return null;
         }
         // Area cell mapping
-        const areaCells = [
-          { area: "Craftsmanship", cell: "J2" },
-          { area: "Collaboration", cell: "J7" },
-          { area: "Leadership", cell: "J11" },
-          { area: "Impact", cell: "J14" },
-        ];
-        const generalCell = "L2";
+        let areaCells;
+        let generalCell;
+        if (parseInt(matrixId) === 1) {
+          areaCells = [
+            { area: "Craftsmanship", cell: "J2" },
+            { area: "Collaboration", cell: "J7" },
+            { area: "Leadership", cell: "J11" },
+            { area: "Impact", cell: "J14" },
+          ];
+          generalCell = "L2";
+        } else {
+          areaCells = [
+            { area: "Craftsmanship", cell: "H2" },
+            { area: "Collaboration", cell: "H7" },
+            { area: "Leadership", cell: "H11" },
+            { area: "Impact", cell: "H14" },
+          ];
+          generalCell = "J2";
+        }
         const assessments = [];
         for (const { area, cell } of areaCells) {
           const val = heatmapSheet[cell]?.v;

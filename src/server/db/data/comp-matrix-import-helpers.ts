@@ -179,7 +179,9 @@ import {
 } from "~/server/db/schema";
 import { and, eq } from "drizzle-orm";
 
-export async function getDefinitionMap(): Promise<Map<string, number>> {
+export async function getDefinitionMap(
+  matrixId: number,
+): Promise<Map<string, number>> {
   const rows = await db
     .select({
       id: compMatrixDefinitions.id,
@@ -197,11 +199,14 @@ export async function getDefinitionMap(): Promise<Map<string, number>> {
     .innerJoin(
       compMatrixLevels,
       eq(compMatrixDefinitions.compMatrixLevelId, compMatrixLevels.id),
-    );
+    )
+    .where(eq(compMatrixLevels.compMatrixId, matrixId));
 
   const map = new Map<string, number>();
   for (const row of rows) {
-    map.set(`${row.compTitle}::${row.levelCode}`, row.id);
+    // Map L1 to E1, etc.
+    const levelCode = row.levelCode.replace("L", "E");
+    map.set(`${row.compTitle}::${levelCode}`, row.id);
   }
 
   return map;
