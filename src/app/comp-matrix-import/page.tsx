@@ -148,7 +148,7 @@ export default function CompMatrixImportPage() {
 
   // Autofill logic
   React.useEffect(() => {
-    if (!users) return;
+    if (!allUsers) return;
     if (!selectedUserId || selectedUserId === "__new__") {
       // Clear fields for new user
       form.reset({
@@ -162,7 +162,7 @@ export default function CompMatrixImportPage() {
       });
       return;
     }
-    const user = users.find((u) => u.id.toString() === selectedUserId);
+    const user = allUsers.find((u) => u.id.toString() === selectedUserId);
     if (user) {
       form.setValue("employeeName", user.fullName || "");
       form.setValue("employeeEmail", user.email || "");
@@ -191,7 +191,7 @@ export default function CompMatrixImportPage() {
         },
       );
     }
-  }, [selectedUserId, users]);
+  }, [selectedUserId, allUsers]);
 
   const onSubmit = async (data: FormData) => {
     try {
@@ -266,8 +266,8 @@ export default function CompMatrixImportPage() {
                 id="user-combobox"
                 items={[
                   { label: "New user", value: "__new__" },
-                  ...(users
-                    ? users.map((u) => ({
+                  ...(allUsers
+                    ? allUsers.map((u) => ({
                         label: `${u.fullName} (${u.email})`,
                         value: u.id.toString(),
                       }))
