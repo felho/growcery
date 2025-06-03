@@ -279,6 +279,7 @@ export function ManagerGroupForm({
                                 >
                                   <FormControl>
                                     <Checkbox
+                                      className="border-primary"
                                       checked={field.value?.includes(
                                         user.id.toString(),
                                       )}
