@@ -55,8 +55,8 @@ const formSchema = z.object({
   employeeEmail: z.string().email("Invalid email address"),
   managerId: z.string().min(1, "Manager is required"),
   functionId: z.string().min(1, "Function is required"),
-  orgUnitId: z.string().min(1, "Organization unit is required"),
-  archetypeId: z.string().min(1, "Archetype is required"),
+  orgUnitId: z.string().optional(),
+  archetypeId: z.string().optional(),
   matrixId: z.string().min(1, "Matrix is required"),
 });
 
@@ -366,7 +366,7 @@ export default function CompMatrixImportPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="orgUnitId">Organization Unit</Label>
+                <Label htmlFor="orgUnitId">Organization Unit (Optional)</Label>
                 <Select
                   onValueChange={(value) => form.setValue("orgUnitId", value)}
                   value={form.watch("orgUnitId")}
@@ -398,7 +398,7 @@ export default function CompMatrixImportPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="archetypeId">Archetype</Label>
+                <Label htmlFor="archetypeId">Archetype (Optional)</Label>
                 <Select
                   onValueChange={(value) => form.setValue("archetypeId", value)}
                   value={form.watch("archetypeId")}

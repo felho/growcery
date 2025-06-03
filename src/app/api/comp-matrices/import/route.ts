@@ -37,8 +37,7 @@ export async function POST(req: NextRequest) {
       !employeeEmail ||
       !managerId ||
       !functionId ||
-      !orgUnitId ||
-      !archetypeId ||
+      // orgUnitId and archetypeId are now optional
       !matrixId
     ) {
       return new Response("Missing required fields", { status: 400 });
@@ -74,8 +73,8 @@ export async function POST(req: NextRequest) {
           employeeEmail,
           managerId: parseInt(managerId!),
           functionId: parseInt(functionId!),
-          orgUnitId: parseInt(orgUnitId!),
-          archetypeId: parseInt(archetypeId!),
+          orgUnitId: orgUnitId ? parseInt(orgUnitId) : null,
+          archetypeId: archetypeId ? parseInt(archetypeId) : null,
           matrixId: parseInt(matrixId!),
         });
 

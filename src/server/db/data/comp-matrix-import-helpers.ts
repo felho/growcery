@@ -130,18 +130,32 @@ export async function getBaseEntities(options: {
   employeeEmail: string;
   managerId: number;
   functionId: number;
-  orgUnitId: number;
-  archetypeId: number;
+  orgUnitId: number | null;
+  archetypeId: number | null;
   matrixId: number;
 }) {
-  const orgUnit = await getOrgUnitById(options.orgUnitId);
+  // Get function (required)
   const func = await getFunctionById(options.functionId);
   if (!func) {
     throw new Error(`Function not found with ID: ${options.functionId}`);
   }
-  const archetype = await getUserArchetypeById(options.archetypeId);
-  if (!archetype) {
-    throw new Error(`Archetype not found with ID: ${options.archetypeId}`);
+  
+  // Get org unit (optional)
+  let orgUnit = null;
+  if (options.orgUnitId !== null) {
+    orgUnit = await getOrgUnitById(options.orgUnitId);
+    if (!orgUnit) {
+      throw new Error(`Org unit not found with ID: ${options.orgUnitId}`);
+    }
+  }
+  
+  // Get archetype (optional)
+  let archetype = null;
+  if (options.archetypeId !== null) {
+    archetype = await getUserArchetypeById(options.archetypeId);
+    if (!archetype) {
+      throw new Error(`Archetype not found with ID: ${options.archetypeId}`);
+    }
   }
   const manager = await getUserById(options.managerId);
   if (!manager) {
@@ -150,9 +164,9 @@ export async function getBaseEntities(options: {
   const employee = await getOrCreateUser(
     options.employeeName,
     options.employeeEmail,
-    orgUnit.id,
+    orgUnit?.id || null,
     func.id,
-    archetype.id,
+    archetype?.id || null,
     manager.id,
   );
   if (!employee) {
