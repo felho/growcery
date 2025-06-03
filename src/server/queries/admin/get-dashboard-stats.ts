@@ -1,5 +1,6 @@
 import { db } from "~/server/db";
 import { functions, orgUnits, users, userArchetypes } from "~/server/db/schema";
+import { managerGroups } from "~/server/db/schema/tables/manager-groups";
 import { auth } from "@clerk/nextjs/server";
 import { eq, count } from "drizzle-orm";
 
@@ -7,7 +8,7 @@ export async function getDashboardStats(organizationId: number) {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
-  const [functionCount, orgUnitCount, userCount, archetypeCount] =
+  const [functionCount, orgUnitCount, userCount, archetypeCount, managerGroupCount] =
     await Promise.all([
       db
         .select({ count: count() })
@@ -25,6 +26,10 @@ export async function getDashboardStats(organizationId: number) {
         .select({ count: count() })
         .from(userArchetypes)
         .where(eq(userArchetypes.organizationId, organizationId)),
+      db
+        .select({ count: count() })
+        .from(managerGroups)
+        .where(eq(managerGroups.organizationId, organizationId)),
     ]);
 
   return {
@@ -32,5 +37,7 @@ export async function getDashboardStats(organizationId: number) {
     orgUnitCount: orgUnitCount[0]?.count ?? 0,
     userCount: userCount[0]?.count ?? 0,
     archetypeCount: archetypeCount[0]?.count ?? 0,
+    managerGroupCount: managerGroupCount[0]?.count ?? 0,
   };
+
 }

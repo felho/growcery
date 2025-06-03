@@ -35,7 +35,7 @@ export default async function AdminPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <StatCard
           title="Functions"
           value={stats.functionCount}
@@ -64,6 +64,14 @@ export default async function AdminPage() {
           description="Total user archetypes"
           route="/admin/user-archetypes"
         />
+        <StatCard
+          title="Manager Groups"
+          value={stats.managerGroupCount}
+          icon={<UserCogIcon className="text-primary h-5 w-5" />}
+          description="Total manager groups"
+          route="/admin/manager-groups"
+        />
+        <StatCard title="" value="" icon="" description="" route="" />
       </div>
 
       {/* Quick Actions */}
@@ -95,6 +103,11 @@ export default async function AdminPage() {
               icon={<UserCogIcon className="h-4 w-4" />}
               label="Add User Archetype"
               route="/admin/user-archetypes/form"
+            />
+            <QuickAction
+              icon={<UserCogIcon className="h-4 w-4" />}
+              label="Add Manager Group"
+              route="/admin/manager-groups/form"
             />
           </div>
         </CardContent>
