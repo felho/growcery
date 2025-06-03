@@ -27,9 +27,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Users, Filter, LoaderCircle as LoaderCircleIcon } from "lucide-react";
 import { toast } from "sonner";
 import useSWR from "swr";
-import { fetchUsers, fetchOrgUnits } from "~/lib/client-api";
+import { fetchUsers, fetchOrgUnits, fetchFunctions } from "~/lib/client-api";
 import type { UserWithArchetype } from "~/server/queries/user";
 import type { OrgUnit } from "~/server/queries/org-unit";
+import type { Function } from "~/server/queries/function";
 import { useAction } from "next-safe-action/hooks";
 import {
   createManagerGroupAction,
@@ -100,6 +101,7 @@ export function ManagerGroupForm({
   const router = useRouter();
   const [orgUnitFilter, setOrgUnitFilter] = useState<string>("all");
   const [userTypeFilter, setUserTypeFilter] = useState<string>("all");
+  const [functionFilter, setFunctionFilter] = useState<string>("all");
 
   const { data: users = [], isLoading: isLoadingUsers } = useSWR<
     UserWithArchetype[]
@@ -108,8 +110,12 @@ export function ManagerGroupForm({
   const { data: orgUnits = [], isLoading: isLoadingOrgUnits } = useSWR<
     OrgUnit[]
   >("/org-units", fetchOrgUnits);
+  
+  const { data: functions = [], isLoading: isLoadingFunctions } = useSWR<
+    Function[]
+  >("/functions", fetchFunctions);
 
-  const isLoading = isLoadingUsers || isLoadingOrgUnits;
+  const isLoading = isLoadingUsers || isLoadingOrgUnits || isLoadingFunctions;
 
   const form = useForm<InsertManagerGroupInputFromForm>({
     resolver: zodResolver(insertManagerGroupSchemaFromForm),
@@ -182,6 +188,13 @@ export function ManagerGroupForm({
         return false;
       }
       if (userTypeFilter === "User" && user.isManager) {
+        return false;
+      }
+    }
+
+    // Filter by function
+    if (functionFilter !== "all") {
+      if (!user.functionId || user.functionId.toString() !== functionFilter) {
         return false;
       }
     }
@@ -377,6 +390,29 @@ export function ManagerGroupForm({
                           <SelectItem value="all">All Types</SelectItem>
                           <SelectItem value="Manager">Managers</SelectItem>
                           <SelectItem value="User">Regular Users</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm font-semibold">
+                        <Filter className="text-muted-foreground h-4 w-4" />
+                        Function
+                      </div>
+                      <Select
+                        value={functionFilter}
+                        onValueChange={setFunctionFilter}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="All functions" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Functions</SelectItem>
+                          {functions.map((func) => (
+                            <SelectItem key={func.id} value={func.id.toString()}>
+                              {func.name}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
