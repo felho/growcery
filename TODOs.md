@@ -35,6 +35,8 @@
 - [ ] Add org unit filter to the users admin
 - [ ] Work out the detailed review cycle logic
 - [ ] Ensure that all the relevant changes are logged in the database (this includes, that all the tables should have the same audit log related fields). Figure out whether it is possible to have one audit table which stores the changes of any of the changed fields.
+- [ ] In the case of the user creation form, if no archetype is selected, then it leads to a foreign key constraint violation. In this case null should be passed to the server action.
+- [ ] In the name selector combo box if I move to it with tab and then I can't get to an item by typing.
 
 ### Comp matrix
 
