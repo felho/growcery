@@ -257,6 +257,16 @@ export async function insertCurrentRatings({
     ) {
       continue;
     }
+    
+    // Truncate comments to 1000 characters if they're longer
+    const selfComment = rating.selfComment && rating.selfComment.length > 1000 
+      ? rating.selfComment.substring(0, 1000)
+      : rating.selfComment;
+      
+    const managerComment = rating.managerComment && rating.managerComment.length > 1000
+      ? rating.managerComment.substring(0, 1000)
+      : rating.managerComment;
+    
     await db
       .insert(compMatrixCurrentRatings)
       .values({
@@ -264,10 +274,10 @@ export async function insertCurrentRatings({
         userCompMatrixAssignmentId: assignmentId,
         compMatrixDefinitionId: rating.definitionId,
         selfRatingId: rating.selfRatingId,
-        selfComment: rating.selfComment,
+        selfComment,
         managerId,
         managerRatingId: rating.managerRatingId,
-        managerComment: rating.managerComment,
+        managerComment,
       })
       .onConflictDoUpdate({
         target: [
@@ -276,10 +286,10 @@ export async function insertCurrentRatings({
         ],
         set: {
           selfRatingId: rating.selfRatingId,
-          selfComment: rating.selfComment,
+          selfComment: selfComment,
           managerId,
           managerRatingId: rating.managerRatingId,
-          managerComment: rating.managerComment,
+          managerComment: managerComment,
         },
       });
   }
