@@ -418,6 +418,7 @@ const CalibrationMeeting = () => {
         let aValue: any;
         let bValue: any;
 
+
         if (sortConfig.key === "name") {
           aValue = a.fullName?.toLowerCase() ?? "";
           bValue = b.fullName?.toLowerCase() ?? "";
@@ -428,16 +429,32 @@ const CalibrationMeeting = () => {
           aValue = a.archetype?.name?.toLowerCase() ?? "";
           bValue = b.archetype?.name?.toLowerCase() ?? "";
         } else if (sortConfig.key === "overallRating") {
-          aValue = getOverall(a);
-          bValue = getOverall(b);
+          // Compose overall rating as 'main.sub' string, then compare as float
+          const aOverall = a.levelAssessments?.find((la) => la.isGeneral);
+          const bOverall = b.levelAssessments?.find((la) => la.isGeneral);
+          aValue = aOverall ? parseFloat(`${aOverall.mainLevel}.${aOverall.subLevel}`) : 0;
+          bValue = bOverall ? parseFloat(`${bOverall.mainLevel}.${bOverall.subLevel}`) : 0;
+          if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+          if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+          return 0;
         } else if (
           matrixData?.areas.some(
             (area) => area.id.toString() === sortConfig.key,
           )
         ) {
           const areaId = parseInt(sortConfig.key);
-          aValue = getAreaRating(a, areaId);
-          bValue = getAreaRating(b, areaId);
+          // Compose area rating as 'main.sub' string, then compare as float
+          const aArea = a.levelAssessments?.find(
+            (la) => la.compMatrixAreaId === areaId && !la.isGeneral,
+          );
+          const bArea = b.levelAssessments?.find(
+            (la) => la.compMatrixAreaId === areaId && !la.isGeneral,
+          );
+          aValue = aArea ? parseFloat(`${aArea.mainLevel}.${aArea.subLevel}`) : 0;
+          bValue = bArea ? parseFloat(`${bArea.mainLevel}.${bArea.subLevel}`) : 0;
+          if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+          if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+          return 0;
         } else {
           aValue = a[sortConfig.key as keyof typeof a];
           bValue = b[sortConfig.key as keyof typeof b];
