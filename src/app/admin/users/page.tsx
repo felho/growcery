@@ -15,7 +15,9 @@ import {
   PlusCircle as PlusCircleIcon,
   Search as SearchIcon,
   Pencil as PencilIcon,
+  Grid3X3 as Grid3X3Icon,
 } from "lucide-react";
+import { Badge } from "~/components/ui/badge";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import { toast } from "sonner";
 import Breadcrumbs from "../_components/breadcrumbs";
@@ -23,8 +25,8 @@ import { fetchOrgUnits } from "~/lib/client-api/org-units";
 import type { OrgUnit } from "~/server/queries/org-unit";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
-import { fetchUsers } from "~/lib/client-api";
-import type { UserWithArchetype } from "~/server/queries/user";
+import { fetchUsersWithMatrixNames } from "~/lib/client-api";
+import type { UserWithActiveMatrixName } from "~/server/queries/user/get-all-with-active-matrix-name";
 import { useAction } from "next-safe-action/hooks";
 import { deleteUserAction } from "~/server/actions/user/delete";
 import { DeleteUserDialog } from "./_components/delete-user-dialog";
@@ -38,7 +40,10 @@ export default function UsersPage() {
     isLoading: isLoadingUsers,
     error: usersError,
     mutate,
-  } = useSWR<UserWithArchetype[]>("/users", fetchUsers);
+  } = useSWR<UserWithActiveMatrixName[]>(
+    "/users/with-matrix-names",
+    fetchUsersWithMatrixNames,
+  );
 
   const {
     data: orgUnits = [],
@@ -162,6 +167,9 @@ export default function UsersPage() {
               <TableHead className="text-muted-foreground text-xs font-medium">
                 Archetype
               </TableHead>
+              <TableHead className="text-muted-foreground text-xs font-medium">
+                Competency Matrix
+              </TableHead>
               <TableHead className="text-muted-foreground w-[100px] text-xs font-medium">
                 Actions
               </TableHead>
@@ -188,6 +196,12 @@ export default function UsersPage() {
                 <TableCell>{user.isManager ? "Manager" : "User"}</TableCell>
                 <TableCell>{getOrgUnitName(user.orgUnitId ?? 0)}</TableCell>
                 <TableCell>{user.archetype?.name ?? "-"}</TableCell>
+                <TableCell>
+                  <Badge variant="secondary">
+                    <Grid3X3Icon className="mr-2 h-4 w-4" />
+                    {user.activeMatrix?.title ?? "-"}
+                  </Badge>
+                </TableCell>
                 <TableCell>
                   <div className="flex space-x-2">
                     <Button
