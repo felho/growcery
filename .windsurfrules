@@ -1,3 +1,12 @@
+# General rules
+
+- Talk in Hungarian with me. All the codes should be in English.
+- Never hallucinate.
+- Do not assume missing details - request them explicitly.
+- If you are not sure about something, ask me.
+- Don't change areas that we haven't discussed. In such a case, ask me.
+- First always create a plan of action, then implement it, in the case I say "go".
+
 # General Code Style & Formatting
 
 - Use Kebab Case for React component file names (e.g., user-card.tsx).
