@@ -16,6 +16,7 @@ import {
   Search as SearchIcon,
   Pencil as PencilIcon,
   Grid3X3 as Grid3X3Icon,
+  Plus as PlusIcon,
 } from "lucide-react";
 import { Badge } from "~/components/ui/badge";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
@@ -26,7 +27,10 @@ import type { OrgUnit } from "~/server/queries/org-unit";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { fetchUsersWithMatrixNames } from "~/lib/client-api";
+import { fetchPublishedCompMatrices } from "~/lib/client-api/comp-matrices";
 import type { UserWithActiveMatrixName } from "~/server/queries/user/get-all-with-active-matrix-name";
+import type { CompMatrixForAssignment } from "~/server/queries/comp-matrix/get-published";
+import { AssignMatrixDialog } from "./_components/assign-matrix-dialog";
 import { useAction } from "next-safe-action/hooks";
 import { deleteUserAction } from "~/server/actions/user/delete";
 import { DeleteUserDialog } from "./_components/delete-user-dialog";
@@ -44,6 +48,19 @@ export default function UsersPage() {
     "/users/with-matrix-names",
     fetchUsersWithMatrixNames,
   );
+
+  const { data: matrices = [], isLoading: isLoadingMatrices } = useSWR<
+    CompMatrixForAssignment[]
+  >("/comp-matrices/published", fetchPublishedCompMatrices);
+
+  // Dialog kezelés
+  const [isAssignMatrixDialogOpen, setIsAssignMatrixDialogOpen] =
+    useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [selectedUserName, setSelectedUserName] = useState<string>("");
+  const [selectedUserFunctionId, setSelectedUserFunctionId] = useState<
+    number | null
+  >(null);
 
   const {
     data: orgUnits = [],
@@ -78,6 +95,22 @@ export default function UsersPage() {
 
   const handleEdit = (id: number) => {
     router.push(`/admin/users/form?userId=${id}`);
+  };
+
+  const handleAssignMatrix = (
+    userId: number,
+    fullName: string,
+    functionId: number | null,
+  ) => {
+    if (!functionId) {
+      toast.error("User doesn't have a function assigned");
+      return;
+    }
+
+    setSelectedUserId(userId);
+    setSelectedUserName(fullName);
+    setSelectedUserFunctionId(functionId);
+    setIsAssignMatrixDialogOpen(true);
   };
 
   const handleDelete = (id: number) => {
@@ -197,10 +230,28 @@ export default function UsersPage() {
                 <TableCell>{getOrgUnitName(user.orgUnitId ?? 0)}</TableCell>
                 <TableCell>{user.archetype?.name ?? "-"}</TableCell>
                 <TableCell>
-                  <Badge variant="secondary">
-                    <Grid3X3Icon className="mr-2 h-4 w-4" />
-                    {user.activeMatrix?.title ?? "-"}
-                  </Badge>
+                  {user.activeMatrix ? (
+                    <Badge variant="secondary">
+                      <Grid3X3Icon className="mr-2 h-4 w-4" />
+                      {user.activeMatrix.title}
+                    </Badge>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        handleAssignMatrix(
+                          user.id,
+                          user.fullName,
+                          user.functionId,
+                        )
+                      }
+                      className="!border-primary flex h-7 cursor-pointer items-center gap-1 border text-xs"
+                    >
+                      <PlusIcon className="h-3 w-3" />
+                      Assign Matrix
+                    </Button>
+                  )}
                 </TableCell>
                 <TableCell>
                   <div className="flex space-x-2">
@@ -233,6 +284,19 @@ export default function UsersPage() {
           </TableBody>
         </Table>
       </div>
+
+      {selectedUserId !== null && selectedUserFunctionId !== null && (
+        <AssignMatrixDialog
+          userId={selectedUserId}
+          userName={selectedUserName}
+          functionId={selectedUserFunctionId}
+          open={isAssignMatrixDialogOpen}
+          onOpenChange={setIsAssignMatrixDialogOpen}
+          onSuccess={() => mutate()}
+          matrices={matrices}
+          isLoading={isLoadingMatrices}
+        />
+      )}
     </div>
   );
 }
