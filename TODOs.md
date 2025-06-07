@@ -2,7 +2,6 @@
 
 ### Important features
 
-- [ ] On the calibration page, only the already set level assessments are editable.
 - [ ] Look after how the level code is currently generated when a level is created.
 - [ ] Check the manager group page: in the case of edit the already exisintg members should be at the top of the list.
 

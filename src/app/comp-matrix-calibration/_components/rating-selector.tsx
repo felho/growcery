@@ -7,20 +7,30 @@ import {
 } from "~/components/ui/popover";
 
 interface RatingSelectorProps {
-  value: string;
+  value?: string;
   onChange: (value: string) => void;
 }
 
 const RatingSelector = ({ value, onChange }: RatingSelectorProps) => {
   const [isOpen, setIsOpen] = useState(false);
-
+  
+  // Mindig megjelenítünk egy badge-et, még ha nincs is beállítva level assessment
+  // Ha nincs érték vagy üres string, akkor 0.0-t mutatunk
+  const safeValue = value || "";
   const valueRegex = /^\d+\.\d+$/;
-  if (!valueRegex.test(value)) {
-    return;
+  const isValidValue = valueRegex.test(safeValue);
+  
+  // Alapértelmezett értékek
+  let mainLevel = 0;
+  let subLevel = 0;
+  const displayValue = isValidValue ? safeValue : "0.0";
+  
+  // Ha érvényes érték, akkor feldolgozzuk
+  if (isValidValue) {
+    const parts = safeValue.split(".");
+    mainLevel = parseInt(parts[0] || "0");
+    subLevel = parseInt(parts[1] || "0");
   }
-
-  const mainLevel = parseInt(value.split(".")[0]);
-  const subLevel = parseInt(value.split(".")[1]);
 
   const handleRatingSelect = (main: number, sub: number) => {
     onChange(`${main}.${sub}`);
@@ -32,9 +42,13 @@ const RatingSelector = ({ value, onChange }: RatingSelectorProps) => {
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className="hover:!bg-secondary hover:!text-secondary-foreground hover:!border-primary h-6 w-12 cursor-pointer border !bg-green-100 p-1 text-xs font-medium text-green-800"
+          className={`h-6 w-12 cursor-pointer border p-1 text-xs font-medium ${
+            displayValue === "0.0"
+              ? "!bg-red-100 text-red-800"
+              : "!bg-green-100 text-green-800"
+          } hover:!bg-secondary hover:!text-secondary-foreground hover:!border-primary`}
         >
-          {value}
+          {displayValue}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-3" align="center">
