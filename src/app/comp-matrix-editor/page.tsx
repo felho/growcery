@@ -38,6 +38,7 @@ const CompetencyMatrixList = () => {
     name: "",
     functionId: "",
     published: false,
+    levelCode: "L",
   });
 
   const {

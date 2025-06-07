@@ -14,6 +14,7 @@ export async function updateCompMatrix(
       title: input.title,
       functionId: input.functionId,
       isPublished: input.isPublished,
+      levelCode: input.levelCode,
       updatedAt: new Date(),
     })
     .where(eq(compMatrices.id, matrixId))

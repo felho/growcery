@@ -74,6 +74,7 @@ interface MatrixMetadata {
   title: string;
   functionId: number;
   isPublished: boolean;
+  levelCode: string;
 }
 
 const CompetencyMatrixEditor = () => {
@@ -88,6 +89,7 @@ const CompetencyMatrixEditor = () => {
     title: "",
     functionId: 0,
     isPublished: false,
+    levelCode: "L",
   });
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("levels");
@@ -118,6 +120,7 @@ const CompetencyMatrixEditor = () => {
           title: matrixData.title,
           functionId: matrixData.functionId,
           isPublished: matrixData.isPublished,
+          levelCode: matrixData.levelCode || "L",
         });
         setTempName(matrixData.title);
         setTempFunctionId(matrixData.functionId.toString());
@@ -655,6 +658,23 @@ const CompetencyMatrixEditor = () => {
                     "N/A"}
                 </p>
               )}
+            </div>
+          </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="levelCode">Level Code</Label>
+              {isEditingMeta ? (
+                <Input
+                  id="levelCode"
+                  value={metadata.levelCode}
+                  onChange={(e) => handleMetadataChange("levelCode", e.target.value)}
+                  maxLength={10}
+                  placeholder="pl. L"
+                />
+              ) : (
+                <p className="text-lg font-medium">{matrix.levelCode || "L"}</p>
+              )}
+              <p className="text-sm text-muted-foreground">Prefix for levels in the matrix (e.g. L1, L2, etc.)</p>
             </div>
           </div>
           <div className="flex items-center gap-2">

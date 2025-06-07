@@ -32,11 +32,13 @@ interface CreateMatrixDialogProps {
     name: string;
     functionId: string;
     published: boolean;
+    levelCode: string;
   };
   onMatrixChange: (matrix: {
     name: string;
     functionId: string;
     published: boolean;
+    levelCode: string;
   }) => void;
   onSubmit: () => void;
 }
@@ -59,6 +61,7 @@ export function CreateMatrixDialog({
         title: newMatrix.name,
         functionId: Number(newMatrix.functionId),
         isPublished: newMatrix.published,
+        levelCode: newMatrix.levelCode,
       });
 
       toast.success("Competency matrix created successfully");
@@ -114,6 +117,20 @@ export function CreateMatrixDialog({
               </SelectContent>
             </Select>
           </div>
+          <div className="grid gap-2">
+            <Label htmlFor="levelCode">Level Code</Label>
+            <Input
+              id="levelCode"
+              value={newMatrix.levelCode}
+              onChange={(e) =>
+                onMatrixChange({ ...newMatrix, levelCode: e.target.value })
+              }
+              placeholder="pl. L"
+              maxLength={10}
+              required
+            />
+            <p className="text-sm text-muted-foreground">Prefix for levels in the matrix (e.g. L1, L2, etc.)</p>
+          </div>
           <div className="flex items-center gap-2">
             <Switch
               id="published"
@@ -131,7 +148,7 @@ export function CreateMatrixDialog({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={!newMatrix.name || !newMatrix.functionId || isSubmitting}
+            disabled={!newMatrix.name || !newMatrix.functionId || !newMatrix.levelCode || isSubmitting}
           >
             {isSubmitting ? "Creating..." : "Create Matrix"}
           </Button>
