@@ -1,8 +1,10 @@
 ## Issues
 
-### Small todos
+### Important features
 
-- [x] Rename files: topnav to top-nav, syncuser to sync-user
+- [ ] On the calibration page, only the already set level assessments are editable.
+- [ ] Look after how the level code is currently generated when a level is created.
+- [ ] Check the manager group page: in the case of edit the already exisintg members should be at the top of the list.
 
 ### Small improvement ideas
 
