@@ -13,7 +13,7 @@ export const compMatrices = createTable("comp_matrices", {
     .notNull()
     .references(() => functions.id),
   title: varchar({ length: 250 }).notNull(),
-  levelCode: varchar({ length: 10 }).notNull().default("L"),
+  levelCode: varchar({ length: 10 }).notNull(),
   isPublished: boolean().notNull().default(false),
   createdAt: timestamp({ withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
