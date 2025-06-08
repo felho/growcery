@@ -2,7 +2,7 @@
 
 ### Important features
 
-- [ ] The reporting functionalities are not working for the QA comp matrix
+- [ ] We need to add a report functionality similar to the calibration view where simply we can see the level assessments of a group of people.
 - [ ] Check the manager group page: in the case of edit the already exisintg members should be at the top of the list.
 
 ### Small improvement ideas
