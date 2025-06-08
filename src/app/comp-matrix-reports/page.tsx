@@ -9,7 +9,6 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import useSWR from "swr";
-import { fetchFunctions } from "~/lib/client-api/functions";
 import { fetchOrgUnits } from "~/lib/client-api/org-units";
 import { fetchUserArchetypes } from "~/lib/client-api/user-archetypes";
 import { fetchCompMatrices } from "~/lib/client-api/comp-matrix";
@@ -50,7 +49,6 @@ const CompMatrixReportsPage = () => {
     number | null
   >(null);
 
-  const { data: functions = [] } = useSWR("/functions", fetchFunctions);
   const { data: orgUnits = [] } = useSWR("/org-units", fetchOrgUnits);
   const { data: archetypes = [] } = useSWR(
     "/user-archetypes",
@@ -291,8 +289,8 @@ const CompMatrixReportsPage = () => {
                 <SelectContent>
                   <SelectItem value="no-filter">No filter</SelectItem>
                   {buildHierarchicalOptions(orgUnits).map((ou) => (
-                    <SelectItem 
-                      key={ou.id} 
+                    <SelectItem
+                      key={ou.id}
                       value={ou.id.toString()}
                       textValue={ou.name} // Add textValue for keyboard navigation
                       data-name={ou.name} // Add data-name attribute for reference
