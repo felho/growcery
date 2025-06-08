@@ -11,10 +11,13 @@ import {
 } from "recharts";
 import { Card, CardHeader, CardTitle, CardContent } from "~/components/ui/card";
 import { cn } from "~/lib/utils";
+import { formatLevelCode } from "~/lib/format-utils";
 import type { CompMatrixLevelAssessment } from "~/zod-schemas/comp-matrix-level-assessment";
+import type { CompMatrixWithFullRelations } from "~/server/queries/comp-matrix";
 
 interface Props {
   data: CompMatrixLevelAssessment[];
+  selectedMatrix: CompMatrixWithFullRelations;
 }
 
 interface HistogramRow {
@@ -35,7 +38,7 @@ const areaKeys = [
 ] as const;
 const subColors = ["#dbeafe", "#60a5fa", "#1d4ed8"]; // sublevel 1 = light, 2 = mid, 3 = dark
 
-export function LevelHistogram({ data }: Props) {
+export function LevelHistogram({ data, selectedMatrix }: Props) {
   const histogramData = useMemo(() => {
     const initialAreaCounts = (): number[] => [0, 0, 0];
     const result: Record<number, HistogramRow> = {};
@@ -88,7 +91,10 @@ export function LevelHistogram({ data }: Props) {
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={histogramData}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="mainLevel" />
+            <XAxis 
+              dataKey="mainLevel" 
+              tickFormatter={(value) => formatLevelCode(selectedMatrix.levelCode, value)}
+            />
             <YAxis />
             {areaKeys.map((areaKey) =>
               [0, 1, 2].map((subIndex) => (

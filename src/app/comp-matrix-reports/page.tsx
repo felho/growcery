@@ -379,6 +379,7 @@ const CompMatrixReportsPage = () => {
         compMatrixLevelAssessments && (
           <LevelHistogram
             data={Object.values(compMatrixLevelAssessments).flat()}
+            selectedMatrix={selectedMatrix}
           />
         )}
     </div>

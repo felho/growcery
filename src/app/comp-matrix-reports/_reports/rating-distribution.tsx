@@ -6,6 +6,7 @@ import type { UserWithArchetype } from "~/server/queries/user";
 import type { OrgUnit } from "~/server/queries/org-unit";
 import type { UserArchetype } from "~/server/queries/user-archetype";
 import type { CompMatrixCurrentRating } from "~/server/queries/comp-matrix-current-rating";
+import { formatLevelCode } from "~/lib/format-utils";
 
 type Props = {
   selectedMatrix: CompMatrixWithFullRelations;
@@ -93,7 +94,7 @@ export function RatingDistributionReport({
               <th className="border px-4 py-2 text-left">Competency</th>
               {selectedMatrix.levels.map((level) => (
                 <th key={level.id} className="border px-4 py-2 text-center">
-                  {level.levelCode}
+                  {formatLevelCode(selectedMatrix.levelCode, level.numericLevel)}
                 </th>
               ))}
             </tr>
