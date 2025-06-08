@@ -30,6 +30,7 @@ import type { CompMatrix } from "~/server/queries/comp-matrix";
 import { CreateMatrixDialog } from "./_components/create-matrix-dialog";
 import { DeleteMatrixDialog } from "./_components/delete-matrix-dialog";
 import { toast } from "sonner";
+import Breadcrumbs from "../_components/breadcrumbs";
 
 const CompetencyMatrixList = () => {
   const router = useRouter();
@@ -66,7 +67,7 @@ const CompetencyMatrixList = () => {
 
   if (isLoadingMatrices || isLoadingFunctions) {
     return (
-      <div className="container mx-auto space-y-6 py-6">
+      <div className="animate-fade-in space-y-6">
         <div className="flex items-center justify-center py-8">
           <div className="text-muted-foreground">Loading...</div>
         </div>
@@ -76,7 +77,7 @@ const CompetencyMatrixList = () => {
 
   if (matricesError || functionsError) {
     return (
-      <div className="container mx-auto space-y-6 py-6">
+      <div className="animate-fade-in space-y-6">
         <div className="flex items-center justify-center py-8">
           <div className="text-destructive">Failed to load data</div>
         </div>
@@ -85,7 +86,8 @@ const CompetencyMatrixList = () => {
   }
 
   return (
-    <div className="container mx-auto space-y-6 py-6">
+    <div className="animate-fade-in space-y-6">
+      <Breadcrumbs />
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Competency Matrices</h1>
         <Button

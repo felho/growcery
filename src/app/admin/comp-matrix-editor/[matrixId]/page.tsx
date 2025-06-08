@@ -58,6 +58,7 @@ import { updateRatingOptionAction } from "~/server/actions/comp-matrix-rating-op
 import { reorderRatingOptionsAction } from "~/server/actions/comp-matrix-rating-option/reorder";
 import { reorderCompMatrixCompetenciesAction } from "~/server/actions/comp-matrix-competency/reorder";
 import type { CompMatrixCompetencyWithDefinitions } from "~/server/queries/comp-matrix-competency";
+import Breadcrumbs from "../../_components/breadcrumbs";
 
 interface LevelData {
   id: number;
@@ -581,7 +582,8 @@ const CompetencyMatrixEditor = () => {
   };
 
   return (
-    <div className="container mx-auto space-y-6 py-6">
+    <div className="animate-fade-in space-y-6">
+      <Breadcrumbs />
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Competency Matrix Editor</h1>
         <Button
