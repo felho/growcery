@@ -25,6 +25,7 @@ export async function getAllUsersWithActiveMatrixAssignmentsForOrg(
       createdAt: users.createdAt,
       updatedAt: users.updatedAt,
       managerId: users.managerId,
+      isManager: users.isManager,
       archetype: {
         id: userArchetypes.id,
         organizationId: userArchetypes.organizationId,
