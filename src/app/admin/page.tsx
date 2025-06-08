@@ -77,7 +77,7 @@ export default async function AdminPage() {
           value={stats.compMatrixCount}
           icon={<Grid3X3Icon className="text-primary h-5 w-5" />}
           description="Total competency matrices"
-          route="/admin/comp-matrix-editor"
+          route="/admin/comp-matrices"
         />
       </div>
 

@@ -588,7 +588,7 @@ const CompetencyMatrixEditor = () => {
         <h1 className="text-3xl font-bold">Competency Matrix Editor</h1>
         <Button
           variant="outline"
-          onClick={() => router.push("/admin/comp-matrix-editor")}
+          onClick={() => router.push("/admin/comp-matrices")}
           className="cursor-pointer"
         >
           Back to Matrices
