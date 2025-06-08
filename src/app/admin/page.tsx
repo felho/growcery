@@ -2,6 +2,7 @@ import {
   Users as UsersIcon,
   Settings as SettingsIcon,
   FolderTree as FolderTreeIcon,
+  Grid3X3Icon,
   PlusCircle as PlusCircleIcon,
   UserPlus as UserPlusIcon,
   FolderSymlink as FolderSymlinkIcon,
@@ -71,7 +72,13 @@ export default async function AdminPage() {
           description="Total manager groups"
           route="/admin/manager-groups"
         />
-        <StatCard title="" value="" icon="" description="" route="" />
+        <StatCard
+          title="Competency Matrices"
+          value={stats.compMatrixCount}
+          icon={<Grid3X3Icon className="text-primary h-5 w-5" />}
+          description="Total competency matrices"
+          route="/admin/comp-matrix-editor"
+        />
       </div>
 
       {/* Quick Actions */}
