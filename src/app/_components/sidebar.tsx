@@ -38,11 +38,6 @@ const Sidebar = ({ isOpen, hasBeenToggled }: SidebarProps) => {
       icon: <CalendarCheckIcon className="h-5 w-5" />,
     },
     {
-      name: "Comp Matrix Editor",
-      path: "/comp-matrix-editor*",
-      icon: <SettingsIcon className="h-5 w-5" />,
-    },
-    {
       name: "Comp Matrix Reports",
       path: "/comp-matrix-reports*",
       icon: <ChartAreaIcon className="h-5 w-5" />,
