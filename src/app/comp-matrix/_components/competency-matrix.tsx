@@ -116,7 +116,7 @@ export const CompetencyMatrix = ({
       <CardContent>
         {selectedEmployee ? (
           <div className="border-border overflow-hidden rounded-md border">
-            <CompetencyMatrixHeader levels={compMatrix?.levels ?? []} />
+            <CompetencyMatrixHeader levels={compMatrix?.levels ?? []} compMatrix={compMatrix} />
 
             {compMatrix?.areas?.map((area) => {
               return (
