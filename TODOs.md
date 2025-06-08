@@ -4,6 +4,7 @@
 
 - [ ] We need to add a report functionality similar to the calibration view where simply we can see the level assessments of a group of people.
 - [ ] Check the manager group page: in the case of edit the already exisintg members should be at the top of the list.
+- [ ] Under the admin page the different list pages don't look in a consistent way. Some older pages look a bit poorly. Also the headers of the tables used on these pages are not consistent. Probably we need a component used on all admin list pages.
 
 ### Small improvement ideas
 
