@@ -190,17 +190,33 @@ import {
   compMatrixDefinitions,
   compMatrixCompetencies,
   compMatrixLevels,
+  compMatrices,
 } from "~/server/db/schema";
+import { formatLevelCode } from "~/lib/format-utils";
 import { and, eq } from "drizzle-orm";
 
 export async function getDefinitionMap(
   matrixId: number,
 ): Promise<Map<string, number>> {
+  // Először lekérdezzük a mátrix levelCode mezőjét
+  const matrixResult = await db
+    .select({ levelCode: compMatrices.levelCode })
+    .from(compMatrices)
+    .where(eq(compMatrices.id, matrixId))
+    .limit(1);
+  
+  if (!matrixResult[0]) {
+    throw new Error(`Matrix not found with ID: ${matrixId}`);
+  }
+  
+  const matrixLevelCode = matrixResult[0].levelCode;
+  
+  // Lekérdezzük a definíciókat a szint numericLevel mezőjével együtt
   const rows = await db
     .select({
       id: compMatrixDefinitions.id,
       compTitle: compMatrixCompetencies.title,
-      levelCode: compMatrixLevels.levelCode,
+      numericLevel: compMatrixLevels.numericLevel,
     })
     .from(compMatrixDefinitions)
     .innerJoin(
@@ -218,8 +234,12 @@ export async function getDefinitionMap(
 
   const map = new Map<string, number>();
   for (const row of rows) {
-    // Map L1 to E1, etc.
-    const levelCode = row.levelCode.replace("L", "E");
+    // Generáljuk a kombinált levelCode-ot
+    const combinedLevelCode = formatLevelCode(matrixLevelCode, row.numericLevel);
+    
+    // Map L1 to E1, etc. (speciális importálási logika)
+    const levelCode = combinedLevelCode.replace(matrixLevelCode, "E");
+    
     map.set(`${row.compTitle}::${levelCode}`, row.id);
   }
 
