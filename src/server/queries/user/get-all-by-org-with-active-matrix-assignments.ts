@@ -3,11 +3,7 @@ import { and, asc, eq } from "drizzle-orm";
 import { users } from "~/server/db/schema/tables/users";
 import { userCompMatrixAssignments } from "~/server/db/schema/tables/user_comp_matrix_assignments";
 import { userArchetypes } from "~/server/db/schema/tables/user-archetypes";
-import type { UserWithArchetype } from "./index";
-
-export type UserWithArchetypeAndAssignments = UserWithArchetype & {
-  userCompMatrixAssignments: { id: number }[];
-};
+import type { UserWithArchetypeAndAssignments } from "./index";
 
 export async function getAllUsersWithActiveMatrixAssignmentsForOrg(
   organizationId: number,
