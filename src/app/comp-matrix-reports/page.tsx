@@ -90,31 +90,37 @@ const CompMatrixReportsPage = () => {
 
   // Filter users by matrix, org unit (and children), and archetype
   const getFilteredEmployees = (): UserWithArchetypeAndAssignments[] => {
-    if (!selectedMatrixId) return [];
+  if (!selectedMatrixId) return [];
 
-    if (selectedOrgUnit === null && selectedArchetype === null) {
-      return users;
-    }
+  // First filter users who have an assignment for the selected matrix
+  const usersWithSelectedMatrix = users.filter((user) =>
+    user.userCompMatrixAssignments?.some((assignment) => assignment.compMatrixId === selectedMatrixId)
+  );
 
-    return users.filter((user) => {
-      if (selectedOrgUnit !== null) {
-        const childOrgUnits = getAllChildOrgUnits(selectedOrgUnit);
-        if (
-          user.orgUnitId !== selectedOrgUnit &&
-          !childOrgUnits.includes(user.orgUnitId as number)
-        ) {
-          return false;
-        }
-      }
+  // If no org unit or archetype filter, return all users with the selected matrix assignment
+  if (selectedOrgUnit === null && selectedArchetype === null) {
+    return usersWithSelectedMatrix;
+  }
+
+  return usersWithSelectedMatrix.filter((user) => {
+    if (selectedOrgUnit !== null) {
+      const childOrgUnits = getAllChildOrgUnits(selectedOrgUnit);
       if (
-        selectedArchetype !== null &&
-        user.archetypeId !== selectedArchetype
+        user.orgUnitId !== selectedOrgUnit &&
+        !childOrgUnits.includes(user.orgUnitId as number)
       ) {
         return false;
       }
-      return true;
-    });
-  };
+    }
+    if (
+      selectedArchetype !== null &&
+      user.archetypeId !== selectedArchetype
+    ) {
+      return false;
+    }
+    return true;
+  });
+};
 
   const filteredEmployees = getFilteredEmployees();
   const userIds = filteredEmployees.map((u) => u.id);
