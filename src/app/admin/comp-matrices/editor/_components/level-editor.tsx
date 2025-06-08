@@ -64,8 +64,7 @@ export const LevelEditor = ({
   onAddLevel,
   onDeleteLevel,
 }: LevelEditorProps) => {
-  const params = useParams();
-  const matrixId = Number(params.matrixId);
+  const matrixId = propMatrixId;
 
   const [showNewLevelForm, setShowNewLevelForm] = useState(false);
   const [insertPosition, setInsertPosition] = useState<number | undefined>();

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -80,8 +80,8 @@ interface MatrixMetadata {
 
 const CompetencyMatrixEditor = () => {
   const router = useRouter();
-  const params = useParams();
-  const matrixId = params.matrixId as string;
+  const searchParams = useSearchParams();
+  const matrixId = searchParams.get("matrixId") as string;
   const [matrix, setMatrix] = useState<CompMatrixWithFullRelations | null>(
     null,
   );

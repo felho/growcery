@@ -57,7 +57,7 @@ export function CreateMatrixDialog({
   const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
-      await createCompMatrix({
+      const created = await createCompMatrix({
         title: newMatrix.name,
         functionId: Number(newMatrix.functionId),
         isPublished: newMatrix.published,
@@ -68,6 +68,9 @@ export function CreateMatrixDialog({
       onOpenChange(false);
       await mutate("/comp-matrices");
       onSubmit();
+      if (created && created.id) {
+        router.push(`/admin/comp-matrices/editor?matrixId=${created.id}`);
+      }
     } catch (error) {
       console.error("Failed to create matrix:", error);
       toast.error("Failed to create competency matrix");
