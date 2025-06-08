@@ -14,7 +14,7 @@ export type UserWithArchetype = User & {
 };
 
 export type UserWithArchetypeAndAssignments = UserWithArchetype & {
-  userCompMatrixAssignments: { id: number }[];
+  userCompMatrixAssignments: { id: number; compMatrixId: number }[];
 };
 
 export type UserWithCalibrationData = User & {

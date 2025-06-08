@@ -29,6 +29,7 @@ export async function getAllUsersWithActiveMatrixAssignmentsForOrg(
         description: userArchetypes.description,
       },
       assignmentId: userCompMatrixAssignments.id,
+      compMatrixId: userCompMatrixAssignments.compMatrixId,
     })
     .from(users)
     .innerJoin(
@@ -49,12 +50,20 @@ export async function getAllUsersWithActiveMatrixAssignmentsForOrg(
   for (const row of results) {
     const existing = userMap.get(row.id);
     if (existing) {
-      existing.userCompMatrixAssignments.push({ id: row.assignmentId });
+      existing.userCompMatrixAssignments.push({
+        id: row.assignmentId,
+        compMatrixId: row.compMatrixId,
+      });
     } else {
       userMap.set(row.id, {
         ...row,
         archetype: row.archetype ?? null,
-        userCompMatrixAssignments: [{ id: row.assignmentId }],
+        userCompMatrixAssignments: [
+          {
+            id: row.assignmentId,
+            compMatrixId: row.compMatrixId,
+          },
+        ],
       });
     }
   }
