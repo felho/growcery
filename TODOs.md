@@ -2,7 +2,7 @@
 
 ### Important features
 
-- [ ] Look after how the level code is currently generated when a level is created.
+- [ ] The reporting functionalities are not working for the QA comp matrix
 - [ ] Check the manager group page: in the case of edit the already exisintg members should be at the top of the list.
 
 ### Small improvement ideas
