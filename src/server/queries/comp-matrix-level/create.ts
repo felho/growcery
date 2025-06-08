@@ -47,7 +47,6 @@ export async function createLevel(input: CreateLevelInput) {
       roleSummary: description,
       persona,
       areaOfImpact,
-      levelCode: `L${nextNumericLevel}`,
     })
     .returning();
 

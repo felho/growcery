@@ -9,7 +9,6 @@ export const compMatrixLevels = createTable("comp_matrix_levels", {
     .references(() => compMatrices.id),
   numericLevel: integer().notNull(),
   jobTitle: varchar({ length: 50 }).notNull(),
-  levelCode: varchar({ length: 10 }).notNull(),
   persona: varchar({ length: 50 }),
   roleSummary: varchar({ length: 1000 }).notNull(),
   areaOfImpact: varchar({ length: 200 }),

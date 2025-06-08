@@ -12,7 +12,6 @@ async function seed() {
       compMatrixId: 1,
       numericLevel: 1,
       jobTitle: "Associate Engineer",
-      levelCode: "E1",
       persona: "Apprentice",
       roleSummary:
         "Passionate newcomer who is committed to high quality and learning with guidance. Focused on solving problems and growing professionally.",
@@ -23,7 +22,6 @@ async function seed() {
       compMatrixId: 1,
       numericLevel: 2,
       jobTitle: "Engineer",
-      levelCode: "E2",
       persona: "Journeyman",
       roleSummary:
         "Self-sufficient developer with a focus on consistent delivery and expanding their area of expertise.",
@@ -34,7 +32,6 @@ async function seed() {
       compMatrixId: 1,
       numericLevel: 3,
       jobTitle: "Senior Engineer",
-      levelCode: "E3",
       persona: "Craftsman",
       roleSummary:
         "Highly skilled developer, fully capable of working independently but also pairing with team mates to offer guidance. A role model for other engineers on the team, embodies our engineering culture and values. Focuses on delivering value via product increments, rather than solving problems with engineering.",
@@ -45,7 +42,6 @@ async function seed() {
       compMatrixId: 1,
       numericLevel: 4,
       jobTitle: "Staff Engineer",
-      levelCode: "E4",
       persona: "Booster",
       roleSummary:
         'A true master of their craft, adept at designing complex systems with stability, scalability, and security in mind. Keeps an eye on "the big picture" and other teams\' work. Has a firm grasp on the system\'s overall architecture and assists with technical discussions and decisions. Boosts their team\'s impact by actively looking for ways to reduce complexity, enabling them to achieve big results with the least possible effort.\n\nHow to recognize:\nWhen plucked from a team and put into another, the other team suddenly "grows wings" and starts to soar.',
@@ -56,7 +52,6 @@ async function seed() {
       compMatrixId: 1,
       numericLevel: 5,
       jobTitle: "Senior Staff Engineer",
-      levelCode: "E5",
       persona: "Multiplier",
       roleSummary:
         "A cross-team strategist, enabling the next level of scalability and productivity for several teams. Plays an architectural role in cross-team projects and drives long-term technology changes involving multiple teams. Shapes overall system architecture, identifies and drives system-level improvements. Provides guidance in technical debates. Multiplies the impact of teams.\n\nHow to recognize:\nThey're the ones pairing with developers from other teams, leading guilds, organizing coding dojos, etc.",
@@ -67,7 +62,6 @@ async function seed() {
       compMatrixId: 1,
       numericLevel: 6,
       jobTitle: "Principal Engineer",
-      levelCode: "E6",
       persona: "Visionary",
       roleSummary:
         "A beacon of experience and expertise, enabling business innovation through setting the company-wide technology direction for years to come. Architects entire systems, introduces policies and processes that boost organizational productivity. Leads internal conversations on technology direction and strategy. Serves as a role model and mentor for all engineers, fostering growth and development.\n\nHow to recognize:\nThey're the ones organizing company-wide knowledge sharing events (e.g. TDD workshop, coding dojos, Hackathon), writing RFCs about new technologies, creating POCs using new tools and services, etc.",
