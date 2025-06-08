@@ -10,20 +10,15 @@ export async function fetchCompMatrixCurrentRating(
   return res.json();
 }
 
-export async function fetchCompMatrixCurrentRatingsByUserIds(
-  userIds: number[],
-): Promise<any> {
-  const res = await fetch("/api/comp-matrix-current-ratings/by-user-ids", {
+export async function fetchCompMatrixCurrentRatingsByAssignmentIds(assignmentIds: number[]) {
+  if (!assignmentIds.length) return [];
+  const res = await fetch("/api/comp-matrix-current-ratings/by-assignment-ids", {
     method: "POST",
+    body: JSON.stringify({ assignmentIds }),
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ userIds }),
   });
-
-  if (!res.ok) {
-    throw new Error("Failed to fetch comp matrix ratings for users");
-  }
-
+  if (!res.ok) throw new Error("Failed to fetch current ratings");
   return res.json();
 }

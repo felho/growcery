@@ -14,7 +14,7 @@ import { fetchUserArchetypes } from "~/lib/client-api/user-archetypes";
 import { fetchCompMatrices } from "~/lib/client-api/comp-matrix";
 import { fetchUsersWithActiveMatrixAssignments } from "~/lib/client-api/users";
 import { fetchCompMatrixLevelAssessmentsByAssignmentIds } from "~/lib/client-api/comp-matrix-level-assessments";
-import { fetchCompMatrixCurrentRatingsByUserIds } from "~/lib/client-api/comp-matrix-current-rating";
+import { fetchCompMatrixCurrentRatingsByAssignmentIds } from "~/lib/client-api/comp-matrix-current-rating";
 import { fetchCompMatrix } from "~/lib/client-api/comp-matrix";
 import type { UserWithArchetypeAndAssignments } from "~/server/queries/user";
 import type { CompMatrixWithFullRelations } from "~/server/queries/comp-matrix";
@@ -90,55 +90,52 @@ const CompMatrixReportsPage = () => {
 
   // Filter users by matrix, org unit (and children), and archetype
   const getFilteredEmployees = (): UserWithArchetypeAndAssignments[] => {
-  if (!selectedMatrixId) return [];
+    if (!selectedMatrixId) return [];
 
-  // First filter users who have an assignment for the selected matrix
-  const usersWithSelectedMatrix = users.filter((user) =>
-    user.userCompMatrixAssignments?.some((assignment) => assignment.compMatrixId === selectedMatrixId)
-  );
+    // First filter users who have an assignment for the selected matrix
+    const usersWithSelectedMatrix = users.filter((user) =>
+      user.userCompMatrixAssignments?.some(
+        (assignment) => assignment.compMatrixId === selectedMatrixId,
+      ),
+    );
 
-  // If no org unit or archetype filter, return all users with the selected matrix assignment
-  if (selectedOrgUnit === null && selectedArchetype === null) {
-    return usersWithSelectedMatrix;
-  }
+    // If no org unit or archetype filter, return all users with the selected matrix assignment
+    if (selectedOrgUnit === null && selectedArchetype === null) {
+      return usersWithSelectedMatrix;
+    }
 
-  return usersWithSelectedMatrix.filter((user) => {
-    if (selectedOrgUnit !== null) {
-      const childOrgUnits = getAllChildOrgUnits(selectedOrgUnit);
+    return usersWithSelectedMatrix.filter((user) => {
+      if (selectedOrgUnit !== null) {
+        const childOrgUnits = getAllChildOrgUnits(selectedOrgUnit);
+        if (
+          user.orgUnitId !== selectedOrgUnit &&
+          !childOrgUnits.includes(user.orgUnitId as number)
+        ) {
+          return false;
+        }
+      }
       if (
-        user.orgUnitId !== selectedOrgUnit &&
-        !childOrgUnits.includes(user.orgUnitId as number)
+        selectedArchetype !== null &&
+        user.archetypeId !== selectedArchetype
       ) {
         return false;
       }
-    }
-    if (
-      selectedArchetype !== null &&
-      user.archetypeId !== selectedArchetype
-    ) {
-      return false;
-    }
-    return true;
-  });
-};
+      return true;
+    });
+  };
 
   const filteredEmployees = getFilteredEmployees();
-  const userIds = filteredEmployees.map((u) => u.id);
-
-  // compMatrixCurrentRatings should be an array of current rating records
-  const { data: compMatrixCurrentRatings } = useSWR(
-    userIds.length > 0 && selectedMatrixId !== null
-      ? [
-          "/api/comp-matrix-current-ratings/by-user-ids",
-          userIds.sort().join(","),
-        ]
-      : null,
-    () => fetchCompMatrixCurrentRatingsByUserIds(userIds),
-  );
-
   // SWR for compMatrixLevelAssessments by assignmentIds
   const assignmentIds = filteredEmployees.flatMap(
     (u) => u.userCompMatrixAssignments?.map((a) => a.id) ?? [],
+  );
+
+  // compMatrixCurrentRatings should be an array of current rating records
+  const { data: compMatrixCurrentRatings = [] } = useSWR(
+    assignmentIds.length
+      ? ["/comp-matrix-current-ratings/by-assignment-ids", assignmentIds]
+      : null,
+    () => fetchCompMatrixCurrentRatingsByAssignmentIds(assignmentIds),
   );
 
   const { data: compMatrixLevelAssessments } = useSWR(

@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { getCurrentRatingsByUserIds } from "~/server/queries/comp-matrix-current-rating/get-by-user-ids";
+import { getCurrentRatingsByAssignmentIds } from "~/server/queries/comp-matrix-current-rating/get-by-assignment-ids";
 
 const bodySchema = z.object({
-  userIds: z.array(z.number()),
+  assignmentIds: z.array(z.number()),
 });
 
 export async function POST(req: NextRequest) {
@@ -15,9 +15,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(parseResult.error.format(), { status: 400 });
     }
 
-    const userIds = parseResult.data.userIds;
+    const assignmentIds = parseResult.data.assignmentIds;
+    console.log("assignmentIds", assignmentIds);
 
-    const data = await getCurrentRatingsByUserIds(userIds);
+    const data = await getCurrentRatingsByAssignmentIds(assignmentIds);
+    console.log("data", data);
     return NextResponse.json(data);
   } catch (err) {
     console.error("Failed to fetch ratings for userIds via POST:", err);
