@@ -586,7 +586,7 @@ const CompetencyMatrixEditor = () => {
         <h1 className="text-3xl font-bold">Competency Matrix Editor</h1>
         <Button
           variant="outline"
-          onClick={() => router.push("/comp-matrix-editor")}
+          onClick={() => router.push("/admin/comp-matrix-editor")}
           className="cursor-pointer"
         >
           Back to Matrices
@@ -667,14 +667,18 @@ const CompetencyMatrixEditor = () => {
                 <Input
                   id="levelCode"
                   value={metadata.levelCode}
-                  onChange={(e) => handleMetadataChange("levelCode", e.target.value)}
+                  onChange={(e) =>
+                    handleMetadataChange("levelCode", e.target.value)
+                  }
                   maxLength={10}
                   placeholder="pl. L"
                 />
               ) : (
                 <p className="text-lg font-medium">{matrix.levelCode || "L"}</p>
               )}
-              <p className="text-sm text-muted-foreground">Prefix for levels in the matrix (e.g. L1, L2, etc.)</p>
+              <p className="text-muted-foreground text-sm">
+                Prefix for levels in the matrix (e.g. L1, L2, etc.)
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
