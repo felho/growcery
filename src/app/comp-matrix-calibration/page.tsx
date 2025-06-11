@@ -55,6 +55,11 @@ type CalibrationUserData = UserWithCalibrationData & {
 const CalibrationMeeting = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  
+  // Helper function to get overall rating for a user
+  const getOverall = (u: UserWithCalibrationData) =>
+    u.levelAssessments?.find((la) => la.isGeneral)?.mainLevel ?? 0;
+    
   const [selectedManagerGroup, setSelectedManagerGroup] = useState<string>("");
   const [selectedMatrix, setSelectedMatrix] = useState<string>("");
   const [calibrationData, setCalibrationData] = useState<CalibrationUserData[]>(
@@ -398,18 +403,13 @@ const CalibrationMeeting = () => {
 
       const matchesOverallRating =
         filters.overallRating === "all" ||
-        user.levelAssessments
-          ?.find((la) => la.isGeneral)
-          ?.mainLevel.toString() === filters.overallRating;
+        getOverall(user).toString() === filters.overallRating;
 
       return matchesOrgUnit && matchesArchetype && matchesOverallRating;
     });
 
     if (sortConfig) {
       filtered.sort((a, b) => {
-        const getOverall = (u: UserWithCalibrationData) =>
-          u.levelAssessments?.find((la) => la.isGeneral)?.mainLevel ?? 0;
-
         const getAreaRating = (u: UserWithCalibrationData, areaId: number) =>
           u.levelAssessments?.find(
             (la) => la.compMatrixAreaId === areaId && !la.isGeneral,
@@ -834,6 +834,12 @@ const CalibrationMeeting = () => {
                           // Add archetypeId if available
                           if (person.archetype?.id) {
                             matrixUrl += `&archetypeId=${person.archetype.id}`;
+                          }
+                          
+                          // Add overall rating if available
+                          const overallRating = getOverall(person);
+                          if (overallRating) {
+                            matrixUrl += `&overallRating=${overallRating}`;
                           }
 
                           // Check if command (Mac) or control (Windows) key is pressed
