@@ -37,29 +37,36 @@ import type { Function } from "~/server/queries/function";
 import type { OrgUnit } from "~/server/queries/org-unit";
 import type { UserWithArchetype } from "~/server/queries/user";
 import type { UserArchetype } from "~/server/queries/user-archetype";
-import { fetchCompMatrixLevelAssessments } from "~/lib/client-api/comp-matrix-level-assessments";
+import {
+  fetchCompMatrixLevelAssessments,
+  fetchCompMatrixLevelAssessmentsByAssignmentIds,
+} from "~/lib/client-api/comp-matrix-level-assessments";
 import type { CompMatrixLevelAssessment } from "~/zod-schemas/comp-matrix-level-assessment";
 
 const CompMatrixPage = () => {
   const searchParams = useSearchParams();
-  
+
   // Get URL parameters
-  const userIdParam = searchParams.get('userId');
-  const viewModeParam = searchParams.get('viewMode') as ViewMode | null;
-  const phaseParam = searchParams.get('phase') as Phase | null;
-  const orgUnitIdParam = searchParams.get('orgUnitId');
-  const archetypeIdParam = searchParams.get('archetypeId');
-  
+  const userIdParam = searchParams.get("userId");
+  const viewModeParam = searchParams.get("viewMode") as ViewMode | null;
+  const phaseParam = searchParams.get("phase") as Phase | null;
+  const orgUnitIdParam = searchParams.get("orgUnitId");
+  const archetypeIdParam = searchParams.get("archetypeId");
+
   // Validate viewMode parameter
-  const isValidViewMode = (mode: string | null): mode is ViewMode => 
-    mode === 'employee' || mode === 'manager';
-  
+  const isValidViewMode = (mode: string | null): mode is ViewMode =>
+    mode === "employee" || mode === "manager";
+
   // Validate phase parameter
-  const isValidPhase = (p: string | null): p is Phase => 
-    p === 'assessment' || p === 'joint-discussion' || p === 'calibration';
-  
-  const [phase, setPhase] = useState<Phase>(isValidPhase(phaseParam) ? phaseParam : "assessment");
-  const [viewMode, setViewMode] = useState<ViewMode>(isValidViewMode(viewModeParam) ? viewModeParam : "employee");
+  const isValidPhase = (p: string | null): p is Phase =>
+    p === "assessment" || p === "joint-discussion" || p === "calibration";
+
+  const [phase, setPhase] = useState<Phase>(
+    isValidPhase(phaseParam) ? phaseParam : "assessment",
+  );
+  const [viewMode, setViewMode] = useState<ViewMode>(
+    isValidViewMode(viewModeParam) ? viewModeParam : "employee",
+  );
   const [isMatrixLoaded, setIsMatrixLoaded] = useState(false);
 
   // Selection state
@@ -69,6 +76,9 @@ const CompMatrixPage = () => {
   const [selectedArchetype, setSelectedArchetype] = useState<number | null>(
     null,
   );
+  const [selectedOverallRating, setSelectedOverallRating] = useState<
+    string | null
+  >(null);
 
   // Fetch data
   const { data: functions = [] } = useSWR<Function[]>(
@@ -92,21 +102,21 @@ const CompMatrixPage = () => {
   useEffect(() => {
     // Default: all selects start with "No filter" selected
     setSelectedFunction(null);
-    
+
     // If orgUnitId parameter is provided, set the selected org unit
     if (orgUnitIdParam && !isNaN(parseInt(orgUnitIdParam))) {
       setSelectedOrgUnit(parseInt(orgUnitIdParam));
     } else {
       setSelectedOrgUnit(null);
     }
-    
+
     // If archetypeId parameter is provided, set the selected archetype
     if (archetypeIdParam && !isNaN(parseInt(archetypeIdParam))) {
       setSelectedArchetype(parseInt(archetypeIdParam));
     } else {
       setSelectedArchetype(null);
     }
-    
+
     // If userId parameter is provided, set the selected employee
     if (userIdParam && !isNaN(parseInt(userIdParam))) {
       const userId = parseInt(userIdParam);
@@ -115,22 +125,22 @@ const CompMatrixPage = () => {
       setSelectedEmployee(null);
     }
   }, [userIdParam, orgUnitIdParam, archetypeIdParam]);
-  
+
   // Auto-load matrix when userId is provided via URL parameter
   useEffect(() => {
     // Only auto-load if we have a valid userId and the data is loaded (users array is populated)
     if (userIdParam && users.length > 0 && selectedEmployee) {
-      const userExists = users.some(user => user.id === selectedEmployee);
+      const userExists = users.some((user) => user.id === selectedEmployee);
       if (userExists) {
         handleLoadMatrix();
       }
     }
   }, [users, selectedEmployee, userIdParam]);
-  
+
   // Update function filter when employee is selected and has data
   useEffect(() => {
     if (selectedEmployee && users.length > 0) {
-      const employee = users.find(user => user.id === selectedEmployee);
+      const employee = users.find((user) => user.id === selectedEmployee);
       if (employee?.functionId) {
         setSelectedFunction(employee.functionId);
       }
@@ -214,46 +224,7 @@ const CompMatrixPage = () => {
     return [...directChildren, ...childrenOfChildren];
   };
 
-  // Get filtered employees based on selected filters
-  const getFilteredEmployees = (): UserWithArchetype[] => {
-    // If no filters are selected, return all users
-    if (
-      selectedFunction === null &&
-      selectedOrgUnit === null &&
-      selectedArchetype === null
-    ) {
-      return users;
-    }
-
-    return users.filter((user) => {
-      // Filter by function if selected
-      if (selectedFunction !== null && user.functionId !== selectedFunction) {
-        return false;
-      }
-      // Filter by org unit if selected (including child org units)
-      if (selectedOrgUnit !== null) {
-        const childOrgUnits = getAllChildOrgUnits(selectedOrgUnit as number);
-        if (
-          user.orgUnitId !== selectedOrgUnit &&
-          !childOrgUnits.includes(user.orgUnitId as number)
-        ) {
-          return false;
-        }
-      }
-      // Filter by archetype if selected
-      if (
-        selectedArchetype !== null &&
-        user.archetypeId !== selectedArchetype
-      ) {
-        return false;
-      }
-      return true;
-    });
-  };
-
-  const referenceUserIds = getFilteredEmployees()
-    .filter((u) => u.id !== selectedEmployee)
-    .map((u) => u.id);
+  // --- All state declarations above this line ---
 
   // Get current function based on selected employee
   const getCurrentFunction = (): Function | undefined => {
@@ -278,6 +249,84 @@ const CompMatrixPage = () => {
   const [levelAssessments, setLevelAssessments] = useState<
     CompMatrixLevelAssessment[]
   >([]);
+
+  // State for storing all level assessments for all users
+  const [allLevelAssessments, setAllLevelAssessments] = useState<
+    Record<number, CompMatrixLevelAssessment[]>
+  >({});
+
+  // Load all level assessments for all users
+  useEffect(() => {
+    const loadAllLevelAssessments = async () => {
+      try {
+        // Collect all assignment IDs
+        const assignmentIds = users
+          .filter(
+            (user) =>
+              Array.isArray((user as any).userCompMatrixAssignments) &&
+              (user as any).userCompMatrixAssignments.length > 0,
+          )
+          .map((user) => (user as any).userCompMatrixAssignments[0].id);
+
+        if (assignmentIds.length === 0) return;
+
+        // Fetch all level assessments
+        const assessments =
+          await fetchCompMatrixLevelAssessmentsByAssignmentIds(assignmentIds);
+        setAllLevelAssessments(assessments);
+      } catch (error) {
+        console.error("Error loading all level assessments:", error);
+      }
+    };
+
+    if (users.length > 0) {
+      loadAllLevelAssessments();
+    }
+  }, [users]);
+
+  // Get filtered employees based on selected filters
+  const getFilteredEmployees = (): UserWithArchetype[] => {
+    return users.filter((user) => {
+      // Filter by function if selected
+      if (selectedFunction !== null && user.functionId !== selectedFunction)
+        return false;
+      // Filter by org unit if selected
+      if (selectedOrgUnit !== null) {
+        const childOrgUnits = getAllChildOrgUnits(selectedOrgUnit as number);
+        if (
+          user.orgUnitId !== selectedOrgUnit &&
+          !childOrgUnits.includes(user.orgUnitId as number)
+        )
+          return false;
+      }
+      // Filter by archetype if selected
+      if (selectedArchetype !== null && user.archetypeId !== selectedArchetype)
+        return false;
+      // Filter by overall rating if selected
+      if (selectedOverallRating && selectedOverallRating !== "no-filter") {
+        // Find the general (overall) level assessment for the user's active assignment
+        const assignments = (user as any).userCompMatrixAssignments as
+          | { id: number }[]
+          | undefined;
+        const assignmentId = assignments?.[0]?.id;
+        if (!assignmentId) return false;
+
+        // Get the user's level assessments from the allLevelAssessments state
+        const userAssessments = allLevelAssessments[assignmentId] || [];
+        const overall = userAssessments.find((la) => la.isGeneral);
+
+        if (!overall) return false;
+        const mainLevel = overall.mainLevel;
+        if (mainLevel?.toString() !== selectedOverallRating) return false;
+      }
+      return true;
+    });
+  };
+
+  // Reference user IDs for comparison in the matrix
+  const referenceUserIds = getFilteredEmployees()
+    .filter((u) => u.id !== selectedEmployee)
+    .map((u) => u.id);
 
   const handleLoadMatrix = async () => {
     if (!selectedEmployee) {
@@ -480,8 +529,8 @@ const CompMatrixPage = () => {
                 <SelectContent>
                   <SelectItem value="no-filter">No filter</SelectItem>
                   {getHierarchicalOrgUnitOptions().map((orgUnit) => (
-                    <SelectItem 
-                      key={orgUnit.id} 
+                    <SelectItem
+                      key={orgUnit.id}
                       value={orgUnit.id.toString()}
                       textValue={orgUnit.name} // Add textValue for keyboard navigation
                       data-name={orgUnit.name} // Add data-name attribute for reference
@@ -520,6 +569,34 @@ const CompMatrixPage = () => {
                     >
                       {archetype.name}
                     </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex-1">
+              <label
+                className="text-muted-foreground mb-1 ml-1 flex items-center text-sm font-medium"
+                htmlFor="overall-rating-select"
+              >
+                <FilterIcon className="mr-2 h-4 w-4" />
+                Overall Rating
+              </label>
+              <Select
+                value={selectedOverallRating || "no-filter"}
+                onValueChange={(value) =>
+                  setSelectedOverallRating(value === "no-filter" ? null : value)
+                }
+              >
+                <SelectTrigger className="w-full" id="overall-rating-select">
+                  <SelectValue placeholder="Select overall rating" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="no-filter">No filter</SelectItem>
+                  {[1, 2, 3, 4, 5, 6].map((num) => (
+                    <SelectItem
+                      key={num}
+                      value={num.toString()}
+                    >{`${num}.x`}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
