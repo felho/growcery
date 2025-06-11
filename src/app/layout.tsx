@@ -8,7 +8,7 @@ import MainLayout from "./_components/main-layout";
 import { Toaster } from "~/components/ui/sonner";
 
 export const metadata: Metadata = {
-  title: "GROWcery",
+  title: "GROWery",
   description: "GROW people to their fullest potential",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
