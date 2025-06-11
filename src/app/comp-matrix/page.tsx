@@ -52,6 +52,7 @@ const CompMatrixPage = () => {
   const phaseParam = searchParams.get("phase") as Phase | null;
   const orgUnitIdParam = searchParams.get("orgUnitId");
   const archetypeIdParam = searchParams.get("archetypeId");
+  const overallRatingParam = searchParams.get("overallRating");
 
   // Validate viewMode parameter
   const isValidViewMode = (mode: string | null): mode is ViewMode =>
@@ -116,6 +117,13 @@ const CompMatrixPage = () => {
     } else {
       setSelectedArchetype(null);
     }
+    
+    // If overallRating parameter is provided, set the selected overall rating
+    if (overallRatingParam && ["1", "2", "3", "4", "5", "6"].includes(overallRatingParam)) {
+      setSelectedOverallRating(overallRatingParam);
+    } else {
+      setSelectedOverallRating(null);
+    }
 
     // If userId parameter is provided, set the selected employee
     if (userIdParam && !isNaN(parseInt(userIdParam))) {
@@ -177,6 +185,10 @@ const CompMatrixPage = () => {
     setSelectedArchetype(
       archetypeId === "no-filter" ? null : parseInt(archetypeId),
     );
+  };
+  
+  const handleOverallRatingChange = (value: string) => {
+    setSelectedOverallRating(value === "no-filter" ? null : value);
   };
 
   const getCurrentEmployee = (): UserWithArchetype | undefined => {
@@ -583,9 +595,7 @@ const CompMatrixPage = () => {
               </label>
               <Select
                 value={selectedOverallRating || "no-filter"}
-                onValueChange={(value) =>
-                  setSelectedOverallRating(value === "no-filter" ? null : value)
-                }
+                onValueChange={handleOverallRatingChange}
               >
                 <SelectTrigger className="w-full" id="overall-rating-select">
                   <SelectValue placeholder="Select overall rating" />
