@@ -37,6 +37,27 @@ GROWcery is a Next.js application for competency matrix management and employee 
 - **State Management**: SWR for data fetching
 - **Package Manager**: pnpm
 
+## Code Style & Conventions
+
+### File Naming
+- Use kebab-case for React component files (e.g., `user-card.tsx`)
+- Use singular names for Zod schemas and server action/query directories
+- Use plural names for API routes (e.g., `/api/users`)
+
+### Import Organization
+- React imports first, then external libraries, then internal modules
+- Use named exports for components
+- Maintain consistent code formatting using Prettier
+
+### Component Guidelines
+- Use "use client" directive only when necessary for client components
+- Correctly determine when to use server vs. client components in Next.js
+- Keep reusable UI components in `components/ui/` directory
+
+### Security
+- Follow OWASP top 10 security practices
+- Never expose sensitive data in client-side code
+
 ## Key Architecture Patterns
 
 ### Database Layer (`server/db/`)
@@ -57,6 +78,7 @@ GROWcery is a Next.js application for competency matrix management and employee 
 - **Structure**: One file per entity
 - **Validation**: Uses Zod schemas from `~/zod-schemas/`
 - **Dependencies**: Imports from corresponding `queries` modules
+- **Separation**: Should not include DB managing code directly - use queries/mutations from `server/db/queries`
 
 ### Client API Layer (`lib/client-api/`)
 - **Structure**: One file per entity
@@ -74,6 +96,7 @@ GROWcery is a Next.js application for competency matrix management and employee 
 - **Modes**: Handles both create and edit based on query params
 - **Components**: Uses `InputWithLabel`, `SelectWithLabel`, `TextareaWithLabel`
 - **Validation**: Uses `react-hook-form` with `zodResolver`
+- **Data Fetching**: Use SWR for loading data from database to UI
 
 ## Core Domain Models
 
